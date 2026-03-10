@@ -33,7 +33,10 @@ self.addEventListener('install', (event) => {
           ]);
         });
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('Service Worker installed and ready');
+        return self.skipWaiting();
+      })
   );
 });
 
@@ -54,6 +57,11 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   // For beachData.json, try network first, fallback to cache
   if (event.request.url.includes('data/beachData.json')) {
     event.respondWith(
@@ -74,25 +82,40 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For other assets, cache first strategy
+  // For all other assets, cache first strategy
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
+        // Return cached version if available
         if (response) {
           return response;
         }
-        return fetch(event.request).then((response) => {
-          // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type === 'error') {
+        
+        // Otherwise fetch from network
+        return fetch(event.request)
+          .then((response) => {
+            // Don't cache non-successful responses
+            if (!response || response.status !== 200 || response.type === 'error') {
+              return response;
+            }
+            
+            // Clone and cache successful responses
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
             return response;
-          }
-          // Clone and cache
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
+          })
+          .catch(() => {
+            // If everything fails and it's a navigation request, serve index.html
+            if (event.request.mode === 'navigate') {
+              return caches.match('./index.html');
+            }
+            return new Response('Offline - resource not available', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
           });
-          return response;
-        });
       })
   );
 });
