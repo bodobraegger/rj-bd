@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    # Run every Monday at 6 AM UTC (3 AM Rio time)
-    - cron: '0 6 * * 1'
+    # Run every Wednesday at 22:00 UTC (19:00 Rio time / 7 PM)
+    - cron: '0 22 * * 3'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
       
       - name: Download latest INEA bulletins
         run: |
-          # Try to download bulletin from the last 7 days
+          # Try to find bulletin from the last 7 days
           SUCCESS=0
           for days_ago in {0..7}; do
             # Calculate date
@@ -52,14 +52,17 @@ jobs:
             
             FILENAME="Zona-oeste-e-Zona-sul-${DATE}.pdf"
             URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME}"
-            echo "Trying: $URL"
             
-            if curl -f -L "$URL" -o "${FILENAME}" 2>/dev/null; then
-              echo "✓ Downloaded bulletin from $DATE as ${FILENAME}"
-              # Create symlink for script compatibility
+            # Check if file exists with HEAD request (fast, doesn't download)
+            if curl -f -s -I "$URL" > /dev/null 2>&1; then
+              echo "✓ Found bulletin at $URL"
+              # Now actually download it
+              curl -f -L "$URL" -o "${FILENAME}"
               ln -sf "${FILENAME}" latest-bulletin.pdf
               SUCCESS=1
               break
+            else
+              echo "  Bulletin not found for $DATE"
             fi
           done
           
