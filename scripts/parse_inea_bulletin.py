@@ -121,9 +121,14 @@ def parse_beach_status(text, bulletin_date):
 
 def parse_bulletin(pdf_path):
     """Main parsing function"""
+    import os
+    
+    # Resolve symlink if present to get the actual filename with date
+    actual_path = os.path.realpath(pdf_path) if os.path.islink(pdf_path) else pdf_path
+    
     # Try to extract date from filename first (e.g., "Zona-oeste-e-Zona-sul-04-03-26.pdf")
     bulletin_date = datetime.now().isoformat()
-    filename_date_match = re.search(r'(\d{2})-(\d{2})-(\d{2})\.pdf$', pdf_path)
+    filename_date_match = re.search(r'(\d{2})-(\d{2})-(\d{2})\.pdf$', actual_path)
     if filename_date_match:
         try:
             day = int(filename_date_match.group(1))
