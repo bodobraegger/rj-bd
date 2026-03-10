@@ -1,6 +1,8 @@
-# Balneabilidade Rio
+# ☆ rj-bd ☆
 
 A minimal, fast website displaying Rio de Janeiro beach water quality data from INEA bulletins.
+
+☆☆☆☆☆
 
 ## Overview
 

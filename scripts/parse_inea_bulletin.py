@@ -164,9 +164,9 @@ def parse_bulletin(pdf_path):
 if __name__ == '__main__':
     result = parse_bulletin('latest-bulletin.pdf')
     if result:
-        with open('beachData.json', 'w', encoding='utf-8') as f:
+        with open('data/beachData.json', 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
-        print(f"✓ Generated beachData.json with {len(result['beaches'])} beaches")
+        print(f"✓ Generated data/beachData.json with {len(result['beaches'])} beaches")
         print(f"✓ Last update: {result['lastUpdate']}")
     else:
         print("✗ Failed to parse bulletin")

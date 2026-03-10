@@ -66,13 +66,13 @@ function initMap() {
     L.control.attribution({
         position: 'bottomright',
         prefix: false
-    }).addAttribution('Rio Batheability').addTo(map);
+    }).addAttribution('rj-balneabilidade').addTo(map);
 }
 
 // Fetch beach data from JSON file (generated from INEA bulletins)
 async function fetchBeachData() {
     try {
-        const response = await fetch('beachData.json');
+        const response = await fetch('./data/beachData.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
