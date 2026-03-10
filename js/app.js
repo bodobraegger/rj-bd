@@ -155,6 +155,16 @@ function updateMapMarkers() {
         marker.on('click', () => {
             highlightBeach(beach.id);
         });
+        
+        marker.on('popupclose', () => {
+            // Clear highlight when popup closes
+            if (currentHighlightedBeachId === beach.id) {
+                document.querySelectorAll('.beach-item').forEach(item => {
+                    item.style.background = '';
+                });
+                currentHighlightedBeachId = null;
+            }
+        });
 
         markers.push(marker);
     });
@@ -235,7 +245,8 @@ function toggleFavorite(event, beachId) {
 function focusBeach(beachId) {
     const beach = beachData.find(b => b.id === beachId);
     if (beach) {
-        map.setView([beach.lat, beach.lng], 15, { animate: true });
+        // Use higher zoom and better centering
+        map.setView([beach.lat, beach.lng], 16, { animate: true });
         
         // Find and open the marker popup
         const markerIndex = beachData.findIndex(b => b.id === beachId);
@@ -246,15 +257,22 @@ function focusBeach(beachId) {
 }
 
 // Highlight beach in list
+let currentHighlightedBeachId = null;
+
 function highlightBeach(beachId) {
+    // Don't toggle off - always keep highlighted when marker is clicked
+    
+    // Clear all highlights
     document.querySelectorAll('.beach-item').forEach(item => {
         item.style.background = '';
     });
     
+    // Highlight the selected beach
     const item = document.querySelector(`[data-id="${beachId}"]`);
     if (item) {
         item.style.background = 'rgba(102, 126, 234, 0.3)';
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        currentHighlightedBeachId = beachId;
     }
 }
 

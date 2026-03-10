@@ -1,5 +1,5 @@
 // Service Worker for offline support
-const CACHE_NAME = 'balneabilidade-rio-v2';
+const CACHE_NAME = 'balneabilidade-rj';
 const ASSETS = [
   '../index.html',
   '../js/app.js',

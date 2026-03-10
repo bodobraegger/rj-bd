@@ -454,3 +454,39 @@ body {
     border-top: 1px solid #000;
     border-right: 1px solid #000;
 }
+
+/* Remove ugly marker borders and outlines */
+.leaflet-marker-icon:focus {
+    outline: none !important;
+}
+
+.leaflet-marker-icon:active {
+    outline: none !important;
+    border: none !important;
+}
+
+.leaflet-div-icon {
+    border: none !important;
+}
+
+/* Make buttons, labels, and text non-selectable */
+button,
+label,
+.legend-item,
+.sort-btn,
+.beach-item,
+h1, h2, h3, p,
+.status-indicator,
+.locate-btn,
+.toggle-sidebar {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Allow text selection only in specific areas if needed */
+.beach-item strong {
+    user-select: text;
+    -webkit-user-select: text;
+}
