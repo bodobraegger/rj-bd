@@ -143,16 +143,36 @@
         .fav-btn {
             background: none;
             border: none;
+            outline: none;
             color: #000;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
-            padding: 0 4px;
-            opacity: 0.2;
-            transition: opacity 0.15s;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            opacity: 0.15;
+            transition: opacity 0.15s, transform 0.15s;
+            flex-shrink: 0;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
-        .fav-btn.active,
         .fav-btn:hover {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+
+        .fav-btn:focus {
+            outline: none;
+            border: none;
+        }
+
+        .fav-btn.active {
+            opacity: 1;
+        }
+
+        .fav-btn.active:hover {
             opacity: 1;
         }
 
@@ -187,13 +207,16 @@
             border-top: 1px solid #000;
             font-size: 11px;
             color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 6px;
+            margin-bottom: 0;
             cursor: pointer;
             padding: 4px 0;
             transition: opacity 0.15s;

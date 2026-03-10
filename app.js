@@ -28,6 +28,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             map.invalidateSize();
         }
     }, 500);
+    
+    // Handle window resize for responsive layout
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+                fitMapToVisibleBeaches();
+            }
+        }, 250);
+    });
 });
 
 // Initialize Leaflet map
@@ -67,12 +79,23 @@ async function fetchBeachData() {
         const data = await response.json();
         beachData = data.beaches || [];
         updateMapMarkers();
+        fitMapToVisibleBeaches();
     } catch (error) {
         console.error('Error fetching beach data:', error);
         // Show error to user
         document.getElementById('weatherAlert').innerHTML = 
             '⚠️ Erro ao carregar dados. Por favor, tente novamente mais tarde.';
         document.getElementById('weatherAlert').classList.add('show');
+    }
+}
+
+// Fit map bounds to visible beaches only
+function fitMapToVisibleBeaches() {
+    const visibleBeaches = beachData.filter(beach => !hiddenStatuses.has(beach.status));
+    
+    if (visibleBeaches.length > 0) {
+        const bounds = L.latLngBounds(visibleBeaches.map(beach => [beach.lat, beach.lng]));
+        map.fitBounds(bounds, { padding: [50, 50] });
     }
 }
 
