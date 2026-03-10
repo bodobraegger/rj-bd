@@ -53,7 +53,7 @@ def extract_pdf_text(pdf_path):
         print("pdftotext not found. Install poppler-utils.")
         return None
 
-def parse_beach_status(text):
+def parse_beach_status(text, bulletin_date):
     """Parse beach names and status from bulletin text"""
     beaches_dict = {}
     beach_id = 1
@@ -91,7 +91,7 @@ def parse_beach_status(text):
                         'lng': coords['lng'],
                         'status': status,
                         'zone': 'Zona Sul' if coords['lat'] > -23.01 else 'Zona Oeste',
-                        'lastUpdate': datetime.now().isoformat()
+                        'lastUpdate': bulletin_date
                     }
                     beach_id += 1
                 elif status == 'improper':
@@ -113,7 +113,7 @@ def parse_beach_status(text):
                     'lng': coords['lng'],
                     'status': 'unknown',
                     'zone': 'Zona Sul' if coords['lat'] > -23.01 else 'Zona Oeste',
-                    'lastUpdate': datetime.now().isoformat()
+                    'lastUpdate': bulletin_date
                 })
                 beach_id += 1
     
@@ -143,7 +143,7 @@ def parse_bulletin(pdf_path):
         except:
             pass
     
-    beaches = parse_beach_status(text)
+    beaches = parse_beach_status(text, bulletin_date)
     
     # If we didn't get beaches from parsing, use defaults with coordinates
     if not beaches:
