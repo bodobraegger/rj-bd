@@ -1,17 +1,17 @@
 // Service Worker for offline support
 const CACHE_NAME = 'balneabilidade-rio-v2';
 const ASSETS = [
-  './index.html',
-  './js/app.js',
-  './css/styles.css',
-  './data/beachData.json',
-  './data/manifest.json',
-  './img/favicon.ico',
-  './img/favicon-16x16.png',
-  './img/favicon-32x32.png',
-  './img/apple-touch-icon.png',
-  './img/android-chrome-192x192.png',
-  './img/og-image.png'
+  '../index.html',
+  '../js/app.js',
+  '../css/styles.css',
+  '../data/beachData.json',
+  '../data/manifest.json',
+  '../img/favicon.ico',
+  '../img/favicon-16x16.png',
+  '../img/favicon-32x32.png',
+  '../img/apple-touch-icon.png',
+  '../img/android-chrome-192x192.png',
+  '../img/og-image.png'
 ];
 
 // Install event - cache assets
