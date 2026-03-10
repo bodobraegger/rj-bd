@@ -106,12 +106,12 @@ async function checkWeatherAlert() {
     // const response = await fetch('weather-api-endpoint');
     // const weather = await response.json();
     
-    // Mock: Simulate checking for heavy rain
-    const hasHeavyRain = Math.random() > 0.7; // 30% chance for demo
+    // Disabled: No real weather integration yet
+    // const hasHeavyRain = Math.random() > 0.7; // 30% chance for demo
     
-    if (hasHeavyRain) {
-        document.getElementById('weatherAlert').classList.add('show');
-    }
+    // if (hasHeavyRain) {
+    //     document.getElementById('weatherAlert').classList.add('show');
+    // }
 }
 
 // Update map markers

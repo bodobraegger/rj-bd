@@ -1,158 +1,139 @@
-# 🌊 Balneabilidade Rio
+# Balneabilidade Rio
 
-A small, fast website showing real-time beach water quality in Rio de Janeiro.
+A minimal, fast website displaying Rio de Janeiro beach water quality data from INEA bulletins.
+
+## Overview
+
+Real-time beach water quality monitoring for Rio's coastline. Updated weekly via automated parsing of INEA (Instituto Estadual do Ambiente) PDF bulletins.
+
 
 ## Features
 
-- ☆ **Interactive Map**: Color-coded beaches based on water quality
-- ☆ **Sortable List**: View beaches alphabetically, by status, or favorites
-- ☆ **Favorites**: Save your preferred beaches (localStorage)
-- ☆ **Weather Alerts**: Warnings when storms may affect water quality
-- ☆ **Ultra-Fast**: <50KB bundle, pure vanilla JS, no framework overhead
+* ☆ Interactive map with color-coded beach status markers
+* ☆ Sortable beach list (favorites, alphabetical, status)
+* ☆ Clickable legend filters to show/hide beach categories
+* ☆ Mobile-responsive design with grid layout
+* ☆ Sub-50KB bundle size (vanilla JavaScript, no frameworks)
 
-## Development:
+## How It Works
 
-```bash
-# Serve locally (Python)
-python -m http.server 8000
+### Data Pipeline
 
-# Or use any static server
-npx serve .
-```
+1. ☆ **Automated Updates**: GitHub Actions runs on:
+   - Every push to `main` branch
+   - Every Monday at 6 AM UTC (scheduled)
+   - Manual workflow trigger
+2. ☆ **PDF Download**: Fetches latest INEA bulletin from `inea.rj.gov.br`
+3. ☆ **Parsing**: Python script extracts beach status using `pdftotext`
+4. ☆ **JSON Generation**: Outputs `beachData.json` with 25 Rio beaches
+5. ☆ **Deployment**: Publishes to GitHub Pages automatically
 
-Visit `http://localhost:8000`
+### Data Source
 
-## Data Sources
+INEA publishes weekly "Boletim de Balneabilidade" PDFs with beach water quality classifications:
+- **Própria** (Suitable for bathing) - Green
+- **Imprópria** (Not suitable) - Red
+- **Atenção** (Warning) - Yellow
+- **Desconhecido** (Unknown) - Gray (hidden by default)
 
-### Current Implementation
-The app currently uses mock data. To integrate real APIs:
+Bulletins available at: `https://www.inea.rj.gov.br/rio-de-janeiro/`
 
-### 1. INEA Balneability Data
-Rio's environmental institute publishes weekly beach water quality reports:
-
-**Option A: Official INEA API** (if available)
-```javascript
-// In app.js, replace fetchBeachData():
-async function fetchBeachData() {
-    const response = await fetch('http://www.inea.rj.gov.br/api/balneabilidade');
-    const data = await response.json();
-    beachData = transformIneaData(data);
-    updateMapMarkers();
-}
-```
-
-**Option B: Data.Rio Portal**
-Check https://www.data.rio/ for open datasets:
-```javascript
-const response = await fetch('https://api.data.rio/datasets/balneabilidade');
-```
-
-**Option C: Prefeitura Rio APIs**
-Explore repositories at https://github.com/prefeitura-rio for potential APIs:
-- `queries-rj-iplanrio` - Data queries
-- `pipelines_rj_iplanrio` - Data pipelines
-- Check their documentation for available endpoints
-
-### 2. Weather Data
-For storm impact warnings:
-
-**Option A: OpenWeatherMap** (Free tier)
-```javascript
-async function checkWeatherAlert() {
-    const API_KEY = 'your-key';
-    const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=-22.9711&lon=-43.2044&appid=${API_KEY}`
-    );
-    const data = await response.json();
-    
-    // Check for heavy rain in last 48h
-    const hasHeavyRain = data.rain && data.rain['1h'] > 10;
-    if (hasHeavyRain) {
-        document.getElementById('weatherAlert').classList.add('show');
-    }
-}
-```
-
-**Option B: INMET (Brazil's National Weather Service)**
-```javascript
-const response = await fetch('https://apitempo.inmet.gov.br/estacao/dados/...');
-```
-
-## File Structure
+## Project Structure
 
 ```
-/
-├── index.html      # Main HTML (8KB with inline CSS)
-├── app.js          # Core logic (15KB)
-├── README.md       # Documentation
-└── api.js          # API integration (optional, 3KB)
+.
+├── index.html                  # Main application (HTML + inline CSS)
+├── app.js                      # Core logic and UI (vanilla JS)
+├── beachData.json              # Generated beach status data
+├── parse_inea_bulletin.py      # PDF parser script
+├── .github/
+│   └── workflows/
+│       └── update-data.yml     # Weekly automation workflow
+└── README.md
 ```
 
-## Size Budget
+## Deployment
 
-- HTML + inline CSS: ~8KB
-- JavaScript (app.js): ~15KB  
-- Leaflet CDN: External (doesn't count)
-- **Total Bundle: ~23KB** ✅ (<50KB target)
+### GitHub Pages Setup
 
-## Integration TODO
+1. **Enable Pages**: Repository Settings → Pages → Source: GitHub Actions
+2. **Push to GitHub**: Workflow runs automatically on Monday mornings
+3. **Manual Trigger**: Actions tab → "Update Beach Data and Deploy" → Run workflow
 
-1. **Find Real API Endpoint**
-   - Check INEA website for API docs
-   - Explore Data.Rio portal
-   - Contact Prefeitura Rio for API access
+### What Gets Deployed
 
-2. **API Integration**
-   - Replace `BEACHES_DATA` constant
-   - Implement `transformApiData()` function
-   - Add error handling for failed requests
+- `index.html`, `app.js`, `beachData.json`
+- PDF downloads are **ephemeral** (not committed to git)
+- Keeps repository clean (<1MB)
 
-3. **Weather Integration**
-   - Get OpenWeatherMap or INMET API key
-   - Implement rainfall detection logic
-   - Set appropriate thresholds (e.g., >10mm in 48h)
+### Data Freshness
 
-4. **Enhancements**
-   - Add service worker for offline support
-   - Implement data caching
-   - Add historical trend view
+The site displays the bulletin date from the `lastUpdate` field in `beachData.json`. When the bulletin is from today, it shows "Hoje" (Today). Otherwise, it shows the actual date or "X dias atrás" (X days ago).
 
-## API Data Format
+If INEA hasn't published a new bulletin, the workflow will reuse the existing data (no update).
 
-Expected format for beach data:
-```javascript
+## Technical Details
+
+### Map Behavior
+
+- **Desktop**: Sidebar on right, full-height map
+- **Mobile**: Map on top (45vh), scrollable grid below (55vh)
+- **Bounds**: Restricted to Rio de Janeiro area
+- **Auto-fit**: Centers on visible beaches (excluding hidden statuses)
+- **Resize**: Recalculates map dimensions on viewport change
+
+## Data Format
+
+### beachData.json
+
+```json
 {
-    id: number,
-    name: string,
-    lat: number,
-    lng: number,
-    status: 'proper' | 'warning' | 'improper' | 'unknown',
-    zone: string,
-    lastUpdate: ISO_DATE_STRING
+  "lastUpdate": "2026-03-04T00:00:00",
+  "source": "INEA - Instituto Estadual do Ambiente",
+  "bulletin": "Boletim de Balneabilidade das Praias",
+  "beaches": [
+    {
+      "id": 1,
+      "name": "Copacabana",
+      "lat": -22.9711,
+      "lng": -43.1822,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T10:00:00"
+    }
+  ]
 }
 ```
 
-## Performance Optimizations
+### Beach Coverage
 
-- ✅ No build step required
-- ✅ CSS inlined in HTML
-- ✅ External libraries loaded from CDN
-- ✅ LocalStorage for favorites (no backend needed)
-- ✅ Debounced scroll/resize events
-- ✅ Lazy popup rendering
-- ✅ GPU-accelerated CSS transforms
+25 beaches across Rio's coastline:
+- Zona Oeste: Barra de Guaratiba, Prainha, Grumari, Recreio, Barra da Tijuca, etc.
+- Zona Sul: Leblon, Ipanema, Arpoador, Copacabana, Leme, etc.
+- Baía de Guanabara: Flamengo, Botafogo, Urca, etc.
 
-## Browser Support
+### Styling
 
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-- ES6+ JavaScript required
+All CSS is inline in `index.html`. Current design: minimal Swiss aesthetic inspired by US Graphics.
+
+## Known Limitations
+
+- **PDF Dependency**: INEA must publish bulletins in consistent format
+- **Manual Coordinates**: Beach lat/lng hardcoded (INEA doesn't provide)
+- **No Historical Data**: Only shows latest bulletin
+- **Weather Alerts**: Currently disabled
+## Roadmap
+
+- [ ] Integrate weather API (OpenWeatherMap or INMET)
+- [ ] When an actual water quality api becomes available, switch over, see https://github.com/orgs/prefeitura-rio/repositories
+- [ ] Add historical trend graphs
+- [ ] Service worker for offline support
 
 ## Contributing
 
-1. Fork the repository
-2. Integrate real API endpoints
-3. Test thoroughly
+1. Fork repository
+2. Create feature branch
+3. Test locally
 4. Submit pull request
 
 ## License
@@ -161,7 +142,5 @@ MIT
 
 ## Resources
 
-- INEA: http://www.inea.rj.gov.br/
-- Data.Rio: https://www.data.rio/
-- Prefeitura Rio GitHub: https://github.com/prefeitura-rio
+- INEA Balneability: https://www.inea.rj.gov.br/rio-de-janeiro/
 - Leaflet.js: https://leafletjs.com/

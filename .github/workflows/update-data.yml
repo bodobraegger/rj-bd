@@ -1,6 +1,9 @@
 name: Update Beach Data and Deploy
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Run every Monday at 6 AM UTC (3 AM Rio time)
     - cron: '0 6 * * 1'
