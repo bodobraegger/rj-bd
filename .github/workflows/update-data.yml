@@ -1,0 +1,53 @@
+name: Update Beach Data and Deploy
+
+on:
+  schedule:
+    # Run every Monday at 6 AM UTC (3 AM Rio time)
+    - cron: '0 6 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      
+      - name: Download latest INEA bulletins
+        run: |
+          # Try to download the latest bulletin PDFs from INEA (ephemeral, not committed)
+          curl -L "https://www.inea.rj.gov.br/wp-content/uploads/$(date +%Y)/$(date +%m)/Zona-oeste-e-Zona-sul-$(date +%d-%m-%y).pdf" -o latest-bulletin.pdf 2>/dev/null || \
+          curl -s "https://www.inea.rj.gov.br/rio-de-janeiro/" | grep -oP 'href="\K[^"]*Zona-oeste-e-Zona-sul[^"]*\.pdf' | head -1 | xargs -I {} curl -L "https://www.inea.rj.gov.br/{}" -o latest-bulletin.pdf
+      
+      - name: Parse bulletin and generate JSON
+        run: |
+          python3 parse_inea_bulletin.py
+          echo "Generated beachData.json at $(date)"
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

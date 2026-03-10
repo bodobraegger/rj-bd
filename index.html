@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balneabilidade Rio - Qualidade das Praias</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #fff;
+            color: #000;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        #app {
+            display: flex;
+            height: 100vh;
+        }
+
+        #map {
+            flex: 1;
+            position: relative;
+        }
+
+        #sidebar {
+            width: 340px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #000;
+            z-index: 1000;
+        }
+
+        .header {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid #000;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .alert {
+            background: #000;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 12px;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .controls {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 0;
+            border: 1px solid #000;
+        }
+
+        .sort-btn {
+            flex: 1;
+            padding: 8px;
+            background: #fff;
+            border: none;
+            border-right: 1px solid #000;
+            color: #000;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+        }
+
+        .sort-btn:last-child {
+            border-right: none;
+        }
+
+        .sort-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .sort-btn.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .beach-list {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .beach-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .beach-item:hover {
+            background: #f9f9f9;
+        }
+
+        .beach-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 6px;
+        }
+
+        .beach-name {
+            font-weight: 400;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .fav-btn {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+            opacity: 0.2;
+            transition: opacity 0.15s;
+        }
+
+        .fav-btn.active,
+        .fav-btn:hover {
+            opacity: 1;
+        }
+
+        .beach-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-proper { background: #51cf66; }
+        .status-warning { background: #ffd43b; }
+        .status-improper { background: #ff6b6b; }
+        .status-unknown { background: #868e96; }
+
+        .beach-updated {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .legend {
+            padding: 16px 20px;
+            border-top: 1px solid #000;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: opacity 0.15s;
+            user-select: none;
+        }
+
+        .legend-item:hover {
+            opacity: 0.7;
+        }
+
+        .legend-item.hidden {
+            opacity: 0.3;
+        }
+
+        .legend-item.hidden .status-indicator {
+            opacity: 0.3;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .leaflet-popup-content {
+            margin: 12px;
+            font-size: 12px;
+            font-family: inherit;
+        }
+
+        .leaflet-popup-tip {
+            background: #fff;
+            border: 1px solid #000;
+            border-top: none;
+            border-right: none;
+        }
+
+        .popup-name {
+            font-weight: 400;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .popup-status {
+            margin: 6px 0;
+            color: #666;
+            font-size: 11px;
+        }
+
+        @media (max-width: 768px) {
+            #app {
+                flex-direction: column;
+            }
+
+            #sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+                border-left: none;
+                border-top: 1px solid #000;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: translateY(0);
+                transition: transform 0.3s;
+            }
+
+            #sidebar.closed {
+                transform: translateY(100%);
+            }
+
+            .header {
+                display: none;
+            }
+
+            .controls {
+                padding: 8px 12px;
+                border-bottom: none;
+            }
+
+            .sort-btn {
+                padding: 6px;
+                font-size: 10px;
+            }
+
+            .beach-list {
+                display: flex;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 0 12px 12px;
+                gap: 8px;
+            }
+
+            .beach-item {
+                min-width: 180px;
+                max-width: 180px;
+                flex-shrink: 0;
+                border: 1px solid #e0e0e0;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 12px;
+            }
+
+            .beach-name {
+                font-size: 12px;
+            }
+
+            .beach-status {
+                font-size: 10px;
+            }
+
+            .beach-updated {
+                font-size: 9px;
+            }
+
+            .legend {
+                padding: 8px 12px;
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .legend-item {
+                margin-bottom: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+                position: absolute;
+                bottom: 16px;
+                left: 16px;
+                z-index: 1001;
+                background: #fff;
+                border: 1px solid #000;
+                color: #000;
+                padding: 6px 10px;
+                cursor: pointer;
+                font-size: 10px;
+                font-family: inherit;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .locate-btn {
+                bottom: 16px;
+                right: 16px;
+            }
+
+            /* Horizontal scrollbar */
+            .beach-list::-webkit-scrollbar {
+                height: 4px;
+            }
+        }
+
+        .toggle-sidebar {
+            display: none;
+        }
+
+        /* Minimal scrollbar */
+        .beach-list::-webkit-scrollbar {
+            width: 0;
+            height: 4px;
+        }
+
+        .beach-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .beach-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+        }
+
+        .beach-list::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* Hide scrollbar for Firefox */
+        .beach-list {
+            scrollbar-width: none;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            z-index: 2000;
+            color: #000;
+        }
+
+        .locate-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #fff;
+            border: 1px solid #000;
+            color: #000;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .locate-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .locate-btn:active {
+            background: #000;
+            color: #fff;
+        }
+
+        .locate-btn.loading {
+            opacity: 0.5;
+        }
+
+        .user-marker {
+            background: #000;
+            border: 2px solid #fff;
+            border-radius: 50%;
+        }
+
+        /* Leaflet attribution style */
+        .leaflet-control-attribution {
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid #000;
+            border-right: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <button class="toggle-sidebar" onclick="toggleSidebar()">☰ Praias</button>
+        
+        <div id="sidebar">
+            <div class="header">
+                <h1>Balneabilidade Rio</h1>
+                <p>Qualidade das praias</p>
+            </div>
+
+            <div class="alert" id="weatherAlert">
+                Chuvas recentes podem afetar a qualidade da água.
+            </div>
+
+            <div class="controls">
+                <div class="sort-buttons">
+                    <button class="sort-btn active" data-sort="favorites">Favoritas</button>
+                    <button class="sort-btn" data-sort="name">Nome</button>
+                    <button class="sort-btn" data-sort="status">Status</button>
+                </div>
+            </div>
+
+            <div class="beach-list" id="beachList"></div>
+
+            <div class="legend">
+                <div class="legend-item" data-status="proper">
+                    <div class="status-indicator status-proper"></div>
+                    <span>Própria</span>
+                </div>
+                <div class="legend-item" data-status="warning">
+                    <div class="status-indicator status-warning"></div>
+                    <span>Atenção</span>
+                </div>
+                <div class="legend-item" data-status="improper">
+                    <div class="status-indicator status-improper"></div>
+                    <span>Imprópria</span>
+                </div>
+                <div class="legend-item hidden" data-status="unknown">
+                    <div class="status-indicator status-unknown"></div>
+                    <span>Desconhecido</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="map">
+            <div class="loading" id="loading">Carregando dados...</div>
+            <button class="locate-btn" id="locateBtn" onclick="getUserLocation()" title="Mostrar minha localização">📍</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

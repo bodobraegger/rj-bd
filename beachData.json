@@ -1,0 +1,232 @@
+{
+  "lastUpdate": "2026-03-04T00:00:00",
+  "source": "INEA - Instituto Estadual do Ambiente",
+  "bulletin": "Boletim de Balneabilidade das Praias",
+  "beaches": [
+    {
+      "id": 1,
+      "name": "Barra de Guaratiba",
+      "lat": -23.0736,
+      "lng": -43.5681,
+      "status": "proper",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.730478"
+    },
+    {
+      "id": 2,
+      "name": "Prainha",
+      "lat": -23.0392,
+      "lng": -43.5089,
+      "status": "proper",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.730618"
+    },
+    {
+      "id": 3,
+      "name": "Barra da Tijuca",
+      "lat": -23.0125,
+      "lng": -43.3642,
+      "status": "improper",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.731040"
+    },
+    {
+      "id": 4,
+      "name": "Joatinga",
+      "lat": -23.0089,
+      "lng": -43.2847,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731144"
+    },
+    {
+      "id": 5,
+      "name": "Pepino",
+      "lat": -23.0031,
+      "lng": -43.2758,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731173"
+    },
+    {
+      "id": 6,
+      "name": "Vidigal",
+      "lat": -22.9944,
+      "lng": -43.2347,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731317"
+    },
+    {
+      "id": 7,
+      "name": "Leblon",
+      "lat": -22.9844,
+      "lng": -43.2253,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731405"
+    },
+    {
+      "id": 8,
+      "name": "Ipanema",
+      "lat": -22.9838,
+      "lng": -43.2044,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731548"
+    },
+    {
+      "id": 9,
+      "name": "Arpoador",
+      "lat": -22.9875,
+      "lng": -43.1909,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731640"
+    },
+    {
+      "id": 10,
+      "name": "Diabo",
+      "lat": -22.9869,
+      "lng": -43.1967,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731679"
+    },
+    {
+      "id": 11,
+      "name": "Leme",
+      "lat": -22.9644,
+      "lng": -43.1686,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731932"
+    },
+    {
+      "id": 12,
+      "name": "Vermelha",
+      "lat": -22.9525,
+      "lng": -43.1675,
+      "status": "proper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.731976"
+    },
+    {
+      "id": 13,
+      "name": "Urca",
+      "lat": -22.9528,
+      "lng": -43.1639,
+      "status": "improper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732033"
+    },
+    {
+      "id": 14,
+      "name": "Botafogo",
+      "lat": -22.9475,
+      "lng": -43.1764,
+      "status": "improper",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732135"
+    },
+    {
+      "id": 15,
+      "name": "Grumari",
+      "lat": -23.0453,
+      "lng": -43.5247,
+      "status": "unknown",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.732429"
+    },
+    {
+      "id": 16,
+      "name": "Pontal de Sernambetiba",
+      "lat": -23.0158,
+      "lng": -43.4897,
+      "status": "unknown",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.732434"
+    },
+    {
+      "id": 17,
+      "name": "Recreio",
+      "lat": -23.0275,
+      "lng": -43.4647,
+      "status": "unknown",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.732439"
+    },
+    {
+      "id": 18,
+      "name": "Recreio/Reserva",
+      "lat": -23.0183,
+      "lng": -43.4064,
+      "status": "unknown",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-09T22:05:12.732442"
+    },
+    {
+      "id": 19,
+      "name": "Barra da Tijuca II",
+      "lat": -23.0056,
+      "lng": -43.3319,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732446"
+    },
+    {
+      "id": 20,
+      "name": "São Conrado",
+      "lat": -22.9997,
+      "lng": -43.2689,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732449"
+    },
+    {
+      "id": 21,
+      "name": "Copacabana",
+      "lat": -22.9711,
+      "lng": -43.1822,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732457"
+    },
+    {
+      "id": 22,
+      "name": "Flamengo",
+      "lat": -22.9344,
+      "lng": -43.1725,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732461"
+    },
+    {
+      "id": 23,
+      "name": "Paquetá",
+      "lat": -22.7639,
+      "lng": -43.1089,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732464"
+    },
+    {
+      "id": 24,
+      "name": "Ilha do Governador",
+      "lat": -22.8119,
+      "lng": -43.2056,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732467"
+    },
+    {
+      "id": 25,
+      "name": "Ramos",
+      "lat": -22.8481,
+      "lng": -43.25,
+      "status": "unknown",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-09T22:05:12.732470"
+    }
+  ]
+}

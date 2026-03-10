@@ -1,0 +1,19 @@
+# INEA bulletin PDFs (ephemeral, generated during CI)
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
