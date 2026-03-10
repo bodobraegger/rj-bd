@@ -50,11 +50,14 @@ jobs:
               MONTH=$(date -d "$days_ago days ago" +%m)
             fi
             
-            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/Zona-oeste-e-Zona-sul-${DATE}.pdf"
+            FILENAME="Zona-oeste-e-Zona-sul-${DATE}.pdf"
+            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME}"
             echo "Trying: $URL"
             
-            if curl -f -L "$URL" -o latest-bulletin.pdf 2>/dev/null; then
-              echo "✓ Downloaded bulletin from $DATE"
+            if curl -f -L "$URL" -o "${FILENAME}" 2>/dev/null; then
+              echo "✓ Downloaded bulletin from $DATE as ${FILENAME}"
+              # Create symlink for script compatibility
+              ln -sf "${FILENAME}" latest-bulletin.pdf
               SUCCESS=1
               break
             fi
@@ -63,6 +66,15 @@ jobs:
           if [ $SUCCESS -eq 0 ]; then
             echo "✗ Could not find bulletin in the last 7 days"
             exit 1
+          fi
+          
+          # Verify PDF was downloaded
+          if [ -s latest-bulletin.pdf ]; then
+            echo "✓ PDF file size: $(stat -c%s latest-bulletin.pdf 2>/dev/null || stat -f%z latest-bulletin.pdf) bytes"
+          else
+            echo "✗ PDF download failed or file is empty"
+            exit 1
+          fi
           fi
           
           # Verify PDF was downloaded

@@ -583,14 +583,28 @@ function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     const now = new Date();
-    const diffMs = now - date;
+    
+    // Set both dates to midnight to avoid time zone issues
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const diffMs = nowOnly - dateOnly;
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Ontem';
-    if (diffDays < 7) return `${diffDays} dias atrás`;
+    // Full date for tooltip (dd.mm.yyyy format)
+    const fullDate = date.toLocaleDateString('pt-BR', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+    }).replace(/\//g, '.');
     
-    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    let displayText;
+    if (diffDays <= 0) displayText = 'Hoje';
+    else if (diffDays === 1) displayText = 'Ontem';
+    else if (diffDays < 7) displayText = `${diffDays} dias atrás`;
+    else displayText = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    
+    return `<span title="${fullDate}">${displayText}</span>`;
 }
 
 // Auto-refresh data every 5 minutes
