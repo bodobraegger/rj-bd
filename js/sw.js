@@ -12,9 +12,7 @@ const ASSETS = [
   './img/favicon-32x32.png',
   './img/apple-touch-icon.png',
   './img/android-chrome-192x192.png',
-  './img/og-image.png',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+  './img/og-image.png'
 ];
 
 // Install event - cache assets
@@ -23,7 +21,17 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Caching app assets');
+        // Cache local assets
         return cache.addAll(ASSETS);
+      })
+      .then(() => {
+        // Try to cache CDN resources separately (non-critical)
+        return caches.open(CACHE_NAME).then((cache) => {
+          return Promise.allSettled([
+            cache.add('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
+            cache.add('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
+          ]);
+        });
       })
       .then(() => self.skipWaiting())
   );
