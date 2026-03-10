@@ -41,11 +41,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     
     // Show/hide labels based on zoom level and user interaction
-    let userZoomCount = 0;
+    let userZoomInCount = 0;
+    let userZoomOutCount = 0;
     let labelsEnabled = false;
+    let previousZoom = map ? map.getZoom() : 11;
 
         
-    // On desktop, enable labels immediately
+    // On desktop, enable labels immediately and always show
     const isDesktop = window.innerWidth > 768;
     if (isDesktop) {
         labelsEnabled = true;
@@ -54,15 +56,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.querySelectorAll('.beach-label').forEach(label => {
                 label.classList.remove('beach-label-hidden');
             });
-            // Trigger initial tooltip display
-            const zoom = map.getZoom();
-            if (zoom >= 8) {
-                markers.forEach(marker => {
-                    if (marker) {
-                        marker.openTooltip();
-                    }
-                });
-            }
+            // Trigger initial tooltip display on desktop (always show)
+            markers.forEach(marker => {
+                if (marker) {
+                    marker.openTooltip();
+                }
+            });
         }, 1200);
     }
     
@@ -88,30 +87,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         map.on('zoomend', () => {
             const zoom = map.getZoom();
             
-            // Count user zooms only on mobile
+            // Track zoom direction and count only on mobile
             if (!isDesktop) {
-                userZoomCount++;
-                if (userZoomCount >= 3) {
-                    labelsEnabled = true;
-                    // Remove hidden class from all labels
-                    document.querySelectorAll('.beach-label').forEach(label => {
-                        label.classList.remove('beach-label-hidden');
-                    });
-                }
-            }
-            
-            markers.forEach(marker => {
-                if (marker) {
-                    if (zoom >= 8 && labelsEnabled) {
-                        marker.openTooltip();
-                    } else {
-                        marker.closeTooltip();
+                if (zoom > previousZoom) {
+                    // Zooming in
+                    userZoomInCount++;
+                    if (userZoomInCount >= 1) {
+                        labelsEnabled = true;
+                        // Remove hidden class from all labels
+                        document.querySelectorAll('.beach-label').forEach(label => {
+                            label.classList.remove('beach-label-hidden');
+                        });
+                    }
+                } else if (zoom < previousZoom) {
+                    // Zooming out
+                    userZoomOutCount++;
+                    if (userZoomOutCount >= 1) {
+                        labelsEnabled = false;
+                        userZoomInCount = 0;
+                        userZoomOutCount = 0;
                     }
                 }
-            });
+                previousZoom = zoom;
+            }
+            
+            // On desktop, always show labels regardless of zoom
+            if (isDesktop) {
+                markers.forEach(marker => {
+                    if (marker) {
+                        marker.openTooltip();
+                    }
+                });
+            } else {
+                // On mobile, respect the labelsEnabled flag and zoom level
+                markers.forEach(marker => {
+                    if (marker) {
+                        if (zoom >= 8 && labelsEnabled) {
+                            marker.openTooltip();
+                        } else {
+                            marker.closeTooltip();
+                        }
+                    }
+                });
+            }
             
             // Update label sizes after tooltips are shown
-            if (labelsEnabled) {
+            if ((isDesktop || (labelsEnabled && zoom >= 8))) {
                 setTimeout(updateLabelSizes, 100);
             }
         });
@@ -154,12 +175,6 @@ function initMap() {
             zoom: zoom
         }));
     });
-
-    // Add custom attribution
-    L.control.attribution({
-        position: 'bottomright',
-        prefix: false
-    }).addAttribution('rj-balneabilidade').addTo(map);
 }
 
 // Fetch beach data from JSON file (generated from INEA bulletins)
