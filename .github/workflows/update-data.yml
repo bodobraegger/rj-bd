@@ -78,15 +78,6 @@ jobs:
             echo "✗ PDF download failed or file is empty"
             exit 1
           fi
-          fi
-          
-          # Verify PDF was downloaded
-          if [ -s latest-bulletin.pdf ]; then
-            echo "✓ PDF file size: $(stat -c%s latest-bulletin.pdf 2>/dev/null || stat -f%z latest-bulletin.pdf) bytes"
-          else
-            echo "✗ PDF download failed or file is empty"
-            exit 1
-          fi
       
       - name: Parse bulletin and generate JSON
         run: |
