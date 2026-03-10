@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     setTimeout(() => {
         document.getElementById('loading').style.display = 'none';
+        // Invalidate map size after layout is complete (important for mobile)
+        if (map) {
+            map.invalidateSize();
+        }
     }, 500);
 });
 
