@@ -186,6 +186,13 @@ async function fetchBeachData() {
         }
         const data = await response.json();
         beachData = data.beaches || [];
+        
+        // Update the last update date in header
+        if (data.lastUpdate) {
+            const dateSpan = document.getElementById('lastUpdateDate');
+            dateSpan.innerHTML = `· atualização: ${formatDate(data.lastUpdate)}`;
+        }
+        
         updateMapMarkers();
         fitMapToVisibleBeaches();
     } catch (error) {
@@ -277,8 +284,7 @@ function updateMapMarkers() {
             <div class="popup-name">${beach.name}</div>
             <div class="popup-status">
                 <strong>Status:</strong> ${getStatusText(beach.status)}<br>
-                <strong>Zona:</strong> ${beach.zone}<br>
-                <strong>Atualizado:</strong> ${formatDate(beach.lastUpdate)}
+                <strong>Zona:</strong> ${beach.zone}
             </div>
         `);
 
@@ -319,7 +325,6 @@ function renderBeachList() {
                     <div class="status-indicator ${statusClass}"></div>
                     <span>${getStatusText(beach.status)}</span>
                 </div>
-                <div class="beach-updated">Atualizado: ${formatDate(beach.lastUpdate)}</div>
             </div>
         `;
     }).join('');
