@@ -20,8 +20,16 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Caching app assets');
-        // Cache local assets
-        return cache.addAll(ASSETS);
+        // Cache files individually to see which one fails
+        return Promise.all(
+          ASSETS.map(url => 
+            cache.add(url).catch(err => {
+              console.error('Failed to cache:', url, err);
+              // Don't fail the whole install if one file fails
+              return Promise.resolve();
+            })
+          )
+        );
       })
       .then(() => {
         // Try to cache CDN resources separately (non-critical)
