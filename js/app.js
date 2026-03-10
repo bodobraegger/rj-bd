@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initLegendFilters();
     
     setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
         // Invalidate map size after layout is complete (important for mobile)
         if (map) {
             map.invalidateSize();
@@ -40,6 +39,83 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }, 250);
     });
+    
+    // Show/hide labels based on zoom level and user interaction
+    let userZoomCount = 0;
+    let labelsEnabled = false;
+
+        
+    // On desktop, enable labels immediately
+    const isDesktop = window.innerWidth > 768;
+    if (isDesktop) {
+        labelsEnabled = true;
+        // Remove hidden class and show labels after markers are loaded
+        setTimeout(() => {
+            document.querySelectorAll('.beach-label').forEach(label => {
+                label.classList.remove('beach-label-hidden');
+            });
+            // Trigger initial tooltip display
+            const zoom = map.getZoom();
+            if (zoom >= 8) {
+                markers.forEach(marker => {
+                    if (marker) {
+                        marker.openTooltip();
+                    }
+                });
+            }
+        }, 1200);
+    }
+    
+    if (map) {
+        const updateLabelSizes = () => {
+            const zoom = map.getZoom();
+            const labels = document.querySelectorAll('.beach-label');
+            
+            labels.forEach(label => {
+                if (zoom < 11) {
+                    label.style.fontSize = '9px';
+                    label.style.padding = '1px 4px';
+                } else if (zoom < 13) {
+                    label.style.fontSize = '10px';
+                    label.style.padding = '2px 5px';
+                } else {
+                    label.style.fontSize = '11px';
+                    label.style.padding = '2px 6px';
+                }
+            });
+        };
+        
+        map.on('zoomend', () => {
+            const zoom = map.getZoom();
+            
+            // Count user zooms only on mobile
+            if (!isDesktop) {
+                userZoomCount++;
+                if (userZoomCount >= 3) {
+                    labelsEnabled = true;
+                    // Remove hidden class from all labels
+                    document.querySelectorAll('.beach-label').forEach(label => {
+                        label.classList.remove('beach-label-hidden');
+                    });
+                }
+            }
+            
+            markers.forEach(marker => {
+                if (marker) {
+                    if (zoom >= 8 && labelsEnabled) {
+                        marker.openTooltip();
+                    } else {
+                        marker.closeTooltip();
+                    }
+                }
+            });
+            
+            // Update label sizes after tooltips are shown
+            if (labelsEnabled) {
+                setTimeout(updateLabelSizes, 100);
+            }
+        });
+    }
 });
 
 // Initialize Leaflet map
@@ -50,17 +126,34 @@ function initMap() {
         [-22.75, -43.0]  // Northeast coordinates
     ];
 
+    // Get saved map position or use defaults
+    const savedPosition = JSON.parse(localStorage.getItem('mapPosition') || '{}');
+    const initialLat = savedPosition.lat || -22.9711;
+    const initialLng = savedPosition.lng || -43.2044;
+    const initialZoom = savedPosition.zoom || 11;
+
     map = L.map('map', {
         zoomControl: true,
         attributionControl: false,
         maxBounds: rioBounds,
         maxBoundsViscosity: 1.0,
         minZoom: 10
-    }).setView([-22.9711, -43.2044], 11);
+    }).setView([initialLat, initialLng], initialZoom);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
     }).addTo(map);
+    
+    // Save map position when user moves the map
+    map.on('moveend', () => {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        localStorage.setItem('mapPosition', JSON.stringify({
+            lat: center.lat,
+            lng: center.lng,
+            zoom: zoom
+        }));
+    });
 
     // Add custom attribution
     L.control.attribution({
@@ -142,6 +235,28 @@ function updateMapMarkers() {
             opacity: 1,
             fillOpacity: 0.9
         }).addTo(map);
+
+        // Smart label positioning - specific beaches get specific directions
+        let direction = 'top';
+        if (beach.name === 'Leme' || beach.name === 'Copacabana' || beach.name === 'Ipanema') {
+            direction = 'bottom';
+        } else if (beach.name === 'Botafogo' || beach.name === 'Flamengo' || beach.name === 'Urca') {
+            direction = 'top';
+        } else {
+            // Alternate for others
+            direction = markers.filter(m => m !== null).length % 2 === 0 ? 'top' : 'bottom';
+        }
+        
+        const offset = direction === 'top' ? [0, -10] : [0, 10];
+        
+        // Add permanent tooltip that shows on zoom
+        marker.bindTooltip(beach.name, {
+            permanent: true,
+            direction: direction,
+            className: 'beach-label beach-label-hidden',
+            offset: offset,
+            opacity: 1
+        });
 
         marker.bindPopup(`
             <div class="popup-name">${beach.name}</div>
