@@ -198,7 +198,7 @@ if __name__ == '__main__':
     
     result = parse_bulletin(pdf_file)
     
-    # If parsing failed, use fallback: assume bulletin is from the last 7 days
+    # If parsing failed, use fallback: assume bulletin is from the last 14 days
     if not result or not result.get('beaches'):
         print("⚠️  Parsing failed, trying fallback date estimation...")
         

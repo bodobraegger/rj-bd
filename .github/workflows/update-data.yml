@@ -34,9 +34,9 @@ jobs:
       
       - name: Download latest INEA bulletins
         run: |
-          # Try to find bulletin from the last 7 days
+          # Try to find bulletin from the last 14 days
           SUCCESS=0
-          for days_ago in {0..7}; do
+          for days_ago in {0..14}; do
             # Calculate date
             if [[ "$OSTYPE" == "darwin"* ]]; then
               # macOS
@@ -67,7 +67,7 @@ jobs:
           done
           
           if [ $SUCCESS -eq 0 ]; then
-            echo "✗ Could not find bulletin in the last 7 days"
+            echo "✗ Could not find bulletin in the last 14 days"
             exit 1
           fi
           
