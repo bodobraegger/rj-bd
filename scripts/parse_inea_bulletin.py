@@ -539,8 +539,3 @@ if __name__ == '__main__':
     print(f"  ⚠ Attention (mixed): {attention}")
     print(f"  ✗ Improper: {improper}")
     print(f"  ? Unknown: {unknown}")
-
-    print(f"\n🏖️  Status:")
-    print(f"  ✓ Proper: {proper}")
-    print(f"  ✗ Improper: {improper}")
-    print(f"  ? Unknown: {unknown}")
