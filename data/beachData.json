@@ -1,25 +1,27 @@
 {
-  "lastUpdate": "2026-03-04T00:00:00",
+  "lastUpdate": "2026-04-02T00:49:56.090421",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
     {
       "id": 1,
-      "name": "Barra de Guaratiba",
-      "lat": -23.0736,
-      "lng": -43.5681,
+      "name": "Adão",
+      "lat": -22.9492,
+      "lng": -43.0319,
       "status": "proper",
-      "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.730478"
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 2,
-      "name": "Prainha",
-      "lat": -23.0392,
-      "lng": -43.5089,
+      "name": "Arpoador",
+      "lat": -22.9875,
+      "lng": -43.1909,
       "status": "proper",
-      "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.730618"
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 3,
@@ -27,206 +29,336 @@
       "lat": -23.0125,
       "lng": -43.3642,
       "status": "improper",
+      "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.731040"
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 4,
-      "name": "Joatinga",
-      "lat": -23.0089,
-      "lng": -43.2847,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731144"
+      "name": "Barra da Tijuca II",
+      "lat": -23.0056,
+      "lng": -43.3319,
+      "city": "Rio de Janeiro",
+      "status": "unknown",
+      "zone": "Zona Sul"
     },
     {
       "id": 5,
-      "name": "Pepino",
-      "lat": -23.0031,
-      "lng": -43.2758,
+      "name": "Barra de Guaratiba",
+      "lat": -23.0736,
+      "lng": -43.5681,
       "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731173"
+      "city": "Rio de Janeiro",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 6,
-      "name": "Vidigal",
-      "lat": -22.9944,
-      "lng": -43.2347,
+      "name": "Boa Viagem",
+      "lat": -22.8967,
+      "lng": -43.1258,
       "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731317"
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 7,
-      "name": "Leblon",
-      "lat": -22.9844,
-      "lng": -43.2253,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731405"
-    },
-    {
-      "id": 8,
-      "name": "Ipanema",
-      "lat": -22.9838,
-      "lng": -43.2044,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731548"
-    },
-    {
-      "id": 9,
-      "name": "Arpoador",
-      "lat": -22.9875,
-      "lng": -43.1909,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731640"
-    },
-    {
-      "id": 10,
-      "name": "Diabo",
-      "lat": -22.9869,
-      "lng": -43.1967,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731679"
-    },
-    {
-      "id": 11,
-      "name": "Leme",
-      "lat": -22.9644,
-      "lng": -43.1686,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731932"
-    },
-    {
-      "id": 12,
-      "name": "Vermelha",
-      "lat": -22.9525,
-      "lng": -43.1675,
-      "status": "proper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.731976"
-    },
-    {
-      "id": 13,
-      "name": "Urca",
-      "lat": -22.9528,
-      "lng": -43.1639,
-      "status": "improper",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732033"
-    },
-    {
-      "id": 14,
       "name": "Botafogo",
       "lat": -22.9475,
       "lng": -43.1764,
       "status": "improper",
+      "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732135"
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
-      "id": 15,
-      "name": "Grumari",
-      "lat": -23.0453,
-      "lng": -43.5247,
+      "id": 8,
+      "name": "Camboinhas",
+      "lat": -22.9517,
+      "lng": -43.0231,
+      "city": "Niterói",
       "status": "unknown",
-      "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.732429"
+      "zone": "Niterói"
     },
     {
-      "id": 16,
-      "name": "Pontal de Sernambetiba",
-      "lat": -23.0158,
-      "lng": -43.4897,
-      "status": "unknown",
-      "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.732434"
+      "id": 9,
+      "name": "Charitas",
+      "lat": -22.925,
+      "lng": -43.0931,
+      "status": "proper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
-      "id": 17,
-      "name": "Recreio",
-      "lat": -23.0275,
-      "lng": -43.4647,
-      "status": "unknown",
-      "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.732439"
-    },
-    {
-      "id": 18,
-      "name": "Recreio/Reserva",
-      "lat": -23.0183,
-      "lng": -43.4064,
-      "status": "unknown",
-      "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-09T22:05:12.732442"
-    },
-    {
-      "id": 19,
-      "name": "Barra da Tijuca II",
-      "lat": -23.0056,
-      "lng": -43.3319,
-      "status": "unknown",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732446"
-    },
-    {
-      "id": 20,
-      "name": "São Conrado",
-      "lat": -22.9997,
-      "lng": -43.2689,
-      "status": "unknown",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732449"
-    },
-    {
-      "id": 21,
+      "id": 10,
       "name": "Copacabana",
       "lat": -22.9711,
       "lng": -43.1822,
+      "city": "Rio de Janeiro",
       "status": "unknown",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732457"
+      "zone": "Zona Sul"
     },
     {
-      "id": 22,
+      "id": 11,
+      "name": "Diabo",
+      "lat": -22.9869,
+      "lng": -43.1967,
+      "status": "proper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 12,
+      "name": "Eva",
+      "lat": -22.95,
+      "lng": -43.0333,
+      "status": "proper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 13,
       "name": "Flamengo",
       "lat": -22.9344,
       "lng": -43.1725,
+      "city": "Rio de Janeiro",
       "status": "unknown",
+      "zone": "Zona Sul"
+    },
+    {
+      "id": 14,
+      "name": "Flechas",
+      "lat": -22.8956,
+      "lng": -43.1186,
+      "city": "Niterói",
+      "status": "unknown",
+      "zone": "Niterói"
+    },
+    {
+      "id": 15,
+      "name": "Glória",
+      "lat": -22.9211,
+      "lng": -43.1719,
+      "status": "improper",
+      "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732461"
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 16,
+      "name": "Gragoatá",
+      "lat": -22.9006,
+      "lng": -43.1286,
+      "status": "proper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 17,
+      "name": "Grumari",
+      "lat": -23.0453,
+      "lng": -43.5247,
+      "city": "Rio de Janeiro",
+      "status": "unknown",
+      "zone": "Zona Oeste"
+    },
+    {
+      "id": 18,
+      "name": "Icaraí",
+      "lat": -22.9058,
+      "lng": -43.105,
+      "status": "improper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 19,
+      "name": "Ipanema",
+      "lat": -22.9838,
+      "lng": -43.2044,
+      "status": "improper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 20,
+      "name": "Itacoatiara",
+      "lat": -22.9811,
+      "lng": -43.0306,
+      "city": "Niterói",
+      "status": "unknown",
+      "zone": "Niterói"
+    },
+    {
+      "id": 21,
+      "name": "Itaipu",
+      "lat": -22.9658,
+      "lng": -43.0289,
+      "status": "improper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 22,
+      "name": "Joatinga",
+      "lat": -23.0089,
+      "lng": -43.2847,
+      "status": "proper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 23,
-      "name": "Paquetá",
-      "lat": -22.7639,
-      "lng": -43.1089,
+      "name": "Jurujuba",
+      "lat": -22.9358,
+      "lng": -43.085,
+      "city": "Niterói",
       "status": "unknown",
-      "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732464"
+      "zone": "Niterói"
     },
     {
       "id": 24,
-      "name": "Ilha do Governador",
-      "lat": -22.8119,
-      "lng": -43.2056,
-      "status": "unknown",
+      "name": "Leblon",
+      "lat": -22.9844,
+      "lng": -43.2253,
+      "status": "improper",
+      "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732467"
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 25,
-      "name": "Ramos",
-      "lat": -22.8481,
-      "lng": -43.25,
-      "status": "unknown",
+      "name": "Leme",
+      "lat": -22.9644,
+      "lng": -43.1686,
+      "status": "proper",
+      "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-09T22:05:12.732470"
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 26,
+      "name": "Pepino",
+      "lat": -23.0031,
+      "lng": -43.2758,
+      "status": "proper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 27,
+      "name": "Piratininga",
+      "lat": -22.955,
+      "lng": -43.0733,
+      "city": "Niterói",
+      "status": "unknown",
+      "zone": "Niterói"
+    },
+    {
+      "id": 28,
+      "name": "Pontal de Sernambetiba",
+      "lat": -23.0158,
+      "lng": -43.4897,
+      "city": "Rio de Janeiro",
+      "status": "unknown",
+      "zone": "Zona Oeste"
+    },
+    {
+      "id": 29,
+      "name": "Prainha",
+      "lat": -23.0392,
+      "lng": -43.5089,
+      "status": "improper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 30,
+      "name": "Recreio",
+      "lat": -23.0275,
+      "lng": -43.4647,
+      "city": "Rio de Janeiro",
+      "status": "unknown",
+      "zone": "Zona Oeste"
+    },
+    {
+      "id": 31,
+      "name": "Recreio/Reserva",
+      "lat": -23.0183,
+      "lng": -43.4064,
+      "city": "Rio de Janeiro",
+      "status": "unknown",
+      "zone": "Zona Oeste"
+    },
+    {
+      "id": 32,
+      "name": "Sossego",
+      "lat": -22.9622,
+      "lng": -43.0383,
+      "status": "proper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 33,
+      "name": "São Conrado",
+      "lat": -22.9997,
+      "lng": -43.2689,
+      "city": "Rio de Janeiro",
+      "status": "unknown",
+      "zone": "Zona Sul"
+    },
+    {
+      "id": 34,
+      "name": "São Francisco",
+      "lat": -22.9144,
+      "lng": -43.1,
+      "status": "improper",
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 35,
+      "name": "Urca",
+      "lat": -22.9528,
+      "lng": -43.1639,
+      "status": "improper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 36,
+      "name": "Vermelha",
+      "lat": -22.9525,
+      "lng": -43.1675,
+      "status": "proper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
+    },
+    {
+      "id": 37,
+      "name": "Vidigal",
+      "lat": -22.9944,
+      "lng": -43.2347,
+      "status": "proper",
+      "city": "Rio de Janeiro",
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
     }
   ]
 }

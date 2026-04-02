@@ -34,8 +34,10 @@ jobs:
       
       - name: Download latest INEA bulletins
         run: |
-          # Try to find bulletin from the last 14 days
-          SUCCESS=0
+          # Try to find bulletins from the last 14 days
+          SUCCESS_RJ=0
+          SUCCESS_NITEROI=0
+          
           for days_ago in {0..14}; do
             if [[ "$OSTYPE" == "darwin"* ]]; then
               # macOS
@@ -53,62 +55,108 @@ jobs:
               DATE_OLD=$(date -d "$days_ago days ago" +%d-%m-%y)
             fi
             
-            FILENAME="Site-Boletim-de-Balneabilidade-do-Estado-do-RJ-_${DATE_NEXT}_155642_0000.pdf_${DATE}.pdf"
-            
-            # Try new format in current month folder
-            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME}"
-            if curl -f -s -I "$URL" > /dev/null 2>&1; then
-              echo "✓ Found bulletin at $URL"
-              curl -f -L "$URL" -o "${FILENAME}"
-              ln -sf "${FILENAME}" latest-bulletin.pdf
-              SUCCESS=1
-              break
+            # Try Rio de Janeiro bulletin (new format names)
+            if [ $SUCCESS_RJ -eq 0 ]; then
+              # Calculate next month for cross-month cases
+              if [[ "$OSTYPE" == "darwin"* ]]; then
+                MONTH_NEXT=$(date -v-${days_ago}d -v+1m +%m)
+                YEAR_NEXT=$(date -v-${days_ago}d -v+1m +%Y)
+              else
+                MONTH_NEXT=$(date -d "$days_ago days ago + 1 month" +%m)
+                YEAR_NEXT=$(date -d "$days_ago days ago + 1 month" +%Y)
+              fi
+              
+              for RJ_NAME in "Zona-sudoeste-e-Zona-sul" "Zona-oeste-e-Zona-sul"; do
+                FILENAME_RJ="${RJ_NAME}-${DATE_OLD}.pdf"
+                
+                # Try current month folder
+                URL_RJ="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_RJ}"
+                if curl -f -s -I "$URL_RJ" > /dev/null 2>&1; then
+                  echo "✓ Found Rio bulletin at $URL_RJ"
+                  curl -f -L "$URL_RJ" -o "rj-bulletin-${DATE_OLD}.pdf"
+                  SUCCESS_RJ=1
+                  break
+                fi
+                
+                # Try next month folder (INEA sometimes uploads to wrong month)
+                URL_RJ="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME_RJ}"
+                if curl -f -s -I "$URL_RJ" > /dev/null 2>&1; then
+                  echo "✓ Found Rio bulletin at $URL_RJ"
+                  curl -f -L "$URL_RJ" -o "rj-bulletin-${DATE_OLD}.pdf"
+                  SUCCESS_RJ=1
+                  break
+                fi
+              done
             fi
             
-            # Calculate next month for cross-month cases
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-              MONTH_NEXT=$(date -v-${days_ago}d -v+1m +%m)
-              YEAR_NEXT=$(date -v-${days_ago}d -v+1m +%Y)
-            else
-              MONTH_NEXT=$(date -d "$days_ago days ago + 1 month" +%m)
-              YEAR_NEXT=$(date -d "$days_ago days ago + 1 month" +%Y)
+            # Try Niterói bulletin
+            if [ $SUCCESS_NITEROI -eq 0 ]; then
+              # Calculate next month for cross-month cases
+              if [[ "$OSTYPE" == "darwin"* ]]; then
+                MONTH_NEXT=$(date -v-${days_ago}d -v+1m +%m)
+                YEAR_NEXT=$(date -v-${days_ago}d -v+1m +%Y)
+              else
+                MONTH_NEXT=$(date -d "$days_ago days ago + 1 month" +%m)
+                YEAR_NEXT=$(date -d "$days_ago days ago + 1 month" +%Y)
+              fi
+              
+              for NITEROI_NAME in "Niterói" "Niteroi"; do
+                FILENAME_NITEROI="${NITEROI_NAME}-${DATE_OLD}.pdf"
+                # URL encode the filename (ó = %C3%B3)
+                FILENAME_NITEROI_ENCODED=$(echo "$FILENAME_NITEROI" | sed 's/ó/%C3%B3/g')
+                
+                # Try current month folder
+                URL_NITEROI="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_NITEROI_ENCODED}"
+                if curl -f -s -I "$URL_NITEROI" > /dev/null 2>&1; then
+                  echo "✓ Found Niterói bulletin at $URL_NITEROI"
+                  curl -f -L "$URL_NITEROI" -o "niteroi-bulletin-${DATE_OLD}.pdf"
+                  SUCCESS_NITEROI=1
+                  break
+                fi
+                
+                # Try next month folder (INEA sometimes uploads to wrong month)
+                URL_NITEROI="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME_NITEROI_ENCODED}"
+                if curl -f -s -I "$URL_NITEROI" > /dev/null 2>&1; then
+                  echo "✓ Found Niterói bulletin at $URL_NITEROI"
+                  curl -f -L "$URL_NITEROI" -o "niteroi-bulletin-${DATE_OLD}.pdf"
+                  SUCCESS_NITEROI=1
+                  break
+                fi
+              done
             fi
             
-            # Try new format in next month folder
-            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME}"
-            if curl -f -s -I "$URL" > /dev/null 2>&1; then
-              echo "✓ Found bulletin at $URL"
-              curl -f -L "$URL" -o "${FILENAME}"
-              ln -sf "${FILENAME}" latest-bulletin.pdf
-              SUCCESS=1
-              break
-            fi
-            
-            # Try old format
-            FILENAME_OLD="Zona-oeste-e-Zona-sul-${DATE_OLD}.pdf"
-            URL_OLD="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_OLD}"
-            
-            if curl -f -s -I "$URL_OLD" > /dev/null 2>&1; then
-              echo "✓ Found bulletin at $URL_OLD"
-              curl -f -L "$URL_OLD" -o "${FILENAME_OLD}"
-              ln -sf "${FILENAME_OLD}" latest-bulletin.pdf
-              SUCCESS=1
+            # Exit loop if both found
+            if [ $SUCCESS_RJ -eq 1 ] && [ $SUCCESS_NITEROI -eq 1 ]; then
               break
             fi
           done
           
-          if [ $SUCCESS -eq 0 ]; then
-            echo "✗ Could not find bulletin in the last 14 days"
+          # Check if at least one bulletin was found
+          if [ $SUCCESS_RJ -eq 0 ] && [ $SUCCESS_NITEROI -eq 0 ]; then
+            echo "✗ Could not find any bulletins in the last 14 days"
             exit 1
           fi
           
-          # Verify PDF was downloaded
-          if [ -s latest-bulletin.pdf ]; then
-            echo "✓ PDF file size: $(stat -c%s latest-bulletin.pdf 2>/dev/null || stat -f%z latest-bulletin.pdf) bytes"
-          else
-            echo "✗ PDF download failed or file is empty"
-            exit 1
+          if [ $SUCCESS_RJ -eq 0 ]; then
+            echo "⚠️  Warning: Could not find Rio de Janeiro bulletin"
           fi
+          
+          if [ $SUCCESS_NITEROI -eq 0 ]; then
+            echo "⚠️  Warning: Could not find Niterói bulletin"
+          fi
+          
+          # Verify PDFs were downloaded
+          for pdf in *-bulletin-*.pdf; do
+            if [ -f "$pdf" ]; then
+              echo "✓ Downloaded: $pdf ($(stat -c%s "$pdf" 2>/dev/null || stat -f%z "$pdf") bytes)"
+            fi
+          done
+          # Verify PDFs were downloaded
+          for pdf in *-bulletin-*.pdf; do
+            if [ -f "$pdf" ]; then
+              echo "✓ Downloaded: $pdf ($(stat -c%s "$pdf" 2>/dev/null || stat -f%z "$pdf") bytes)"
+            fi
+          done
       
       - name: Parse bulletin and generate JSON
         run: |
