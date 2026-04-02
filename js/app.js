@@ -280,13 +280,32 @@ function updateMapMarkers() {
             opacity: 1
         });
 
-        marker.bindPopup(`
+        // Build popup content with monitoring points
+        let popupContent = `
             <div class="popup-name">${beach.name}</div>
             <div class="popup-status">
                 <strong>Status:</strong> ${getStatusText(beach.status)}<br>
                 <strong>Zona:</strong> ${beach.zone}
             </div>
-        `);
+        `;
+        
+        // Add monitoring points if available
+        if (beach.points && beach.points.length > 0) {
+            popupContent += `<div class="popup-points"><strong>Pontos de Monitoramento:</strong><ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">`;
+            beach.points.forEach(point => {
+                const pointStatusText = getStatusText(point.status);
+                const pointColor = getStatusColor(point.status);
+                const pointIcon = point.status === 'proper' ? '✓' : (point.status === 'improper' ? '✗' : '?');
+                popupContent += `<li><span style="color: ${pointColor};">${pointIcon} ${point.code || 'N/A'}</span> - ${pointStatusText}`;
+                if (point.location) {
+                    popupContent += `<br><span style="font-size: 11px; color: #666;">${point.location}</span>`;
+                }
+                popupContent += `</li>`;
+            });
+            popupContent += `</ul></div>`;
+        }
+        
+        marker.bindPopup(popupContent);
 
         marker.on('click', () => {
             highlightBeach(beach.id);
@@ -349,7 +368,7 @@ function sortBeaches(beaches, sortType) {
             sorted.sort((a, b) => a.name.localeCompare(b.name));
             break;
         case 'status':
-            const statusOrder = { improper: 0, warning: 1, proper: 2, unknown: 3 };
+            const statusOrder = { improper: 0, warning: 1, attention: 1, proper: 2, unknown: 3 };
             sorted.sort((a, b) => {
                 const diff = statusOrder[a.status] - statusOrder[b.status];
                 if (diff !== 0) return diff;
@@ -568,6 +587,7 @@ function getStatusColor(status) {
     const colors = {
         proper: '#51cf66',
         warning: '#ffd43b',
+        attention: '#ffd43b',  // Same as warning
         improper: '#ff6b6b',
         unknown: '#868e96'
     };
@@ -578,6 +598,7 @@ function getStatusText(status) {
     const texts = {
         proper: 'Própria',
         warning: 'Atenção',
+        attention: 'Atenção',  // Same as warning
         improper: 'Imprópria',
         unknown: 'Desconhecido'
     };

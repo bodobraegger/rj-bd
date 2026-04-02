@@ -1,5 +1,5 @@
 {
-  "lastUpdate": "2026-04-02T01:13:17.660540",
+  "lastUpdate": "2026-04-02T01:18:37.481476",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
@@ -171,9 +171,13 @@
       "name": "Camboinhas",
       "lat": -22.9517,
       "lng": -43.0231,
-      "city": "Niterói",
       "status": "unknown",
-      "zone": "Niterói"
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-04-02T01:18:37.389837",
+      "points": [],
+      "properCount": 0,
+      "improperCount": 0
     },
     {
       "id": 9,
@@ -300,9 +304,13 @@
       "name": "Flechas",
       "lat": -22.8956,
       "lng": -43.1186,
-      "city": "Niterói",
       "status": "unknown",
-      "zone": "Niterói"
+      "city": "Niterói",
+      "zone": "Niterói",
+      "lastUpdate": "2026-04-02T01:18:37.389837",
+      "points": [],
+      "properCount": 0,
+      "improperCount": 0
     },
     {
       "id": 15,
