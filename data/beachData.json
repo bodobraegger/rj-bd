@@ -1,5 +1,5 @@
 {
-  "lastUpdate": "2026-04-02T00:58:17.143915",
+  "lastUpdate": "2026-04-02T01:13:17.660540",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
@@ -11,7 +11,26 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "AD000",
+          "location": "Centro da praia",
+          "status": "proper"
+        },
+        {
+          "code": "PR000",
+          "location": "Em frente à Avenida Doutor Acúrcio Torres",
+          "status": "proper"
+        },
+        {
+          "code": "PR001",
+          "location": "Em frente à Rua General Rubens Rosado Teixeira",
+          "status": "proper"
+        }
+      ],
+      "properCount": 3,
+      "improperCount": 0
     },
     {
       "id": 2,
@@ -21,17 +40,40 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "AR00",
+          "location": "Canto esquerdo da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 3,
       "name": "Barra da Tijuca",
       "lat": -23.0125,
       "lng": -43.3642,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BD07",
+          "location": "Em frente ao Riviera Country Club",
+          "status": "proper"
+        },
+        {
+          "code": "BD09",
+          "location": "Em frente ao 2º GMAR (Bombeiros)",
+          "status": "improper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 1
     },
     {
       "id": 4,
@@ -41,7 +83,16 @@
       "status": "improper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BD10",
+          "location": "Quebra-Mar - Em frente à Rua Sargento João de Faria",
+          "status": "improper"
+        }
+      ],
+      "properCount": 0,
+      "improperCount": 1
     },
     {
       "id": 5,
@@ -51,7 +102,21 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BG00",
+          "location": "Em frente à Escola Ana Neri",
+          "status": "proper"
+        },
+        {
+          "code": "GM00",
+          "location": "Canto direito da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 6,
@@ -61,27 +126,54 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BV001",
+          "location": "Centro da praia",
+          "status": "proper"
+        },
+        {
+          "code": "FC001",
+          "location": "Em frente à Rua Nilo Peçanha",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 7,
       "name": "Botafogo",
       "lat": -22.9475,
       "lng": -43.1764,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BT01",
+          "location": "Em frente à comporta de",
+          "status": "improper"
+        },
+        {
+          "code": "FL000",
+          "location": "Foz do rio Carioca",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 1
     },
     {
       "id": 8,
       "name": "Camboinhas",
       "lat": -22.9517,
       "lng": -43.0231,
-      "status": "improper",
       "city": "Niterói",
-      "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "status": "unknown",
+      "zone": "Niterói"
     },
     {
       "id": 9,
@@ -91,17 +183,50 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "CH001",
+          "location": "Em frente à Travessa Santa Cândida",
+          "status": "proper"
+        },
+        {
+          "code": "CH000",
+          "location": null,
+          "status": "proper"
+        },
+        {
+          "code": "JR000",
+          "location": null,
+          "status": "proper"
+        }
+      ],
+      "properCount": 3,
+      "improperCount": 0
     },
     {
       "id": 10,
       "name": "Copacabana",
       "lat": -22.9711,
       "lng": -43.1822,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "CP05",
+          "location": "Em frente à Rua Santa Clara",
+          "status": "proper"
+        },
+        {
+          "code": "CP08",
+          "location": "Em frente à Rua República do Peru",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 11,
@@ -111,47 +236,92 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "PD00",
+          "location": "Centro da praia",
+          "status": "proper"
+        },
+        {
+          "code": "CP100",
+          "location": "Em frente à Rua Francisco Otaviano",
+          "status": "proper"
+        },
+        {
+          "code": "CP04",
+          "location": "Em frente à Rua Souza Lima",
+          "status": "proper"
+        }
+      ],
+      "properCount": 3,
+      "improperCount": 0
     },
     {
       "id": 12,
       "name": "Eva",
       "lat": -22.95,
       "lng": -43.0333,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "EA000",
+          "location": "Centro da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 13,
       "name": "Flamengo",
       "lat": -22.9344,
       "lng": -43.1725,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "FL004",
+          "location": "Em frente à Rua Corrêa Dutra",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 14,
       "name": "Flechas",
       "lat": -22.8956,
       "lng": -43.1186,
-      "status": "improper",
       "city": "Niterói",
-      "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "status": "unknown",
+      "zone": "Niterói"
     },
     {
       "id": 15,
       "name": "Glória",
       "lat": -22.9211,
       "lng": -43.1719,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "FL008",
+          "location": "Ao lado da Marina da",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 16,
@@ -161,57 +331,156 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "GR000",
+          "location": "Centro da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 17,
       "name": "Grumari",
       "lat": -23.0453,
       "lng": -43.5247,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "GM01",
+          "location": "Centro da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 18,
       "name": "Icaraí",
       "lat": -22.9058,
       "lng": -43.105,
-      "status": "improper",
+      "status": "attention",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "FC000",
+          "location": "Em frente à Rua Praia de  n° 163",
+          "status": "proper"
+        },
+        {
+          "code": "IC003",
+          "location": "À esquerda da Pedra de Itapuca",
+          "status": "proper"
+        },
+        {
+          "code": "IC000",
+          "location": "Em frente à Praça Getúlio Vargas",
+          "status": "proper"
+        },
+        {
+          "code": "IC002",
+          "location": "Em frente à Rua Otávio Carneiro",
+          "status": "proper"
+        },
+        {
+          "code": "IC001",
+          "location": "Em frente à Rua Mariz e Barros",
+          "status": "proper"
+        },
+        {
+          "code": "SF000",
+          "location": "Em frente à Rua Caraíbas",
+          "status": "improper"
+        }
+      ],
+      "properCount": 5,
+      "improperCount": 1
     },
     {
       "id": 19,
       "name": "Ipanema",
       "lat": -22.9838,
       "lng": -43.2044,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "IP10",
+          "location": "Em frente à Rua Garcia D'Ávila",
+          "status": "improper"
+        },
+        {
+          "code": "IP06",
+          "location": "Em frente à Rua Joana Angélica",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 1
     },
     {
       "id": 20,
       "name": "Itacoatiara",
       "lat": -22.9811,
       "lng": -43.0306,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "IA000",
+          "location": "Em frente à Rua das Papoulas",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 21,
       "name": "Itaipu",
       "lat": -22.9658,
       "lng": -43.0289,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "CM001",
+          "location": null,
+          "status": "proper"
+        },
+        {
+          "code": "II000",
+          "location": "Em frente ao Restaurante Varandão",
+          "status": "proper"
+        },
+        {
+          "code": "II001",
+          "location": "Em frente à Praia de Itaipú n° 21",
+          "status": "proper"
+        },
+        {
+          "code": "IA001",
+          "location": "Em frente à Rua das Azaléias",
+          "status": "proper"
+        }
+      ],
+      "properCount": 4,
+      "improperCount": 0
     },
     {
       "id": 22,
@@ -221,7 +490,16 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "JT00",
+          "location": "Centro da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 23,
@@ -231,17 +509,45 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "JR001",
+          "location": "Em frente à Avenida Carlos Ermelindo Marins n° 1935",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 24,
       "name": "Leblon",
       "lat": -22.9844,
       "lng": -43.2253,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "LB01",
+          "location": "Em frente à Rua Bartolomeu Mitre",
+          "status": "proper"
+        },
+        {
+          "code": "LB03",
+          "location": "Em frente à Rua Afrânio de Melo Franco",
+          "status": "improper"
+        },
+        {
+          "code": "IP03",
+          "location": "Em frente à Rua Paul Redefern",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 1
     },
     {
       "id": 25,
@@ -251,7 +557,16 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "LM02",
+          "location": "Em frente à Rua Aurelino Leal",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 26,
@@ -261,27 +576,69 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "PP10",
+          "location": "Em frente à Avenida Princesa Diana de Galles",
+          "status": "proper"
+        },
+        {
+          "code": "GV01",
+          "location": "Em frente ao nº 220 da Avenida Prefeito Mendes de Morais",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 27,
       "name": "Piratininga",
       "lat": -22.955,
       "lng": -43.0733,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "PR002",
+          "location": "Em frente à Rua Orestes Barbosa",
+          "status": "proper"
+        },
+        {
+          "code": "PR003",
+          "location": "Em frente à Rua João Gomes da Silva",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 28,
       "name": "Pontal de Sernambetiba",
       "lat": -23.0158,
       "lng": -43.4897,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "PS00",
+          "location": null,
+          "status": "improper"
+        },
+        {
+          "code": "BD00",
+          "location": "Em frente à Rua Manuel Jorge Lydia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 1
     },
     {
       "id": 29,
@@ -291,27 +648,69 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "PN00",
+          "location": "Centro da praia",
+          "status": "proper"
+        },
+        {
+          "code": "PS01",
+          "location": "Em frente ao canal de Sernambetiba",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 30,
       "name": "Recreio",
       "lat": -23.0275,
       "lng": -43.4647,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BD02",
+          "location": "Canto direito da Reserva Biológica de Marapendi",
+          "status": "proper"
+        },
+        {
+          "code": "BD03",
+          "location": "Canto esquerdo da Reserva Biológica de Marapendi",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 31,
       "name": "Recreio/Reserva",
       "lat": -23.0183,
       "lng": -43.4064,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "BD011",
+          "location": "Em frente ao salão de eventos",
+          "status": "proper"
+        },
+        {
+          "code": "BD05",
+          "location": "Em frente à Avenida Ayrton Senna",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 32,
@@ -321,17 +720,40 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "SG000",
+          "location": "Centro da praia",
+          "status": "proper"
+        },
+        {
+          "code": "CM000",
+          "location": "Centro da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     },
     {
       "id": 33,
       "name": "São Conrado",
       "lat": -22.9997,
       "lng": -43.2689,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "GV02",
+          "location": "Canto esquerdo da praia, próximo ao costão rochoso",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 34,
@@ -341,7 +763,26 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "SF002",
+          "location": "Em frente à Avenida Quintino Bocaiúva n° 233",
+          "status": "improper"
+        },
+        {
+          "code": "SF001",
+          "location": "Em frente à Igreja",
+          "status": "improper"
+        },
+        {
+          "code": "CH002",
+          "location": "Em frente à Avenida Quintino Bocaiúva n° 355",
+          "status": "improper"
+        }
+      ],
+      "properCount": 0,
+      "improperCount": 3
     },
     {
       "id": 35,
@@ -351,7 +792,21 @@
       "status": "improper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "UR00",
+          "location": "Centro da praia",
+          "status": "improper"
+        },
+        {
+          "code": "BT00",
+          "location": "Em frente à Rua Marquês de Olinda",
+          "status": "improper"
+        }
+      ],
+      "properCount": 0,
+      "improperCount": 2
     },
     {
       "id": 36,
@@ -361,7 +816,16 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "VR00",
+          "location": "Centro da praia",
+          "status": "proper"
+        }
+      ],
+      "properCount": 1,
+      "improperCount": 0
     },
     {
       "id": 37,
@@ -371,7 +835,21 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-03-30T00:00:00"
+      "lastUpdate": "2026-03-30T00:00:00",
+      "points": [
+        {
+          "code": "VD00",
+          "location": "Centro da praia",
+          "status": "proper"
+        },
+        {
+          "code": "LB00",
+          "location": "Em frente à Rua Rita Ludolf",
+          "status": "proper"
+        }
+      ],
+      "properCount": 2,
+      "improperCount": 0
     }
   ]
 }
