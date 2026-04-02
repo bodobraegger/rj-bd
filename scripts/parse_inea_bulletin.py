@@ -68,6 +68,21 @@ def extract_pdf_text(pdf_path):
         print("pdftotext not found. Install poppler-utils.")
         return None
 
+def normalize_text(text):
+    """Normalize text for comparison - handle accents and special chars"""
+    replacements = {
+        'Á': 'A', 'À': 'A', 'Ã': 'A', 'Â': 'A',
+        'É': 'E', 'È': 'E', 'Ê': 'E',
+        'Í': 'I', 'Ì': 'I', 'Î': 'I',
+        'Ó': 'O', 'Ò': 'O', 'Õ': 'O', 'Ô': 'O',
+        'Ú': 'U', 'Ù': 'U', 'Û': 'U',
+        'Ç': 'C',
+    }
+    result = text.upper()
+    for old, new in replacements.items():
+        result = result.replace(old, new)
+    return result
+
 def parse_beach_status(text, bulletin_date):
     """Parse beach names and status from bulletin text"""
     beaches_dict = {}
@@ -75,15 +90,21 @@ def parse_beach_status(text, bulletin_date):
     
     lines = text.split('\n')
     
-    # Track current beach name
+    # Track current beach name - look at previous lines
     current_beach = None
+    recent_lines = []  # Keep last few lines to search for beach names
     
     # Parse the table - status appears after point code
     for line in lines:
         line_stripped = line.strip()
         
+        # Keep track of recent lines (last 10 lines to catch beach names that appear earlier)
+        recent_lines.append(line)
+        if len(recent_lines) > 10:
+            recent_lines.pop(0)
+        
         # Skip empty lines and headers
-        if not line_stripped or any(x in line.upper() for x in ['BOLETIM', 'LOCALIZAÇÃO', 'PONTO', 'PRAIAS', 'COLETA', 'CONAMA']):
+        if not line_stripped or any(x in line.upper() for x in ['BOLETIM', 'LOCALIZAÇÃO', 'PONTO COLETA', 'PRAIAS', 'COLETA', 'CONAMA', 'OBSERVAÇÕES', 'OBSERVACOES']):
             continue
         
         # Look for lines with "Própria" or "Imprópria" (case-insensitive status)
@@ -92,37 +113,47 @@ def parse_beach_status(text, bulletin_date):
         has_impropria = 'IMPRÓPRIA' in line_upper or 'IMPROPRIA' in line_upper
         
         if not (has_propria or has_impropria):
+            # Check if this line contains a beach name (update current_beach)
+            for beach_name in BEACH_COORDS.keys():
+                beach_normalized = normalize_text(beach_name)
+                line_normalized = normalize_text(line)
+                
+                # Check if beach name appears in this line
+                if beach_normalized in line_normalized:
+                    current_beach = beach_name
+                    break
             continue
         
         # Determine status
         status = 'improper' if has_impropria else 'proper'
         
         # Find which beach this line belongs to
-        # First, check if the beach name is at the start of the line
+        # First, check if the beach name is in the current line
         found_beach = None
         for beach_name in BEACH_COORDS.keys():
-            # Normalize beach names for comparison
-            beach_normalized = beach_name.upper().replace('Ã', 'A').replace('Á', 'A').replace('Ó', 'O')
-            line_normalized = line_upper.replace('Ã', 'A').replace('Á', 'A').replace('Ó', 'O')
+            beach_normalized = normalize_text(beach_name)
+            line_normalized = normalize_text(line)
             
-            # Check if line starts with beach name (allowing for some whitespace)
-            if line_normalized.lstrip().startswith(beach_normalized):
+            if beach_normalized in line_normalized:
                 found_beach = beach_name
                 current_beach = beach_name
                 break
         
-        # If no beach found at start, check if any beach name is mentioned
+        # If not found, search recent lines (beach name often appears 1-2 lines before status)
         if not found_beach:
-            for beach_name in BEACH_COORDS.keys():
-                beach_normalized = beach_name.upper().replace('Ã', 'A').replace('Á', 'A').replace('Ó', 'O')
-                line_normalized = line_upper.replace('Ã', 'A').replace('Á', 'A').replace('Ó', 'O')
-                
-                if beach_normalized in line_normalized:
-                    found_beach = beach_name
-                    current_beach = beach_name
+            for prev_line in reversed(recent_lines[:-1]):  # Don't include current line
+                for beach_name in BEACH_COORDS.keys():
+                    beach_normalized = normalize_text(beach_name)
+                    prev_normalized = normalize_text(prev_line)
+                    
+                    if beach_normalized in prev_normalized:
+                        found_beach = beach_name
+                        current_beach = beach_name
+                        break
+                if found_beach:
                     break
         
-        # If still no beach found, use current_beach from previous lines
+        # If still no beach found, use current_beach from context
         if not found_beach and current_beach:
             found_beach = current_beach
         

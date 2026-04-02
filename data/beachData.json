@@ -1,5 +1,5 @@
 {
-  "lastUpdate": "2026-04-02T00:49:56.090421",
+  "lastUpdate": "2026-04-02T00:53:59.158293",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
@@ -96,9 +96,10 @@
       "name": "Copacabana",
       "lat": -22.9711,
       "lng": -43.1822,
+      "status": "proper",
       "city": "Rio de Janeiro",
-      "status": "unknown",
-      "zone": "Zona Sul"
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 11,
@@ -115,7 +116,7 @@
       "name": "Eva",
       "lat": -22.95,
       "lng": -43.0333,
-      "status": "proper",
+      "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
       "lastUpdate": "2026-03-30T00:00:00"
@@ -125,9 +126,10 @@
       "name": "Flamengo",
       "lat": -22.9344,
       "lng": -43.1725,
+      "status": "proper",
       "city": "Rio de Janeiro",
-      "status": "unknown",
-      "zone": "Zona Sul"
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 14,
@@ -163,9 +165,10 @@
       "name": "Grumari",
       "lat": -23.0453,
       "lng": -43.5247,
+      "status": "proper",
       "city": "Rio de Janeiro",
-      "status": "unknown",
-      "zone": "Zona Oeste"
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 18,
@@ -192,16 +195,17 @@
       "name": "Itacoatiara",
       "lat": -22.9811,
       "lng": -43.0306,
+      "status": "improper",
       "city": "Niterói",
-      "status": "unknown",
-      "zone": "Niterói"
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 21,
       "name": "Itaipu",
       "lat": -22.9658,
       "lng": -43.0289,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
       "lastUpdate": "2026-03-30T00:00:00"
@@ -221,9 +225,10 @@
       "name": "Jurujuba",
       "lat": -22.9358,
       "lng": -43.085,
+      "status": "proper",
       "city": "Niterói",
-      "status": "unknown",
-      "zone": "Niterói"
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 24,
@@ -260,25 +265,27 @@
       "name": "Piratininga",
       "lat": -22.955,
       "lng": -43.0733,
+      "status": "proper",
       "city": "Niterói",
-      "status": "unknown",
-      "zone": "Niterói"
+      "zone": "Niterói",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 28,
       "name": "Pontal de Sernambetiba",
       "lat": -23.0158,
       "lng": -43.4897,
+      "status": "improper",
       "city": "Rio de Janeiro",
-      "status": "unknown",
-      "zone": "Zona Oeste"
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 29,
       "name": "Prainha",
       "lat": -23.0392,
       "lng": -43.5089,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
       "lastUpdate": "2026-03-30T00:00:00"
@@ -288,9 +295,10 @@
       "name": "Recreio",
       "lat": -23.0275,
       "lng": -43.4647,
+      "status": "proper",
       "city": "Rio de Janeiro",
-      "status": "unknown",
-      "zone": "Zona Oeste"
+      "zone": "Zona Oeste",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 31,
@@ -316,9 +324,10 @@
       "name": "São Conrado",
       "lat": -22.9997,
       "lng": -43.2689,
+      "status": "proper",
       "city": "Rio de Janeiro",
-      "status": "unknown",
-      "zone": "Zona Sul"
+      "zone": "Zona Sul",
+      "lastUpdate": "2026-03-30T00:00:00"
     },
     {
       "id": 34,
