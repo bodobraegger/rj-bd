@@ -37,6 +37,16 @@ body {
 .header {
     padding: 24px 20px 20px;
     border-bottom: 1px solid #000;
+
+    background-image: url('./Brasão_da_cidade_do_Rio_de_Janeiro.svg'), url('./Brasão_de_Niterói_RJ.svg');
+      /* Apply repeat settings respectively */
+    /* background-repeat: round, space; */
+    background-repeat: no-repeat;
+    background-blend-mode: difference;
+    /* Optional: set positions and sizes for each */
+    background-position: center right, center right;
+    background-size: contain, contain;
+
 }
 
 .header h1 {
