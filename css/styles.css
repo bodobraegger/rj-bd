@@ -120,17 +120,64 @@ body {
     background: #f9f9f9;
 }
 
+.beach-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.beach-item:hover {
+    background: #f9f9f9;
+}
+
 .beach-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: center;
     margin-bottom: 6px;
+    position: relative;
 }
 
 .beach-name {
     font-weight: 400;
     font-size: 13px;
     flex: 1;
+}
+
+.beach-points {
+    position: absolute;
+    left: 50%;
+    right: 10px; /* Leave space for star */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    pointer-events: none;
+}
+
+.beach-points .point-code {
+    pointer-events: auto;
+}
+
+.point-code {
+    font-size: 9px;
+    font-weight: 500;
+    padding: 1px 2px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0.9;
+}
+
+.point-code.point-proper {
+    color: #51cf66;
+}
+
+.point-code.point-improper {
+    color: #ff6b6b;
+}
+
+.point-code.point-attention {
+    color: #ffd43b;
 }
 
 .fav-btn {
@@ -149,6 +196,32 @@ body {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+.fav-btn:hover {
+    opacity: 0.5;
+    transform: scale(1.1);
+}
+
+.fav-btn:focus {
+    outline: none;
+    border: none;
+}
+
+.fav-btn.active {
+    opacity: 1;
+}
+
+.fav-btn.active:hover {
+    opacity: 1;
+}
+
+.beach-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #666;
 }
 
 .fav-btn:hover {

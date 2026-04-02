@@ -334,10 +334,21 @@ function renderBeachList() {
         const isFavorite = favorites.includes(beach.id);
         const statusClass = `status-${beach.status}`;
         
+        // Build monitoring points summary
+        let pointsSummary = '';
+        if (beach.monitoringPoints && beach.monitoringPoints.length > 0) {
+            const pointCodes = beach.monitoringPoints.map(p => {
+                const statusClass = `point-${p.status}`;
+                return `<span class="point-code ${statusClass}">${p.code}</span>`;
+            }).join(' ');
+            pointsSummary = `<div class="beach-points">${pointCodes}</div>`;
+        }
+        
         return `
             <div class="beach-item" data-id="${beach.id}" onclick="focusBeach(${beach.id})">
                 <div class="beach-header">
                     <div class="beach-name">${beach.name}</div>
+                    ${pointsSummary}
                     <button class="fav-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(event, ${beach.id})">★</button>
                 </div>
                 <div class="beach-status">
@@ -355,23 +366,52 @@ function renderBeachList() {
 function sortBeaches(beaches, sortType) {
     const sorted = [...beaches];
     
+    // Define zone/city priority: Rio zones first, then Niterói
+    const zonePriority = {
+        'Zona Sul': 1,
+        'Zona Oeste': 2,
+        'Niterói': 3
+    };
+    
+    const compareByZone = (a, b) => {
+        const aPriority = zonePriority[a.zone] || 99;
+        const bPriority = zonePriority[b.zone] || 99;
+        return aPriority - bPriority;
+    };
+    
     switch(sortType) {
         case 'favorites':
             sorted.sort((a, b) => {
                 const aFav = favorites.includes(a.id) ? 1 : 0;
                 const bFav = favorites.includes(b.id) ? 1 : 0;
                 if (aFav !== bFav) return bFav - aFav;
+                
+                // Then by zone
+                const zoneDiff = compareByZone(a, b);
+                if (zoneDiff !== 0) return zoneDiff;
+                
                 return a.name.localeCompare(b.name);
             });
             break;
         case 'name':
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
+            sorted.sort((a, b) => {
+                // First by zone
+                const zoneDiff = compareByZone(a, b);
+                if (zoneDiff !== 0) return zoneDiff;
+                
+                return a.name.localeCompare(b.name);
+            });
             break;
         case 'status':
             const statusOrder = { improper: 0, warning: 1, attention: 1, proper: 2, unknown: 3 };
             sorted.sort((a, b) => {
                 const diff = statusOrder[a.status] - statusOrder[b.status];
                 if (diff !== 0) return diff;
+                
+                // Then by zone
+                const zoneDiff = compareByZone(a, b);
+                if (zoneDiff !== 0) return zoneDiff;
+                
                 return a.name.localeCompare(b.name);
             });
             break;
