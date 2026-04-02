@@ -218,26 +218,35 @@ def parse_beach_status(text, bulletin_date):
             point_prefix = ''.join([c for c in point_code if c.isalpha()])
         
         # Extract location description
-        # Combine recent lines to handle text that wraps across lines
-        combined_text = ' '.join(recent_lines[-5:])  # Last 5 lines for better context
-        # Clean up whitespace from line wrapping
-        combined_text = re.sub(r'\s+', ' ', combined_text)
-        
+        # Simple approach: text between point code and status word is the location
+        # Handle two cases: location before OR after point code
         location = None
-        # Look for location description near the point code
-        # Try to find location in recent lines, matching to the specific point code
         if point_code:  # Only if we have a point code
             for lookback in range(1, 6):  # Check last 5 lines
                 test_text = ' '.join(recent_lines[-lookback:])
+                # Clean up whitespace
                 test_text = re.sub(r'\s+', ' ', test_text)
                 
-                # Match location keyword followed by description (greedy), ending at our specific point code
-                pattern = r'((?:Em frente|Centro|Canto|Foz|Ao lado|Quebra-Mar|À\s*esquerda|À\s*direita).+?)\s+(' + re.escape(point_code) + r')(?:\s|$)'
-                match = re.search(pattern, test_text, re.IGNORECASE)
+                # Pattern 1: Location comes AFTER point code (e.g., "GR000 Centro da praia Própria")
+                pattern_after = r'\b' + re.escape(point_code) + r'\s+(.+?)(?:\s+Pr[óo]pria|\s+Impr[óo]pria|$)'
+                match = re.search(pattern_after, test_text, re.IGNORECASE)
                 if match:
-                    # Found a location that ends right before our point code
                     location = match.group(1).strip()
-                    break
+                    # Only accept if it's not just a status word
+                    if location and location.lower() not in ['própria', 'propria', 'imprópria', 'impropria']:
+                        break
+                
+                # Pattern 2: Location comes BEFORE point code (e.g., "Em frente à praia BG00 Própria")
+                pattern_before = r'(.+?)\s+' + re.escape(point_code) + r'\s+(?:Pr[óo]pria|Impr[óo]pria)'
+                match = re.search(pattern_before, test_text, re.IGNORECASE)
+                if match:
+                    candidate = match.group(1).strip()
+                    # Extract just the location part (after any beach names or other text)
+                    # Look for common location keywords
+                    location_match = re.search(r'((?:Em frente|Centro|Canto|Foz|Ao lado|Quebra-Mar|À\s*esquerda|À\s*direita).*)$', candidate, re.IGNORECASE)
+                    if location_match:
+                        location = location_match.group(1).strip()
+                        break
         
         # Clean up location if found
         if location:
@@ -434,7 +443,13 @@ if __name__ == '__main__':
     import glob
     
     # Look for all bulletin PDFs
-    pdf_files = glob.glob('*bulletin*.pdf') + glob.glob('*-26.pdf')
+    # First check if files were passed as arguments
+    if len(sys.argv) > 1:
+        pdf_files = [arg for arg in sys.argv[1:] if arg.endswith('.pdf')]
+    else:
+        # Look in current directory and data/ subdirectory
+        pdf_files = (glob.glob('*bulletin*.pdf') + glob.glob('*-26.pdf') + 
+                     glob.glob('data/*bulletin*.pdf') + glob.glob('data/*-26.pdf'))
     
     if not pdf_files:
         print(f"✗ No PDF bulletin files found")
