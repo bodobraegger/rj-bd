@@ -186,6 +186,7 @@ body {
 
 .status-proper { background: #51cf66; }
 .status-warning { background: #ffd43b; }
+.status-attention { background: #ffd43b; } /* Same as warning */
 .status-improper { background: #ff6b6b; }
 .status-unknown { background: #868e96; }
 
