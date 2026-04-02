@@ -40,30 +40,47 @@ jobs:
             # Calculate date
             if [[ "$OSTYPE" == "darwin"* ]]; then
               # macOS
-              DATE=$(date -v-${days_ago}d +%d-%m-%y)
+              DATE_DASH=$(date -v-${days_ago}d +%d-%m-%y)
+              DATE_DOT=$(date -v-${days_ago}d +%d.%m.%y)
+              DATE_COMPACT=$(date -v-${days_ago}d +%Y%m%d)
               YEAR=$(date -v-${days_ago}d +%Y)
               MONTH=$(date -v-${days_ago}d +%m)
+              DAY=$(date -v-${days_ago}d +%d)
             else
               # Linux
-              DATE=$(date -d "$days_ago days ago" +%d-%m-%y)
+              DATE_DASH=$(date -d "$days_ago days ago" +%d-%m-%y)
+              DATE_DOT=$(date -d "$days_ago days ago" +%d.%m.%y)
+              DATE_COMPACT=$(date -d "$days_ago days ago" +%Y%m%d)
               YEAR=$(date -d "$days_ago days ago" +%Y)
               MONTH=$(date -d "$days_ago days ago" +%m)
+              DAY=$(date -d "$days_ago days ago" +%d)
             fi
             
-            FILENAME="Zona-oeste-e-Zona-sul-${DATE}.pdf"
-            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME}"
+            # Try new format first (2026 format)
+            FILENAME_NEW="Site-Boletim-de-Balneabilidade-do-Estado-do-RJ-_${DATE_COMPACT}_155642_0000.pdf_${DATE_DOT}.pdf"
+            URL_NEW="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_NEW}"
             
-            # Check if file exists with HEAD request (fast, doesn't download)
-            if curl -f -s -I "$URL" > /dev/null 2>&1; then
-              echo "✓ Found bulletin at $URL"
-              # Now actually download it
-              curl -f -L "$URL" -o "${FILENAME}"
-              ln -sf "${FILENAME}" latest-bulletin.pdf
+            if curl -f -s -I "$URL_NEW" > /dev/null 2>&1; then
+              echo "✓ Found bulletin (new format) at $URL_NEW"
+              curl -f -L "$URL_NEW" -o "${FILENAME_NEW}"
+              ln -sf "${FILENAME_NEW}" latest-bulletin.pdf
               SUCCESS=1
               break
-            else
-              echo "  Bulletin not found for $DATE"
             fi
+            
+            # Try old format (pre-2026 format)
+            FILENAME_OLD="Zona-oeste-e-Zona-sul-${DATE_DASH}.pdf"
+            URL_OLD="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_OLD}"
+            
+            if curl -f -s -I "$URL_OLD" > /dev/null 2>&1; then
+              echo "✓ Found bulletin (old format) at $URL_OLD"
+              curl -f -L "$URL_OLD" -o "${FILENAME_OLD}"
+              ln -sf "${FILENAME_OLD}" latest-bulletin.pdf
+              SUCCESS=1
+              break
+            fi
+            
+            echo "  Bulletin not found for ${DATE_DASH}"
           done
           
           if [ $SUCCESS -eq 0 ]; then
