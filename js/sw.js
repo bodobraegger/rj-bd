@@ -1,5 +1,7 @@
 // Service Worker for offline support
-const CACHE_NAME = 'balneabilidade-rj';
+// Cache version is automatically updated during deployment
+const CACHE_VERSION = 'BUILD_TIMESTAMP'; // Will be replaced by GitHub Action
+const CACHE_NAME = `balneabilidade-rj-${CACHE_VERSION}`;
 const ASSETS = [
   '../index.html',
   '../js/app.js',
@@ -69,8 +71,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For beachData.json, try network first, fallback to cache
-  if (event.request.url.includes('data/beachData.json')) {
+  // For critical files (data, CSS, JS), try network first to get latest version
+  const isAppFile = event.request.url.includes('data/beachData.json') ||
+                    event.request.url.includes('/js/app.js') ||
+                    event.request.url.includes('/css/styles.css');
+  
+  if (isAppFile) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {

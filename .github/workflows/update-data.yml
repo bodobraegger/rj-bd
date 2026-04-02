@@ -163,6 +163,13 @@ jobs:
           python3 scripts/parse_inea_bulletin.py
           echo "Generated data/beachData.json at $(date)"
       
+      - name: Update service worker cache version
+        run: |
+          # Replace BUILD_TIMESTAMP with current timestamp to force cache refresh
+          TIMESTAMP=$(date +%s)
+          sed -i "s/BUILD_TIMESTAMP/${TIMESTAMP}/g" js/sw.js
+          echo "Updated service worker cache version to: ${TIMESTAMP}"
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
