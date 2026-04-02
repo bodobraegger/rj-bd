@@ -114,7 +114,9 @@ def parse_beach_status(text, bulletin_date):
         
         if not (has_propria or has_impropria):
             # Check if this line contains a beach name (update current_beach)
-            for beach_name in BEACH_COORDS.keys():
+            # Sort by length to match longer/more specific names first
+            sorted_beaches = sorted(BEACH_COORDS.keys(), key=len, reverse=True)
+            for beach_name in sorted_beaches:
                 beach_normalized = normalize_text(beach_name)
                 line_normalized = normalize_text(line)
                 
@@ -129,8 +131,11 @@ def parse_beach_status(text, bulletin_date):
         
         # Find which beach this line belongs to
         # First, check if the beach name is in the current line
+        # Sort beach names by length (longest first) to match more specific names first
         found_beach = None
-        for beach_name in BEACH_COORDS.keys():
+        sorted_beaches = sorted(BEACH_COORDS.keys(), key=len, reverse=True)
+        
+        for beach_name in sorted_beaches:
             beach_normalized = normalize_text(beach_name)
             line_normalized = normalize_text(line)
             
@@ -142,7 +147,7 @@ def parse_beach_status(text, bulletin_date):
         # If not found, search recent lines (beach name often appears 1-2 lines before status)
         if not found_beach:
             for prev_line in reversed(recent_lines[:-1]):  # Don't include current line
-                for beach_name in BEACH_COORDS.keys():
+                for beach_name in sorted_beaches:
                     beach_normalized = normalize_text(beach_name)
                     prev_normalized = normalize_text(prev_line)
                     
@@ -176,6 +181,73 @@ def parse_beach_status(text, bulletin_date):
             elif status == 'improper':
                 # If any monitoring point is improper, mark beach as improper
                 beaches_dict[found_beach]['status'] = 'improper'
+    
+    # Second pass: Look for beach names that appear as standalone lines
+    # This catches edge cases like "Flechas", "Camboinhas", etc.
+    # Sort by length to match longer names first (e.g., "Barra da Tijuca II" before "Barra da Tijuca")
+    sorted_beaches = sorted(BEACH_COORDS.keys(), key=len, reverse=True)
+    
+    for i, line in enumerate(lines):
+        line_stripped = line.strip()
+        
+        # Skip if already processed or empty
+        if not line_stripped:
+            continue
+        
+        # Check if this line contains ONLY a beach name (standalone beach header)
+        line_normalized = normalize_text(line_stripped)
+        
+        for beach_name in sorted_beaches:
+            beach_normalized = normalize_text(beach_name)
+            
+            # Match if the line is exactly the beach name or starts with it and has minimal extra content
+            # (allowing for some spacing/formatting issues)
+            if beach_normalized == line_normalized or \
+               (line_normalized.startswith(beach_normalized) and len(line_normalized) - len(beach_normalized) < 10):
+                
+                # This line is a beach name - look at following lines for status
+                # Scan up to 15 lines ahead for Própria/Imprópria
+                found_status = None
+                for j in range(1, 16):
+                    if i + j >= len(lines):
+                        break
+                    
+                    next_line = lines[i + j]
+                    next_upper = next_line.upper()
+                    
+                    # Skip empty lines
+                    if not next_line.strip():
+                        continue
+                    
+                    # Check for status
+                    if 'IMPRÓPRIA' in next_upper or 'IMPROPRIA' in next_upper:
+                        found_status = 'improper'
+                        break
+                    elif 'PRÓPRIA' in next_upper or 'PROPRIA' in next_upper:
+                        found_status = 'proper'
+                        # Don't break immediately - keep looking for improper
+                        # (we want to know if ANY point is improper)
+                
+                # Add or update beach with found status
+                if found_status and beach_name not in beaches_dict:
+                    coords = BEACH_COORDS[beach_name]
+                    city = coords.get('city', 'Rio de Janeiro')
+                    beaches_dict[beach_name] = {
+                        'id': beach_id,
+                        'name': beach_name,
+                        'lat': coords['lat'],
+                        'lng': coords['lng'],
+                        'status': found_status,
+                        'city': city,
+                        'zone': get_zone(beach_name, coords),
+                        'lastUpdate': bulletin_date
+                    }
+                    beach_id += 1
+                elif found_status == 'improper' and beach_name in beaches_dict:
+                    # Update to improper if found
+                    beaches_dict[beach_name]['status'] = 'improper'
+                
+                break  # Found this beach, move to next line
     
     beaches = list(beaches_dict.values())
     
