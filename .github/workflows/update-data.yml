@@ -41,26 +41,22 @@ jobs:
               # macOS
               DATE=$(date -v-${days_ago}d +%d.%m.%y)
               DATE_NEXT=$(date -v-$((days_ago-1))d +%Y%m%d)
-              YEAR_NEXT=$(date -v-$((days_ago-1))d +%Y)
-              MONTH_NEXT=$(date -v-$((days_ago-1))d +%m)
+              YEAR=$(date -v-${days_ago}d +%Y)
+              MONTH=$(date -v-${days_ago}d +%m)
               DATE_OLD=$(date -v-${days_ago}d +%d-%m-%y)
-              YEAR_OLD=$(date -v-${days_ago}d +%Y)
-              MONTH_OLD=$(date -v-${days_ago}d +%m)
             else
               # Linux
               DATE=$(date -d "$days_ago days ago" +%d.%m.%y)
               DATE_NEXT=$(date -d "$((days_ago-1)) days ago" +%Y%m%d)
-              YEAR_NEXT=$(date -d "$((days_ago-1)) days ago" +%Y)
-              MONTH_NEXT=$(date -d "$((days_ago-1)) days ago" +%m)
+              YEAR=$(date -d "$days_ago days ago" +%Y)
+              MONTH=$(date -d "$days_ago days ago" +%m)
               DATE_OLD=$(date -d "$days_ago days ago" +%d-%m-%y)
-              YEAR_OLD=$(date -d "$days_ago days ago" +%Y)
-              MONTH_OLD=$(date -d "$days_ago days ago" +%m)
             fi
             
-            # Try new format with next day's month folder
             FILENAME="Site-Boletim-de-Balneabilidade-do-Estado-do-RJ-_${DATE_NEXT}_155642_0000.pdf_${DATE}.pdf"
-            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME}"
             
+            # Try new format in current month folder
+            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME}"
             if curl -f -s -I "$URL" > /dev/null 2>&1; then
               echo "✓ Found bulletin at $URL"
               curl -f -L "$URL" -o "${FILENAME}"
@@ -69,20 +65,28 @@ jobs:
               break
             fi
             
-            # Try new format with current day's month folder (fallback)
-            URL_ALT="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_OLD}/${MONTH_OLD}/${FILENAME}"
+            # Calculate next month for cross-month cases
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+              MONTH_NEXT=$(date -v-${days_ago}d -v+1m +%m)
+              YEAR_NEXT=$(date -v-${days_ago}d -v+1m +%Y)
+            else
+              MONTH_NEXT=$(date -d "$days_ago days ago + 1 month" +%m)
+              YEAR_NEXT=$(date -d "$days_ago days ago + 1 month" +%Y)
+            fi
             
-            if curl -f -s -I "$URL_ALT" > /dev/null 2>&1; then
-              echo "✓ Found bulletin at $URL_ALT"
-              curl -f -L "$URL_ALT" -o "${FILENAME}"
+            # Try new format in next month folder
+            URL="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME}"
+            if curl -f -s -I "$URL" > /dev/null 2>&1; then
+              echo "✓ Found bulletin at $URL"
+              curl -f -L "$URL" -o "${FILENAME}"
               ln -sf "${FILENAME}" latest-bulletin.pdf
               SUCCESS=1
               break
             fi
             
-            # Try old format (pre-2026)
+            # Try old format
             FILENAME_OLD="Zona-oeste-e-Zona-sul-${DATE_OLD}.pdf"
-            URL_OLD="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_OLD}/${MONTH_OLD}/${FILENAME_OLD}"
+            URL_OLD="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_OLD}"
             
             if curl -f -s -I "$URL_OLD" > /dev/null 2>&1; then
               echo "✓ Found bulletin at $URL_OLD"
