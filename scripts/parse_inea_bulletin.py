@@ -68,6 +68,73 @@ def extract_pdf_text(pdf_path):
         print("pdftotext not found. Install poppler-utils.")
         return None
 
+# Point code to beach name mapping
+# Handles specific codes and prefix patterns based on INEA bulletin conventions
+def get_beach_from_point_code(point_code):
+    """Map a point code to its beach name, handling edge cases"""
+    if not point_code:
+        return None
+    
+    # Specific code mappings (override prefix rules)
+    specific_mappings = {
+        # Flamengo/Glória edge case
+        'FL008': 'Glória',
+        # Barra da Tijuca / Recreio / Reserva edge cases
+        'BD03': 'Recreio/Reserva',
+        'BD011': 'Recreio/Reserva',
+        'BD05': 'Barra da Tijuca',
+        'BD07': 'Barra da Tijuca',
+        'BD09': 'Barra da Tijuca',
+        'BD10': 'Barra da Tijuca II',
+    }
+    
+    if point_code in specific_mappings:
+        return specific_mappings[point_code]
+    
+    # Default prefix mappings
+    prefix = point_code[:2] if len(point_code) >= 2 else None
+    if not prefix:
+        return None
+    
+    prefix_mappings = {
+        'BG': 'Barra de Guaratiba',
+        'GM': 'Grumari',
+        'PN': 'Prainha',
+        'PS': 'Pontal de Sernambetiba',
+        'BD': 'Recreio',  # Default for unlisted BD codes
+        'JT': 'Joatinga',
+        'PP': 'Pepino',
+        'GV': 'São Conrado',
+        'VD': 'Vidigal',
+        'LB': 'Leblon',
+        'IP': 'Ipanema',
+        'AR': 'Arpoador',
+        'PD': 'Diabo',
+        'CP': 'Copacabana',
+        'LM': 'Leme',
+        'VR': 'Vermelha',
+        'UR': 'Urca',
+        'BT': 'Botafogo',
+        'FL': 'Flamengo',  # Default for unlisted FL codes
+        # Niterói beaches
+        'GR': 'Gragoatá',
+        'BV': 'Boa Viagem',
+        'FC': 'Flechas',
+        'IC': 'Icaraí',
+        'SF': 'São Francisco',
+        'CH': 'Charitas',
+        'JR': 'Jurujuba',
+        'EA': 'Eva',
+        'AD': 'Adão',
+        'PR': 'Piratininga',
+        'SG': 'Sossego',
+        'CM': 'Camboinhas',
+        'II': 'Itaipu',
+        'IA': 'Itacoatiara',
+    }
+    
+    return prefix_mappings.get(prefix)
+
 def normalize_text(text):
     """Normalize text for comparison - handle accents and special chars"""
     replacements = {
@@ -86,14 +153,10 @@ def normalize_text(text):
 def parse_beach_status(text, bulletin_date):
     """Parse beach names and status from bulletin text - track individual monitoring points"""
     monitoring_points = []  # Track each point separately
-    beaches_dict = {}
     point_id = 1
     
     lines = text.split('\n')
-    
-    # Track current beach name - look at previous lines
-    current_beach = None
-    recent_lines = []  # Keep last few lines to search for beach names
+    recent_lines = []  # Keep last few lines for context
     
     # Parse the table - status appears after point code
     for line in lines:
@@ -115,16 +178,31 @@ def parse_beach_status(text, bulletin_date):
         
         if not (has_propria or has_impropria):
             # Check if this line contains a beach name (update current_beach)
-            # Sort by length to match longer/more specific names first
+            # Only match if beach name appears standalone (not as substring of another beach)
+            # Sort by length to check longer names first (e.g., "Barra de Guaratiba" before "Guaratiba")
             sorted_beaches = sorted(BEACH_COORDS.keys(), key=len, reverse=True)
             for beach_name in sorted_beaches:
                 beach_normalized = normalize_text(beach_name)
                 line_normalized = normalize_text(line)
                 
                 # Check if beach name appears in this line
+                # Use word boundary check to avoid matching "Guaratiba" in "Barra de Guaratiba"
                 if beach_normalized in line_normalized:
-                    current_beach = beach_name
-                    break
+                    # Verify it's not part of a longer beach name by checking if we already matched a longer one
+                    # If this beach name is a substring of another, skip it
+                    is_substring = False
+                    for other_beach in sorted_beaches:
+                        if other_beach == beach_name:
+                            continue
+                        other_normalized = normalize_text(other_beach)
+                        # If this beach is a substring of another beach that also appears in the line, skip it
+                        if beach_normalized in other_normalized and other_normalized in line_normalized:
+                            is_substring = True
+                            break
+                    
+                    if not is_substring:
+                        current_beach = beach_name
+                        break
             continue
         
         # Determine status
@@ -134,21 +212,32 @@ def parse_beach_status(text, bulletin_date):
         point_code_match = re.search(r'\b([A-Z]{2,3}\d{1,3})\b', line)
         point_code = point_code_match.group(1) if point_code_match else None
         
+        # Get point prefix (letters only)
+        point_prefix = None
+        if point_code:
+            point_prefix = ''.join([c for c in point_code if c.isalpha()])
+        
         # Extract location description
-        # Combine current line with recent context for better extraction
-        context_text = ' '.join(recent_lines[-3:])  # Last 3 lines for context
+        # Combine recent lines to handle text that wraps across lines
+        combined_text = ' '.join(recent_lines[-5:])  # Last 5 lines for better context
+        # Clean up whitespace from line wrapping
+        combined_text = re.sub(r'\s+', ' ', combined_text)
         
         location = None
-        # Look for common location patterns
-        location_patterns = [
-            r'((?:Em frente|Centro|Canto|Foz|Ao lado|Quebra-Mar|À\s+(?:esquerda|direita)|Ao\s+lado)[^\.]{10,120})',
-        ]
-        
-        for pattern in location_patterns:
-            match = re.search(pattern, line, re.IGNORECASE)
-            if match:
-                location = match.group(1).strip()
-                break
+        # Look for location description near the point code
+        # Try to find location in recent lines, matching to the specific point code
+        if point_code:  # Only if we have a point code
+            for lookback in range(1, 6):  # Check last 5 lines
+                test_text = ' '.join(recent_lines[-lookback:])
+                test_text = re.sub(r'\s+', ' ', test_text)
+                
+                # Match location keyword followed by description (greedy), ending at our specific point code
+                pattern = r'((?:Em frente|Centro|Canto|Foz|Ao lado|Quebra-Mar|À\s*esquerda|À\s*direita).+?)\s+(' + re.escape(point_code) + r')(?:\s|$)'
+                match = re.search(pattern, test_text, re.IGNORECASE)
+                if match:
+                    # Found a location that ends right before our point code
+                    location = match.group(1).strip()
+                    break
         
         # Clean up location if found
         if location:
@@ -156,44 +245,18 @@ def parse_beach_status(text, bulletin_date):
             location = re.sub(r'\s+', ' ', location)
             # Remove trailing point codes
             location = re.sub(r'\s+[A-Z]{2,3}\d{1,3}.*$', '', location)
-            # Remove trailing beach names (they appear before location sometimes)
+            # Remove beach names that appear in the location text
             for beach_name in BEACH_COORDS.keys():
                 location = location.replace(beach_name, '').strip()
             # Truncate at status words if they leaked in
             location = re.split(r'\s+(?:Própria|Imprópria|Propria|Impropria)', location, maxsplit=1)[0].strip()
+            # Remove leading/trailing punctuation artifacts
+            location = location.strip(' -,.')
         
-        # Find which beach this line belongs to
-        # First, check if the beach name is in the current line
-        # Sort beach names by length (longest first) to match more specific names first
+        # Find which beach this line belongs to using point code
         found_beach = None
-        sorted_beaches = sorted(BEACH_COORDS.keys(), key=len, reverse=True)
-        
-        for beach_name in sorted_beaches:
-            beach_normalized = normalize_text(beach_name)
-            line_normalized = normalize_text(line)
-            
-            if beach_normalized in line_normalized:
-                found_beach = beach_name
-                current_beach = beach_name
-                break
-        
-        # If not found, search recent lines (beach name often appears 1-2 lines before status)
-        if not found_beach:
-            for prev_line in reversed(recent_lines[:-1]):  # Don't include current line
-                for beach_name in sorted_beaches:
-                    beach_normalized = normalize_text(beach_name)
-                    prev_normalized = normalize_text(prev_line)
-                    
-                    if beach_normalized in prev_normalized:
-                        found_beach = beach_name
-                        current_beach = beach_name
-                        break
-                if found_beach:
-                    break
-        
-        # If still no beach found, use current_beach from context
-        if not found_beach and current_beach:
-            found_beach = current_beach
+        if point_code:
+            found_beach = get_beach_from_point_code(point_code)
         
         # Add monitoring point
         if found_beach:
@@ -232,7 +295,7 @@ def parse_beach_status(text, bulletin_date):
                 'city': point['city'],
                 'zone': point['zone'],
                 'lastUpdate': bulletin_date,
-                'points': [],  # Store monitoring points
+                'monitoringPoints': [],  # Store monitoring points
                 'properCount': 0,
                 'improperCount': 0
             }
@@ -245,7 +308,7 @@ def parse_beach_status(text, bulletin_date):
             beaches_dict[beach_name]['improperCount'] += 1
         
         # Add monitoring point info
-        beaches_dict[beach_name]['points'].append({
+        beaches_dict[beach_name]['monitoringPoints'].append({
             'code': point['code'],
             'location': point['location'],
             'status': point['status']
@@ -281,7 +344,7 @@ def parse_beach_status(text, bulletin_date):
                 'city': city,
                 'zone': get_zone(beach_name, coords),
                 'lastUpdate': bulletin_date,
-                'points': [],
+                'monitoringPoints': [],
                 'properCount': 0,
                 'improperCount': 0
             })
