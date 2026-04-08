@@ -8,47 +8,56 @@ import json
 from datetime import datetime, timedelta
 
 # Beach coordinates (approximate locations)
+# Format: 'Beach Name': (lat, lng) - copy-paste directly from Google Maps
+RJ_BEACHES = {
+    'Barra de Guaratiba':     (-23.0736, -43.5681),
+    'Grumari':                (-23.0453, -43.5247),
+    'Prainha':                (-23.0392, -43.5089),
+    'Pontal de Sernambetiba': (-23.0158, -43.4897),
+    'Recreio':                (-23.0275, -43.4647),
+    'Recreio/Reserva':        (-23.0183, -43.4064),
+    'Barra da Tijuca':        (-23.0125, -43.3642),
+    'Barra da Tijuca II':     (-23.0056, -43.3319),
+    'Joatinga':               (-23.0089, -43.2847),
+    'Pepino':                 (-23.0031, -43.2758),
+    'São Conrado':            (-22.9997, -43.2689),
+    'Vidigal':                (-22.9944, -43.2347),
+    'Leblon':                 (-22.9844, -43.2253),
+    'Ipanema':                (-22.9838, -43.2044),
+    'Arpoador':               (-22.9875, -43.1909),
+    'Diabo':                  (-22.9869, -43.1967),
+    'Copacabana':             (-22.9711, -43.1822),
+    'Leme':                   (-22.9644, -43.1686),
+    'Vermelha':               (-22.9525, -43.1675),
+    'Urca':                   (-22.9528, -43.1639),
+    'Botafogo':               (-22.9475, -43.1764),
+    'Flamengo':               (-22.9344, -43.1725),
+    'Glória':                 (-22.9211, -43.1719),
+}
+
+NITEROI_BEACHES = {
+    'Gragoatá':      (-22.9006, -43.1286),
+    'Boa Viagem':    (-22.8967, -43.1258),
+    'Flechas':       (-22.8956, -43.1186),
+    'Icaraí':        (-22.9058, -43.1050),
+    'São Francisco': (-22.9144, -43.1000),
+    'Charitas':      (-22.9250, -43.0931),
+    'Jurujuba':      (-22.9358, -43.0850),
+    'Eva':           (-22.9500, -43.0333),
+    'Adão':          (-22.9492, -43.0319),
+    'Piratininga':   (-22.9550, -43.0733),
+    'Sossego':       (-22.9622, -43.0383),
+    'Camboinhas':    (-22.9517, -43.0231),
+    'Itaipu':        (-22.9658, -43.0289),
+    'Itacoatiara':   (-22.9811, -43.0306),
+}
+
+# Combined beach coordinates with city metadata
 BEACH_COORDS = {
-    # Rio de Janeiro beaches
-    'Barra de Guaratiba': {'lat': -23.0736, 'lng': -43.5681, 'city': 'Rio de Janeiro'},
-    'Grumari': {'lat': -23.0453, 'lng': -43.5247, 'city': 'Rio de Janeiro'},
-    'Prainha': {'lat': -23.0392, 'lng': -43.5089, 'city': 'Rio de Janeiro'},
-    'Pontal de Sernambetiba': {'lat': -23.0158, 'lng': -43.4897, 'city': 'Rio de Janeiro'},
-    'Recreio': {'lat': -23.0275, 'lng': -43.4647, 'city': 'Rio de Janeiro'},
-    'Recreio/Reserva': {'lat': -23.0183, 'lng': -43.4064, 'city': 'Rio de Janeiro'},
-    'Barra da Tijuca': {'lat': -23.0125, 'lng': -43.3642, 'city': 'Rio de Janeiro'},
-    'Barra da Tijuca II': {'lat': -23.0056, 'lng': -43.3319, 'city': 'Rio de Janeiro'},
-    'Joatinga': {'lat': -23.0089, 'lng': -43.2847, 'city': 'Rio de Janeiro'},
-    'Pepino': {'lat': -23.0031, 'lng': -43.2758, 'city': 'Rio de Janeiro'},
-    'São Conrado': {'lat': -22.9997, 'lng': -43.2689, 'city': 'Rio de Janeiro'},
-    'Vidigal': {'lat': -22.9944, 'lng': -43.2347, 'city': 'Rio de Janeiro'},
-    'Leblon': {'lat': -22.9844, 'lng': -43.2253, 'city': 'Rio de Janeiro'},
-    'Ipanema': {'lat': -22.9838, 'lng': -43.2044, 'city': 'Rio de Janeiro'},
-    'Arpoador': {'lat': -22.9875, 'lng': -43.1909, 'city': 'Rio de Janeiro'},
-    'Diabo': {'lat': -22.9869, 'lng': -43.1967, 'city': 'Rio de Janeiro'},
-    'Copacabana': {'lat': -22.9711, 'lng': -43.1822, 'city': 'Rio de Janeiro'},
-    'Leme': {'lat': -22.9644, 'lng': -43.1686, 'city': 'Rio de Janeiro'},
-    'Vermelha': {'lat': -22.9525, 'lng': -43.1675, 'city': 'Rio de Janeiro'},
-    'Urca': {'lat': -22.9528, 'lng': -43.1639, 'city': 'Rio de Janeiro'},
-    'Botafogo': {'lat': -22.9475, 'lng': -43.1764, 'city': 'Rio de Janeiro'},
-    'Flamengo': {'lat': -22.9344, 'lng': -43.1725, 'city': 'Rio de Janeiro'},
-    'Glória': {'lat': -22.9211, 'lng': -43.1719, 'city': 'Rio de Janeiro'},
-    
-    # Niterói beaches
-    'Gragoatá': {'lat': -22.9006, 'lng': -43.1286, 'city': 'Niterói'},
-    'Boa Viagem': {'lat': -22.8967, 'lng': -43.1258, 'city': 'Niterói'},
-    'Flechas': {'lat': -22.8956, 'lng': -43.1186, 'city': 'Niterói'},
-    'Icaraí': {'lat': -22.9058, 'lng': -43.1050, 'city': 'Niterói'},
-    'São Francisco': {'lat': -22.9144, 'lng': -43.1000, 'city': 'Niterói'},
-    'Charitas': {'lat': -22.9250, 'lng': -43.0931, 'city': 'Niterói'},
-    'Jurujuba': {'lat': -22.9358, 'lng': -43.0850, 'city': 'Niterói'},
-    'Eva': {'lat': -22.9500, 'lng': -43.0333, 'city': 'Niterói'},
-    'Adão': {'lat': -22.9492, 'lng': -43.0319, 'city': 'Niterói'},
-    'Piratininga': {'lat': -22.9550, 'lng': -43.0733, 'city': 'Niterói'},
-    'Sossego': {'lat': -22.9622, 'lng': -43.0383, 'city': 'Niterói'},
-    'Camboinhas': {'lat': -22.9517, 'lng': -43.0231, 'city': 'Niterói'},
-    'Itaipu': {'lat': -22.9658, 'lng': -43.0289, 'city': 'Niterói'},
-    'Itacoatiara': {'lat': -22.9811, 'lng': -43.0306, 'city': 'Niterói'},
+    **{name: {'lat': coords[0], 'lng': coords[1], 'city': 'Rio de Janeiro'} 
+       for name, coords in RJ_BEACHES.items()},
+    **{name: {'lat': coords[0], 'lng': coords[1], 'city': 'Niterói'} 
+       for name, coords in NITEROI_BEACHES.items()},
 }
 
 def extract_pdf_text(pdf_path):
