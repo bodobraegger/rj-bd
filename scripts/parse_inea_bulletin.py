@@ -7,49 +7,49 @@ import re
 import json
 from datetime import datetime, timedelta
 
-# Beach coordinates (approximate locations)
+# Beach coordinates from Wikipedia (DMS converted to decimal degrees)
 # Format: 'Beach Name': (lat, lng) - copy-paste directly from Google Maps
 RJ_BEACHES = {
-    'Barra de Guaratiba':     (-23.073600, -43.568100),
-    'Grumari':                (-23.045300, -43.524700),
-    'Prainha':                (-23.039200, -43.508900),
-    'Pontal de Sernambetiba': (-23.015800, -43.489700),
-    'Recreio':                (-23.027500, -43.464700),
-    'Recreio/Reserva':        (-23.018300, -43.406400),
-    'Barra da Tijuca':        (-23.012500, -43.364200),
-    'Barra da Tijuca II':     (-23.005600, -43.331900),
-    'Joatinga':               (-23.008900, -43.284700),
-    'Pepino':                 (-23.003100, -43.275800),
-    'São Conrado':            (-22.999700, -43.268900),
-    'Vidigal':                (-22.994400, -43.234700),
-    'Leblon':                 (-22.984400, -43.225300),
-    'Ipanema':                (-22.983800, -43.204400),
-    'Arpoador':               (-22.989524, -43.191558),
-    'Diabo':                  (-22.989500, -43.190600),
-    'Copacabana':             (-22.971100, -43.182200),
-    'Leme':                   (-22.964400, -43.168600),
-    'Vermelha':               (-22.952500, -43.167500),
-    'Urca':                   (-22.952800, -43.163900),
-    'Botafogo':               (-22.947500, -43.176400),
-    'Flamengo':               (-22.934400, -43.172500),
-    'Glória':                 (-22.921100, -43.171900),
+    'Barra de Guaratiba':     (-23.067535, -43.567907), # Google Maps point
+    'Grumari':                (-23.049200, -43.526700), # Wide beach mid-sand
+    'Prainha':                (-23.040900, -43.505700), # Surfers' sand strip
+    'Pontal de Sernambetiba': (-23.031492, -43.477221), # West of the Pontal, beach point of Pontal de Sernambetiba on Google Maps
+    'Recreio':                (-23.023200, -43.463200), # Posto 9 beachfront
+    'Recreio/Reserva':        (-23.013526, -43.394343), # Center of the wild Reserva strip, like on Google Maps
+    'Barra da Tijuca':        (-23.013241, -43.319658), # Posto 5/6 central sand
+    'Barra da Tijuca II':     (-23.015138, -43.298060), # Posto 2 (Pepê area)
+    'Joatinga':               (-23.015100, -43.291100), # Small cove sand strip
+    'Pepino':                 (-22.999900, -43.275000), # Paragliding landing beach
+    'São Conrado':            (-22.999542, -43.258539), # Near HN
+    'Vidigal':                (-22.994900, -43.238400), # Sand below Sheraton hotel
+    'Leblon':                 (-22.987507, -43.222320), # Posto 11 sand center
+    'Ipanema':                (-22.985800, -43.204100), # Posto 9 area center
+    'Arpoador':               (-22.989500, -43.191600), # User-verified baseline
+    'Diabo':                  (-22.989500, -43.190600), # User-verified baseline
+    'Copacabana':             (-22.970200, -43.181500), # Central sand near Posto 4
+    'Leme':                   (-22.962500, -43.165800), # Center of Leme sand arc
+    'Vermelha':               (-22.955500, -43.164800), # Sand at base of Sugarloaf
+    'Urca':                   (-22.947946, -43.163339), # Small beach strip
+    'Botafogo':               (-22.947200, -43.182200), # Central bay sand
+    'Flamengo':               (-22.926500, -43.170200), # Aterro beachfront
+    'Glória':                 (-22.920500, -43.169500), # Prainha da Glória curve
 }
 
 NITEROI_BEACHES = {
-    'Gragoatá':      (-22.900600, -43.128600),
-    'Boa Viagem':    (-22.896700, -43.125800),
-    'Flechas':       (-22.895600, -43.118600),
-    'Icaraí':        (-22.905800, -43.105000),
-    'São Francisco': (-22.914400, -43.100000),
-    'Charitas':      (-22.925000, -43.093100),
-    'Jurujuba':      (-22.935800, -43.085000),
-    'Eva':           (-22.950000, -43.033300),
-    'Adão':          (-22.949200, -43.031900),
-    'Piratininga':   (-22.955000, -43.073300),
-    'Sossego':       (-22.962200, -43.038300),
-    'Camboinhas':    (-22.951700, -43.023100),
-    'Itaipu':        (-22.965800, -43.028900),
-    'Itacoatiara':   (-22.981100, -43.030600),
+    'Gragoatá':      (-22.904866, -43.135232), # Sand near Forte do Gragoatá
+    'Boa Viagem':    (-22.908506, -43.123000), # Narrow strip near bridge
+    'Flechas':       (-22.905477, -43.121275), # Mid-sand crescent
+    'Icaraí':        (-22.907366, -43.113190), # Main sand center arc
+    'São Francisco': (-22.918225, -43.094941), # Bay sand area
+    'Charitas':      (-22.927350, -43.096561), # Sand center by ferry
+    'Jurujuba':      (-22.931233, -43.116256), # Fishing village beach, Praia do Cais GG on google maps
+    'Eva':           (-22.929670, -43.122716), # Eva sand strip
+    'Adão':          (-22.927632, -43.122774), # ... and adam
+    'Piratininga':   (-22.958068, -43.069923), # big one
+    'Sossego':       (-22.963500, -43.040500), # Secluded sand cove
+    'Camboinhas':    (-22.959952, -43.064168), # Beachfront sand center
+    'Itaipu':        (-22.970565, -43.045964), # Sand shore near canal
+    'Itacoatiara':   (-22.974529, -43.033627), # Main surfing sand area
 }
 
 # Combined beach coordinates with city metadata
