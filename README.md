@@ -35,7 +35,7 @@ Real-time beach water quality monitoring for Rio's coastline. Updated weekly via
 INEA publishes weekly "Boletim de Balneabilidade" PDFs with beach water quality classifications:
 - **Própria** (Suitable for bathing) - Green
 - **Imprópria** (Not suitable) - Red
-- **Atenção** (Warning) - Yellow
+- **Atenção** (Warning/Mixed) - Yellow
 - **Desconhecido** (Unknown) - Gray (hidden by default)
 
 Bulletins available at: `https://www.inea.rj.gov.br/rio-de-janeiro/`

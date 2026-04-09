@@ -344,11 +344,11 @@ def parse_beach_status(text, bulletin_date):
             # All measured points are proper
             beach['status'] = 'proper'
         else:
-            beach['status'] = 'unknown'
+            beach['status'] = 'unknown'  # No data available
     
     beaches = list(beaches_dict.values())
     
-    # Add missing beaches as unknown (grey on map - no data available)
+    # Add missing beaches as unknown (no data available)
     existing_names = {b['name'] for b in beaches}
     for beach_name, coords in BEACH_COORDS.items():
         if beach_name not in existing_names:
@@ -358,7 +358,7 @@ def parse_beach_status(text, bulletin_date):
                 'name': beach_name,
                 'lat': coords['lat'],
                 'lng': coords['lng'],
-                'status': 'unknown',
+                'status': 'unknown',  # No data available
                 'city': city,
                 'zone': get_zone(beach_name, coords),
                 'lastUpdate': bulletin_date,
@@ -433,7 +433,7 @@ def parse_bulletin(pdf_path):
     if not beaches:
         print("Warning: Could not parse beach data from PDF. Using defaults.")
         beaches = [
-            {'id': i+1, 'name': name, **coords, 'status': 'unknown', 
+            {'id': i+1, 'name': name, **coords, 'status': 'unknown',
              'city': coords.get('city', 'Rio de Janeiro'),
              'zone': get_zone(name, coords)}
             for i, (name, coords) in enumerate(BEACH_COORDS.items())
@@ -547,4 +547,4 @@ if __name__ == '__main__':
     print(f"  ✓ Proper: {proper}")
     print(f"  ⚠ Attention (mixed): {attention}")
     print(f"  ✗ Improper: {improper}")
-    print(f"  ? Unknown: {unknown}")
+    print(f"  ? Unknown (no data): {unknown}")

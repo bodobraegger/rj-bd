@@ -120,17 +120,6 @@ body {
 }
 
 .beach-item {
-    padding: 16px 20px;
-    border-bottom: 1px solid #e0e0e0;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.beach-item:hover {
-    background: #f9f9f9;
-}
-
-.beach-item {
     padding: 12px 16px;
     border-bottom: 1px solid #f0f0f0;
     cursor: pointer;
@@ -190,6 +179,10 @@ body {
     color: #ffd43b;
 }
 
+.fav-btn::before {
+    content: '☆';
+}
+
 .fav-btn {
     background: none;
     border: none;
@@ -200,7 +193,7 @@ body {
     padding: 0;
     margin: 0;
     line-height: 1;
-    opacity: 0.15;
+    opacity: 0.5;
     transition: opacity 0.15s, transform 0.15s;
     flex-shrink: 0;
     -webkit-appearance: none;
@@ -209,7 +202,7 @@ body {
 }
 
 .fav-btn:hover {
-    opacity: 0.5;
+    opacity: 1;
     transform: scale(1.1);
 }
 
@@ -218,39 +211,11 @@ body {
     border: none;
 }
 
-.fav-btn.active {
+.fav-btn.active::before, .fav-btn.active {
+    content: '★';
     opacity: 1;
 }
 
-.fav-btn.active:hover {
-    opacity: 1;
-}
-
-.beach-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: #666;
-}
-
-.fav-btn:hover {
-    opacity: 0.5;
-    transform: scale(1.1);
-}
-
-.fav-btn:focus {
-    outline: none;
-    border: none;
-}
-
-.fav-btn.active {
-    opacity: 1;
-}
-
-.fav-btn.active:hover {
-    opacity: 1;
-}
 
 .beach-status {
     display: flex;
@@ -268,8 +233,7 @@ body {
 }
 
 .status-proper { background: #51cf66; }
-.status-warning { background: #ffd43b; }
-.status-attention { background: #ffd43b; } /* Same as warning */
+.status-attention { background: #ffd43b; }
 .status-improper { background: #ff6b6b; }
 .status-unknown { background: #868e96; }
 
@@ -289,7 +253,7 @@ body {
     align-items: center;
 }
 
-.legend-item {
+.legend-item, .home-link {
     display: flex;
     align-items: center;
     gap: 8px;

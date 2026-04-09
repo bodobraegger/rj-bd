@@ -349,7 +349,7 @@ function renderBeachList() {
                 <div class="beach-header">
                     <div class="beach-name">${beach.name}</div>
                     ${pointsSummary}
-                    <button class="fav-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(event, ${beach.id})">★</button>
+                    <button class="fav-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(event, ${beach.id})"></button>
                 </div>
                 <div class="beach-status">
                     <div class="status-indicator ${statusClass}"></div>
@@ -403,7 +403,7 @@ function sortBeaches(beaches, sortType) {
             });
             break;
         case 'status':
-            const statusOrder = { improper: 0, warning: 1, attention: 1, proper: 2, unknown: 3 };
+            const statusOrder = { improper: 0, attention: 1, proper: 2, unknown: 3 };
             sorted.sort((a, b) => {
                 const diff = statusOrder[a.status] - statusOrder[b.status];
                 if (diff !== 0) return diff;
@@ -626,19 +626,17 @@ function toRad(deg) {
 function getStatusColor(status) {
     const colors = {
         proper: '#51cf66',
-        warning: '#ffd43b',
-        attention: '#ffd43b',  // Same as warning
+        attention: '#ffd43b',
         improper: '#ff6b6b',
         unknown: '#868e96'
     };
-    return colors[status] || colors.unknown;
+    return colors[status] || colors.attention;
 }
 
 function getStatusText(status) {
     const texts = {
         proper: 'Própria',
-        warning: 'Atenção',
-        attention: 'Atenção',  // Same as warning
+        attention: 'Atenção',
         improper: 'Imprópria',
         unknown: 'Desconhecido'
     };
