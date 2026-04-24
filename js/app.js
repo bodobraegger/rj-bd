@@ -189,8 +189,19 @@ async function fetchBeachData() {
         
         // Update the last update date in header
         if (data.lastUpdate) {
-            const dateSpan = document.getElementById('lastUpdateDate');
-            dateSpan.innerHTML = `· atualização: ${formatDate(data.lastUpdate)}`;
+            // const dateSpan = document.getElementById('lastUpdateDate');
+            // dateSpan.innerHTML = `· atualização: ${formatDate(data.lastUpdate)}`;
+            
+            // Update the update display button
+            const updateDisplay = document.getElementById('updateDisplay');
+            if (updateDisplay) {
+                const date = new Date(data.lastUpdate);
+                const formattedDate = date.toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit' 
+                }).replace(/\//g, '.');
+                updateDisplay.textContent = `data: ${formattedDate}`;
+            }
         }
         
         updateMapMarkers();
@@ -393,17 +404,8 @@ function sortBeaches(beaches, sortType) {
                 return a.name.localeCompare(b.name);
             });
             break;
-        case 'name':
-            sorted.sort((a, b) => {
-                // First by zone
-                const zoneDiff = compareByZone(a, b);
-                if (zoneDiff !== 0) return zoneDiff;
-                
-                return a.name.localeCompare(b.name);
-            });
-            break;
         case 'status':
-            const statusOrder = { improper: 0, attention: 1, proper: 2, unknown: 3 };
+            const statusOrder = { improper: 0, attention: 1, unknown: 1, proper: 2 };
             sorted.sort((a, b) => {
                 const diff = statusOrder[a.status] - statusOrder[b.status];
                 if (diff !== 0) return diff;
