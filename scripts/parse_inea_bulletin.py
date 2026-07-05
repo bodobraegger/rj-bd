@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 """
-Parse INEA beach balneability bulletin PDF and generate JSON data
+Generate data/beachData.json from INEA balneability sources.
+
+Sources, merged per beach with the newest data winning:
+- INEA bulletin PDFs (per-zone Rio and Niterói files, see download_bulletins.sh)
+- Power BI records fetched by fetch_powerbi.py (--powerbi-file)
+- The previous beachData.json as baseline, so a beach never loses its
+  last known status just because a source is unavailable this run.
 """
-import subprocess
-import re
+import argparse
+import glob
 import json
-from datetime import datetime, timedelta
+import re
+import subprocess
+import sys
+from datetime import datetime
 
 # Beach coordinates from Wikipedia (DMS converted to decimal degrees)
 # Format: 'Beach Name': (lat, lng) - copy-paste directly from Google Maps
@@ -54,11 +63,14 @@ NITEROI_BEACHES = {
 
 # Combined beach coordinates with city metadata
 BEACH_COORDS = {
-    **{name: {'lat': coords[0], 'lng': coords[1], 'city': 'Rio de Janeiro'} 
+    **{name: {'lat': coords[0], 'lng': coords[1], 'city': 'Rio de Janeiro'}
        for name, coords in RJ_BEACHES.items()},
-    **{name: {'lat': coords[0], 'lng': coords[1], 'city': 'Niterói'} 
+    **{name: {'lat': coords[0], 'lng': coords[1], 'city': 'Niterói'}
        for name, coords in NITEROI_BEACHES.items()},
 }
+
+DEFAULT_DATA_FILE = 'data/beachData.json'
+
 
 def extract_pdf_text(pdf_path):
     """Extract text from PDF using pdftotext"""
@@ -77,165 +89,134 @@ def extract_pdf_text(pdf_path):
         print("pdftotext not found. Install poppler-utils.")
         return None
 
-# Point code to beach name mapping
-# Handles specific codes and prefix patterns based on INEA bulletin conventions
+
+def normalize_point_code(point_code):
+    """Normalize a monitoring point code so different zero-padding schemes match.
+
+    INEA's PDFs and Power BI pad codes differently ('BD03' vs 'BD003');
+    both normalize to 'BD3'.
+    """
+    match = re.fullmatch(r'([A-Za-z]+)0*(\d+)', point_code)
+    if not match:
+        return point_code
+    return f'{match.group(1).upper()}{match.group(2)}'
+
+
+# Specific normalized-code mappings (override prefix rules)
+SPECIFIC_POINT_MAPPINGS = {
+    # Flamengo/Glória edge case
+    'FL8': 'Glória',
+    # Barra da Tijuca / Recreio / Reserva edge cases
+    'BD3': 'Recreio/Reserva',
+    'BD11': 'Recreio/Reserva',
+    'BD5': 'Barra da Tijuca',
+    'BD7': 'Barra da Tijuca',
+    'BD9': 'Barra da Tijuca',
+    'BD10': 'Barra da Tijuca II',
+}
+
+PREFIX_POINT_MAPPINGS = {
+    'BG': 'Barra de Guaratiba',
+    'GM': 'Grumari',
+    'PN': 'Prainha',
+    'PS': 'Pontal de Sernambetiba',
+    'BD': 'Recreio',  # Default for unlisted BD codes
+    'JT': 'Joatinga',
+    'PP': 'Pepino',
+    'GV': 'São Conrado',
+    'VD': 'Vidigal',
+    'LB': 'Leblon',
+    'IP': 'Ipanema',
+    'AR': 'Arpoador',
+    'PD': 'Diabo',
+    'CP': 'Copacabana',
+    'LM': 'Leme',
+    'VR': 'Vermelha',
+    'UR': 'Urca',
+    'BT': 'Botafogo',
+    'FL': 'Flamengo',  # Default for unlisted FL codes
+    # Niterói beaches
+    'GR': 'Gragoatá',
+    'BV': 'Boa Viagem',
+    'FC': 'Flechas',
+    'IC': 'Icaraí',
+    'SF': 'São Francisco',
+    'CH': 'Charitas',
+    'JR': 'Jurujuba',
+    'EA': 'Eva',
+    'AD': 'Adão',
+    'PR': 'Piratininga',
+    'SG': 'Sossego',
+    'CM': 'Camboinhas',
+    'II': 'Itaipu',
+    'IA': 'Itacoatiara',
+}
+
+
 def get_beach_from_point_code(point_code):
-    """Map a point code to its beach name, handling edge cases"""
+    """Map a monitoring point code to its beach name"""
     if not point_code:
         return None
-    
-    # Specific code mappings (override prefix rules)
-    specific_mappings = {
-        # Flamengo/Glória edge case
-        'FL008': 'Glória',
-        # Barra da Tijuca / Recreio / Reserva edge cases
-        'BD03': 'Recreio/Reserva',
-        'BD011': 'Recreio/Reserva',
-        'BD05': 'Barra da Tijuca',
-        'BD07': 'Barra da Tijuca',
-        'BD09': 'Barra da Tijuca',
-        'BD10': 'Barra da Tijuca II',
-    }
-    
-    if point_code in specific_mappings:
-        return specific_mappings[point_code]
-    
-    # Default prefix mappings
-    prefix = point_code[:2] if len(point_code) >= 2 else None
-    if not prefix:
+    normalized = normalize_point_code(point_code)
+    if normalized in SPECIFIC_POINT_MAPPINGS:
+        return SPECIFIC_POINT_MAPPINGS[normalized]
+    if len(normalized) < 2:
         return None
-    
-    prefix_mappings = {
-        'BG': 'Barra de Guaratiba',
-        'GM': 'Grumari',
-        'PN': 'Prainha',
-        'PS': 'Pontal de Sernambetiba',
-        'BD': 'Recreio',  # Default for unlisted BD codes
-        'JT': 'Joatinga',
-        'PP': 'Pepino',
-        'GV': 'São Conrado',
-        'VD': 'Vidigal',
-        'LB': 'Leblon',
-        'IP': 'Ipanema',
-        'AR': 'Arpoador',
-        'PD': 'Diabo',
-        'CP': 'Copacabana',
-        'LM': 'Leme',
-        'VR': 'Vermelha',
-        'UR': 'Urca',
-        'BT': 'Botafogo',
-        'FL': 'Flamengo',  # Default for unlisted FL codes
-        # Niterói beaches
-        'GR': 'Gragoatá',
-        'BV': 'Boa Viagem',
-        'FC': 'Flechas',
-        'IC': 'Icaraí',
-        'SF': 'São Francisco',
-        'CH': 'Charitas',
-        'JR': 'Jurujuba',
-        'EA': 'Eva',
-        'AD': 'Adão',
-        'PR': 'Piratininga',
-        'SG': 'Sossego',
-        'CM': 'Camboinhas',
-        'II': 'Itaipu',
-        'IA': 'Itacoatiara',
-    }
-    
-    return prefix_mappings.get(prefix)
+    return PREFIX_POINT_MAPPINGS.get(normalized[:2])
 
-def normalize_text(text):
-    """Normalize text for comparison - handle accents and special chars"""
-    replacements = {
-        'Á': 'A', 'À': 'A', 'Ã': 'A', 'Â': 'A',
-        'É': 'E', 'È': 'E', 'Ê': 'E',
-        'Í': 'I', 'Ì': 'I', 'Î': 'I',
-        'Ó': 'O', 'Ò': 'O', 'Õ': 'O', 'Ô': 'O',
-        'Ú': 'U', 'Ù': 'U', 'Û': 'U',
-        'Ç': 'C',
-    }
-    result = text.upper()
-    for old, new in replacements.items():
-        result = result.replace(old, new)
-    return result
 
-def parse_beach_status(text, bulletin_date):
-    """Parse beach names and status from bulletin text - track individual monitoring points"""
-    monitoring_points = []  # Track each point separately
-    point_id = 1
-    
+def get_zone(beach_name, coords):
+    """Determine zone for a beach"""
+    city = coords.get('city', 'Rio de Janeiro')
+
+    if city == 'Niterói':
+        return 'Niterói'
+
+    # Rio de Janeiro zones
+    if coords['lat'] > -23.01:
+        return 'Zona Sul'
+    else:
+        return 'Zona Oeste'
+
+
+def parse_monitoring_points(text, bulletin_date):
+    """Extract monitoring points (code, location, status) from bulletin text"""
+    monitoring_points = []
     lines = text.split('\n')
     recent_lines = []  # Keep last few lines for context
-    
-    # Parse the table - status appears after point code
+
     for line in lines:
         line_stripped = line.strip()
-        
-        # Keep track of recent lines (last 10 lines to catch beach names that appear earlier)
+
         recent_lines.append(line)
         if len(recent_lines) > 10:
             recent_lines.pop(0)
-        
+
         # Skip empty lines and headers
         if not line_stripped or any(x in line.upper() for x in ['BOLETIM', 'LOCALIZAÇÃO', 'PONTO COLETA', 'PRAIAS', 'COLETA', 'CONAMA', 'OBSERVAÇÕES', 'OBSERVACOES', 'BALNEABILIDADE']):
             continue
-        
-        # Look for lines with "Própria" or "Imprópria" (case-insensitive status)
+
         line_upper = line.upper()
         has_propria = 'PRÓPRIA' in line_upper or 'PROPRIA' in line_upper
         has_impropria = 'IMPRÓPRIA' in line_upper or 'IMPROPRIA' in line_upper
-        
         if not (has_propria or has_impropria):
-            # Check if this line contains a beach name (update current_beach)
-            # Only match if beach name appears standalone (not as substring of another beach)
-            # Sort by length to check longer names first (e.g., "Barra de Guaratiba" before "Guaratiba")
-            sorted_beaches = sorted(BEACH_COORDS.keys(), key=len, reverse=True)
-            for beach_name in sorted_beaches:
-                beach_normalized = normalize_text(beach_name)
-                line_normalized = normalize_text(line)
-                
-                # Check if beach name appears in this line
-                # Use word boundary check to avoid matching "Guaratiba" in "Barra de Guaratiba"
-                if beach_normalized in line_normalized:
-                    # Verify it's not part of a longer beach name by checking if we already matched a longer one
-                    # If this beach name is a substring of another, skip it
-                    is_substring = False
-                    for other_beach in sorted_beaches:
-                        if other_beach == beach_name:
-                            continue
-                        other_normalized = normalize_text(other_beach)
-                        # If this beach is a substring of another beach that also appears in the line, skip it
-                        if beach_normalized in other_normalized and other_normalized in line_normalized:
-                            is_substring = True
-                            break
-                    
-                    if not is_substring:
-                        current_beach = beach_name
-                        break
             continue
-        
-        # Determine status
+
         status = 'improper' if has_impropria else 'proper'
-        
+
         # Extract point code if present (e.g., BG00, GM00, FL000, etc.)
         point_code_match = re.search(r'\b([A-Z]{2,3}\d{1,3})\b', line)
         point_code = point_code_match.group(1) if point_code_match else None
-        
-        # Get point prefix (letters only)
-        point_prefix = None
-        if point_code:
-            point_prefix = ''.join([c for c in point_code if c.isalpha()])
-        
+
         # Extract location description
         # Simple approach: text between point code and status word is the location
         # Handle two cases: location before OR after point code
         location = None
-        if point_code:  # Only if we have a point code
+        if point_code:
             for lookback in range(1, 6):  # Check last 5 lines
                 test_text = ' '.join(recent_lines[-lookback:])
-                # Clean up whitespace
                 test_text = re.sub(r'\s+', ' ', test_text)
-                
+
                 # Pattern 1: Location comes AFTER point code (e.g., "GR000 Centro da praia Própria")
                 pattern_after = r'\b' + re.escape(point_code) + r'\s+(.+?)(?:\s+Pr[óo]pria|\s+Impr[óo]pria|$)'
                 match = re.search(pattern_after, test_text, re.IGNORECASE)
@@ -244,22 +225,18 @@ def parse_beach_status(text, bulletin_date):
                     # Only accept if it's not just a status word
                     if location and location.lower() not in ['própria', 'propria', 'imprópria', 'impropria']:
                         break
-                
+
                 # Pattern 2: Location comes BEFORE point code (e.g., "Em frente à praia BG00 Própria")
                 pattern_before = r'(.+?)\s+' + re.escape(point_code) + r'\s+(?:Pr[óo]pria|Impr[óo]pria)'
                 match = re.search(pattern_before, test_text, re.IGNORECASE)
                 if match:
                     candidate = match.group(1).strip()
-                    # Extract just the location part (after any beach names or other text)
-                    # Look for common location keywords
                     location_match = re.search(r'((?:Em frente|Centro|Canto|Foz|Ao lado|Quebra-Mar|À\s*esquerda|À\s*direita).*)$', candidate, re.IGNORECASE)
                     if location_match:
                         location = location_match.group(1).strip()
                         break
-        
-        # Clean up location if found
+
         if location:
-            # Normalize whitespace
             location = re.sub(r'\s+', ' ', location)
             # Remove trailing point codes
             location = re.sub(r'\s+[A-Z]{2,3}\d{1,3}.*$', '', location)
@@ -268,283 +245,259 @@ def parse_beach_status(text, bulletin_date):
                 location = location.replace(beach_name, '').strip()
             # Truncate at status words if they leaked in
             location = re.split(r'\s+(?:Própria|Imprópria|Propria|Impropria)', location, maxsplit=1)[0].strip()
-            # Remove leading/trailing punctuation artifacts
             location = location.strip(' -,.')
-        
-        # Find which beach this line belongs to using point code
-        found_beach = None
-        if point_code:
-            found_beach = get_beach_from_point_code(point_code)
-        
-        # Add monitoring point
-        if found_beach:
-            coords = BEACH_COORDS[found_beach]
-            city = coords.get('city', 'Rio de Janeiro')
-            
+
+        beach = get_beach_from_point_code(point_code)
+        if beach:
             monitoring_points.append({
-                'id': point_id,
-                'beach': found_beach,
+                'beach': beach,
                 'code': point_code,
                 'location': location,
                 'status': status,
-                'lat': coords['lat'],
-                'lng': coords['lng'],
-                'city': city,
-                'zone': get_zone(found_beach, coords),
-                'lastUpdate': bulletin_date
-            })
-            point_id += 1
-    
-    # Now aggregate monitoring points into beaches
-    # A beach status can be: 'proper' (all points proper), 'improper' (any point improper), or 'attention' (mixed)
-    beaches_dict = {}
-    beach_id = 1
-    
-    for point in monitoring_points:
-        beach_name = point['beach']
-        
-        if beach_name not in beaches_dict:
-            beaches_dict[beach_name] = {
-                'id': beach_id,
-                'name': beach_name,
-                'lat': point['lat'],
-                'lng': point['lng'],
-                'status': point['status'],
-                'city': point['city'],
-                'zone': point['zone'],
                 'lastUpdate': bulletin_date,
-                'monitoringPoints': [],  # Store monitoring points
-                'properCount': 0,
-                'improperCount': 0
-            }
-            beach_id += 1
-        
-        # Count point statuses
+            })
+
+    return monitoring_points
+
+
+def powerbi_monitoring_points(records):
+    """Convert fetch_powerbi.py records to monitoring points, skipping
+    points outside the covered beaches and points without a real status."""
+    monitoring_points = []
+    unmapped_codes = []
+    for record in records:
+        if record['status'] == 'unknown' or not record['collectedAt']:
+            continue
+        beach = get_beach_from_point_code(record['code'])
+        if not beach:
+            unmapped_codes.append(record['code'])
+            continue
+        monitoring_points.append({
+            'beach': beach,
+            'code': record['code'],
+            'location': record['location'],
+            'status': record['status'],
+            'lastUpdate': f"{record['collectedAt']}T00:00:00",
+        })
+    if unmapped_codes:
+        print(f"ℹ️  Skipped {len(unmapped_codes)} Power BI points with unmapped codes: {sorted(set(unmapped_codes))}")
+    return monitoring_points
+
+
+def build_beaches(monitoring_points):
+    """Aggregate monitoring points into per-beach records.
+
+    Beach status: 'proper' (all points proper), 'improper' (all improper),
+    'attention' (mixed).
+    """
+    beaches_by_name = {}
+    for point in monitoring_points:
+        name = point['beach']
+        coords = BEACH_COORDS[name]
+        beach = beaches_by_name.setdefault(name, {
+            'name': name,
+            'lat': coords['lat'],
+            'lng': coords['lng'],
+            'status': 'unknown',
+            'city': coords['city'],
+            'zone': get_zone(name, coords),
+            'lastUpdate': point['lastUpdate'],
+            'monitoringPoints': [],
+            'properCount': 0,
+            'improperCount': 0,
+        })
+        beach['lastUpdate'] = max(beach['lastUpdate'], point['lastUpdate'])
         if point['status'] == 'proper':
-            beaches_dict[beach_name]['properCount'] += 1
+            beach['properCount'] += 1
         elif point['status'] == 'improper':
-            beaches_dict[beach_name]['improperCount'] += 1
-        
-        # Add monitoring point info
-        beaches_dict[beach_name]['monitoringPoints'].append({
+            beach['improperCount'] += 1
+        beach['monitoringPoints'].append({
             'code': point['code'],
             'location': point['location'],
-            'status': point['status']
+            'status': point['status'],
         })
-    
-    # Determine final beach status based on points
-    for beach in beaches_dict.values():
+
+    for beach in beaches_by_name.values():
         if beach['improperCount'] > 0 and beach['properCount'] > 0:
-            # Mixed status - some points proper, some improper
             beach['status'] = 'attention'
         elif beach['improperCount'] > 0:
-            # All measured points are improper
             beach['status'] = 'improper'
         elif beach['properCount'] > 0:
-            # All measured points are proper
             beach['status'] = 'proper'
-        else:
-            beach['status'] = 'unknown'  # No data available
-    
-    beaches = list(beaches_dict.values())
-    
-    # Add missing beaches as unknown (no data available)
-    existing_names = {b['name'] for b in beaches}
-    for beach_name, coords in BEACH_COORDS.items():
-        if beach_name not in existing_names:
-            city = coords.get('city', 'Rio de Janeiro')
-            beaches.append({
-                'id': beach_id,
-                'name': beach_name,
-                'lat': coords['lat'],
-                'lng': coords['lng'],
-                'status': 'unknown',  # No data available
-                'city': city,
-                'zone': get_zone(beach_name, coords),
-                'lastUpdate': bulletin_date,
-                'monitoringPoints': [],
-                'properCount': 0,
-                'improperCount': 0
-            })
-            beach_id += 1
-    
-    return beaches
 
-def get_zone(beach_name, coords):
-    """Determine zone for a beach"""
-    city = coords.get('city', 'Rio de Janeiro')
-    
-    if city == 'Niterói':
-        return 'Niterói'
-    
-    # Rio de Janeiro zones
-    if coords['lat'] > -23.01:
-        return 'Zona Sul'
-    else:
-        return 'Zona Oeste'
+    return list(beaches_by_name.values())
 
-def parse_bulletin(pdf_path):
-    """Main parsing function"""
-    import os
-    
-    # Resolve symlink if present to get the actual filename with date
-    actual_path = os.path.realpath(pdf_path) if os.path.islink(pdf_path) else pdf_path
-    
-    # Try to extract date from filename first (e.g., "Zona-sudoeste-e-Zona-sul-30-03-26.pdf" or "Niterói-30-03-26.pdf")
-    bulletin_date = datetime.now().isoformat()
-    filename_date_match = re.search(r'(\d{2})-(\d{2})-(\d{2})\.pdf$', actual_path)
+
+MONTHS_PT = {
+    'janeiro': 1, 'fevereiro': 2, 'março': 3, 'marco': 3, 'abril': 4,
+    'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
+    'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12,
+}
+
+
+def extract_bulletin_date(pdf_path, text):
+    """Extract the bulletin date from the filename or, failing that, the text.
+
+    Returns an ISO datetime string, or None if no date was found.
+    """
+    filename_date_match = re.search(r'(\d{2})-(\d{2})-(\d{2})\.pdf$', pdf_path)
     if filename_date_match:
+        day, month, short_year = (int(group) for group in filename_date_match.groups())
         try:
-            day = int(filename_date_match.group(1))
-            month = int(filename_date_match.group(2))
-            year = 2000 + int(filename_date_match.group(3))  # Assuming 20xx
-            bulletin_date = datetime(year, month, day).isoformat()
-            print(f"📅 Extracted date from filename: {bulletin_date}")
-        except Exception as e:
-            print(f"⚠️  Could not parse date from filename: {e}")
-    
+            return datetime(2000 + short_year, month, day).isoformat()
+        except ValueError as error:
+            print(f"⚠️  Could not parse date from filename: {error}")
+
+    # Look for date pattern like "30 de MARÇO de 2026"
+    date_match = re.search(r'(\d{1,2})\s+de\s+([A-ZÇÃ]+)\s+de\s+(\d{4})', text, re.IGNORECASE)
+    if date_match:
+        day, month_pt, year = date_match.groups()
+        month = MONTHS_PT.get(month_pt.lower())
+        if month:
+            try:
+                return datetime(int(year), month, int(day)).isoformat()
+            except ValueError as error:
+                print(f"⚠️  Could not parse date from PDF content: {error}")
+
+    return None
+
+
+def parse_bulletin_points(pdf_path):
+    """Parse one bulletin PDF into monitoring points"""
     text = extract_pdf_text(pdf_path)
     if not text:
-        return None
-    
-    # If filename date didn't work, try extracting from PDF content
-    if bulletin_date == datetime.now().isoformat():
-        # Look for date pattern like "30 de MARÇO de 2026"
-        date_match = re.search(r'(\d{1,2})\s+de\s+([A-ZÇÃ]+)\s+de\s+(\d{4})', text, re.IGNORECASE)
-        if date_match:
-            try:
-                day = date_match.group(1)
-                month_pt = date_match.group(2).lower()
-                year = date_match.group(3)
-                months = {
-                    'janeiro': 1, 'fevereiro': 2, 'março': 3, 'marco': 3, 'abril': 4,
-                    'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
-                    'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
-                }
-                month = months.get(month_pt, 1)
-                bulletin_date = datetime(int(year), month, int(day)).isoformat()
-                print(f"📅 Extracted date from PDF content: {bulletin_date}")
-            except Exception as e:
-                print(f"⚠️  Could not parse date from PDF content: {e}")
-    
-    beaches = parse_beach_status(text, bulletin_date)
-    
-    # If we didn't get beaches from parsing, use defaults with coordinates
-    if not beaches:
-        print("Warning: Could not parse beach data from PDF. Using defaults.")
-        beaches = [
-            {'id': i+1, 'name': name, **coords, 'status': 'unknown',
-             'city': coords.get('city', 'Rio de Janeiro'),
-             'zone': get_zone(name, coords)}
-            for i, (name, coords) in enumerate(BEACH_COORDS.items())
-        ]
-    
-    return {
-        'lastUpdate': bulletin_date,
-        'source': 'INEA - Instituto Estadual do Ambiente',
-        'bulletin': 'Boletim de Balneabilidade das Praias',
-        'beaches': beaches
-    }
+        return []
 
-if __name__ == '__main__':
-    import sys
-    import os
-    import glob
-    
-    # Look for all bulletin PDFs
-    # First check if files were passed as arguments
-    if len(sys.argv) > 1:
-        pdf_files = [arg for arg in sys.argv[1:] if arg.endswith('.pdf')]
+    bulletin_date = extract_bulletin_date(pdf_path, text)
+    if bulletin_date:
+        print(f"📅 Bulletin date: {bulletin_date}")
     else:
-        # Look in current directory and data/ subdirectory
-        pdf_files = (glob.glob('*bulletin*.pdf') + glob.glob('*-26.pdf') + 
-                     glob.glob('data/*bulletin*.pdf') + glob.glob('data/*-26.pdf'))
-    
-    if not pdf_files:
-        print(f"✗ No PDF bulletin files found")
-        sys.exit(1)
-    
-    all_beaches = []
-    latest_date = None
-    
-    # Parse each bulletin
+        bulletin_date = datetime.now().replace(microsecond=0).isoformat()
+        print(f"⚠️  No bulletin date found, assuming today: {bulletin_date}")
+
+    return parse_monitoring_points(text, bulletin_date)
+
+
+def load_baseline_beaches(path):
+    """Load beaches from the previous beachData.json, keyed by name"""
+    try:
+        with open(path, encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        return {}
+    except json.JSONDecodeError as error:
+        print(f"⚠️  Ignoring unreadable baseline {path}: {error}")
+        return {}
+    return {beach['name']: beach for beach in data.get('beaches', [])}
+
+
+def merge_beaches(baseline_by_name, source_beach_lists):
+    """Merge per-beach records: newest real status wins, baseline persists.
+
+    A beach from a source only replaces the current record when it carries an
+    actual status and is at least as recent. Beaches missing everywhere are
+    filled in as 'unknown' so the dataset always covers all known beaches.
+    """
+    merged = dict(baseline_by_name)
+    for beaches in source_beach_lists:
+        for beach in beaches:
+            if beach['status'] == 'unknown':
+                continue
+            current = merged.get(beach['name'])
+            if (current is None or current.get('status') == 'unknown'
+                    or beach['lastUpdate'] >= current.get('lastUpdate', '')):
+                merged[beach['name']] = beach
+
+    for name, coords in BEACH_COORDS.items():
+        if name not in merged:
+            merged[name] = {
+                'name': name,
+                'lat': coords['lat'],
+                'lng': coords['lng'],
+                'status': 'unknown',
+                'city': coords['city'],
+                'zone': get_zone(name, coords),
+                'lastUpdate': None,
+                'monitoringPoints': [],
+                'properCount': 0,
+                'improperCount': 0,
+            }
+
+    final_beaches = []
+    for index, beach in enumerate(sorted(merged.values(), key=lambda b: b['name']), start=1):
+        beach['id'] = index
+        final_beaches.append(beach)
+    return final_beaches
+
+
+def print_summary(beaches):
+    rj_count = sum(1 for b in beaches if b['city'] == 'Rio de Janeiro')
+    niteroi_count = sum(1 for b in beaches if b['city'] == 'Niterói')
+    print(f"\n📊 Summary:")
+    print(f"  Rio de Janeiro: {rj_count} beaches")
+    print(f"  Niterói: {niteroi_count} beaches")
+
+    print(f"\n🏖️  Status:")
+    for status, label in [('proper', '✓ Proper'), ('attention', '⚠ Attention (mixed)'),
+                          ('improper', '✗ Improper'), ('unknown', '? Unknown (no data)')]:
+        count = sum(1 for b in beaches if b['status'] == status)
+        print(f"  {label}: {count}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('pdfs', nargs='*',
+                        help='bulletin PDFs (default: *bulletin*.pdf in . and data/)')
+    parser.add_argument('--powerbi-file', help='JSON records from fetch_powerbi.py')
+    parser.add_argument('--baseline', default=DEFAULT_DATA_FILE,
+                        help='previous beachData.json to keep last known statuses from')
+    parser.add_argument('--output', default=DEFAULT_DATA_FILE)
+    args = parser.parse_args()
+
+    pdf_files = sorted(set(args.pdfs or
+                           glob.glob('*bulletin*.pdf') + glob.glob('data/*bulletin*.pdf')))
+
+    source_beach_lists = []
     for pdf_file in pdf_files:
         print(f"\n📄 Processing: {pdf_file}")
-        
-        # Check if PDF is valid (has content)
-        if not os.path.exists(pdf_file):
-            print(f"✗ PDF file not found: {pdf_file}")
-            continue
-            
-        if os.path.getsize(pdf_file) == 0:
-            print(f"✗ PDF file is empty: {pdf_file}")
-            continue
-        
-        result = parse_bulletin(pdf_file)
-        
-        if result and result.get('beaches'):
-            print(f"✓ Parsed {len(result['beaches'])} beaches from {pdf_file}")
-            
-            # Track the latest update date
-            if not latest_date or result['lastUpdate'] > latest_date:
-                latest_date = result['lastUpdate']
-            
-            # Add beaches from this bulletin
-            all_beaches.extend(result['beaches'])
+        points = parse_bulletin_points(pdf_file)
+        if points:
+            print(f"✓ Parsed {len(points)} monitoring points")
+            source_beach_lists.append(build_beaches(points))
         else:
-            print(f"⚠️  Could not parse beaches from {pdf_file}")
-    
-    if not all_beaches:
-        print("\n✗ No beaches parsed from any bulletin")
+            print(f"⚠️  No monitoring points parsed from {pdf_file}")
+
+    if args.powerbi_file:
+        with open(args.powerbi_file, encoding='utf-8') as file:
+            records = json.load(file)
+        points = powerbi_monitoring_points(records)
+        print(f"\n⚡ Power BI: {len(points)} monitoring points")
+        source_beach_lists.append(build_beaches(points))
+
+    baseline_by_name = load_baseline_beaches(args.baseline)
+    if not source_beach_lists and not baseline_by_name:
+        print("✗ No data sources available and no baseline to fall back to")
         sys.exit(1)
-    
-    # Remove duplicates (keep the one with most recent status info)
-    beaches_by_name = {}
-    for beach in all_beaches:
-        name = beach['name']
-        if name not in beaches_by_name:
-            beaches_by_name[name] = beach
-        elif beach['status'] != 'unknown' and beaches_by_name[name]['status'] == 'unknown':
-            # Prefer beaches with actual status over unknown
-            beaches_by_name[name] = beach
-    
-    # Reassign IDs
-    final_beaches = []
-    for idx, beach in enumerate(sorted(beaches_by_name.values(), key=lambda x: x['name']), start=1):
-        beach['id'] = idx
-        final_beaches.append(beach)
-    
-    # Create final result
+    if not source_beach_lists:
+        print("⚠️  No fresh sources this run; keeping baseline data")
+
+    final_beaches = merge_beaches(baseline_by_name, source_beach_lists)
+
+    beach_dates = [b['lastUpdate'] for b in final_beaches if b['lastUpdate']]
     final_result = {
-        'lastUpdate': latest_date or datetime.now().isoformat(),
+        'lastUpdate': max(beach_dates) if beach_dates else datetime.now().replace(microsecond=0).isoformat(),
         'source': 'INEA - Instituto Estadual do Ambiente',
         'bulletin': 'Boletim de Balneabilidade das Praias',
-        'beaches': final_beaches
+        'beaches': final_beaches,
     }
-    
-    # Write to file
-    with open('data/beachData.json', 'w', encoding='utf-8') as f:
-        json.dump(final_result, f, ensure_ascii=False, indent=2)
-    
-    print(f"\n✓ Generated data/beachData.json with {len(final_beaches)} beaches")
+
+    with open(args.output, 'w', encoding='utf-8') as file:
+        json.dump(final_result, file, ensure_ascii=False, indent=2)
+
+    print(f"\n✓ Generated {args.output} with {len(final_beaches)} beaches")
     print(f"✓ Last update: {final_result['lastUpdate']}")
-    
-    # Print summary by city
-    rj_beaches = [b for b in final_beaches if b.get('city') == 'Rio de Janeiro']
-    niteroi_beaches = [b for b in final_beaches if b.get('city') == 'Niterói']
-    
-    print(f"\n📊 Summary:")
-    print(f"  Rio de Janeiro: {len(rj_beaches)} beaches")
-    print(f"  Niterói: {len(niteroi_beaches)} beaches")
-    
-    # Status summary
-    proper = len([b for b in final_beaches if b['status'] == 'proper'])
-    improper = len([b for b in final_beaches if b['status'] == 'improper'])
-    attention = len([b for b in final_beaches if b['status'] == 'attention'])
-    unknown = len([b for b in final_beaches if b['status'] == 'unknown'])
-    
-    print(f"\n🏖️  Status:")
-    print(f"  ✓ Proper: {proper}")
-    print(f"  ⚠ Attention (mixed): {attention}")
-    print(f"  ✗ Improper: {improper}")
-    print(f"  ? Unknown (no data): {unknown}")
+    print_summary(final_beaches)
+
+
+if __name__ == '__main__':
+    main()
