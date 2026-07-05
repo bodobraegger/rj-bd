@@ -1,0 +1,546 @@
+[
+  {
+    "code": "AD000",
+    "beach": "Adão",
+    "city": "Niterói",
+    "location": "Centro da praia",
+    "lat": -22.92755833,
+    "lng": -43.12295833
+  },
+  {
+    "code": "BV001",
+    "beach": "Boa Viagem",
+    "city": "Niterói",
+    "location": "Centro da praia",
+    "lat": -22.90808333,
+    "lng": -43.12860556
+  },
+  {
+    "code": "CM000",
+    "beach": "Camboinhas",
+    "city": "Niterói",
+    "location": "Centro da praia",
+    "lat": -22.96222222,
+    "lng": -43.05666667
+  },
+  {
+    "code": "CM001",
+    "beach": "Camboinhas",
+    "city": "Niterói",
+    "location": "À 100m do Canal da Lagoa de Itaipu",
+    "lat": -22.96679444,
+    "lng": -43.04854722
+  },
+  {
+    "code": "CH000",
+    "beach": "Charitas",
+    "city": "Niterói",
+    "location": "Lado direito do Clube Naval de Charitas",
+    "lat": -22.93555556,
+    "lng": -43.105
+  },
+  {
+    "code": "CH001",
+    "beach": "Charitas",
+    "city": "Niterói",
+    "location": "Em frente à Travessa Santa Cândida",
+    "lat": -22.93083333,
+    "lng": -43.09861111
+  },
+  {
+    "code": "CH002",
+    "beach": "Charitas",
+    "city": "Niterói",
+    "location": "Em frente à Avenida Quintino Bocaiúva n° 355",
+    "lat": -22.92472222,
+    "lng": -43.09583333
+  },
+  {
+    "code": "EA000",
+    "beach": "Eva",
+    "city": "Niterói",
+    "location": "Centro da praia",
+    "lat": -22.92955278,
+    "lng": -43.12271667
+  },
+  {
+    "code": "FC000",
+    "beach": "Flechas",
+    "city": "Niterói",
+    "location": "Em frente à Rua Praia de Icaraí n° 163",
+    "lat": -22.90555556,
+    "lng": -43.12444444
+  },
+  {
+    "code": "FC001",
+    "beach": "Flechas",
+    "city": "Niterói",
+    "location": "Em frente à Rua Nilo Peçanha",
+    "lat": -22.90583333,
+    "lng": -43.12138889
+  },
+  {
+    "code": "GR000",
+    "beach": "Gragoatá",
+    "city": "Niterói",
+    "location": "Centro da praia",
+    "lat": -22.90253056,
+    "lng": -43.13651111
+  },
+  {
+    "code": "IC000",
+    "beach": "Icaraí",
+    "city": "Niterói",
+    "location": "Em frente à Praça Getúlio Vargas",
+    "lat": -22.90560278,
+    "lng": -43.11623889
+  },
+  {
+    "code": "IC001",
+    "beach": "Icaraí",
+    "city": "Niterói",
+    "location": "Em frente à Rua Mariz e Barros",
+    "lat": -22.91138889,
+    "lng": -43.11083333
+  },
+  {
+    "code": "IC002",
+    "beach": "Icaraí",
+    "city": "Niterói",
+    "location": "Em frente à Rua Otávio Carneiro",
+    "lat": -22.90870833,
+    "lng": -43.11314444
+  },
+  {
+    "code": "IC003",
+    "beach": "Icaraí",
+    "city": "Niterói",
+    "location": "À esquerda da Pedra de Itapuca",
+    "lat": -22.90472222,
+    "lng": -43.11833333
+  },
+  {
+    "code": "IA000",
+    "beach": "Itacoatiara",
+    "city": "Niterói",
+    "location": "Em frente à Rua das Papoulas",
+    "lat": -22.97583333,
+    "lng": -43.03055556
+  },
+  {
+    "code": "IA001",
+    "beach": "Itacoatiara",
+    "city": "Niterói",
+    "location": "Em frente à Rua das Azaléias",
+    "lat": -22.975,
+    "lng": -43.03666667
+  },
+  {
+    "code": "II000",
+    "beach": "Itaipu",
+    "city": "Niterói",
+    "location": "Em frente ao Restaurante Varandão",
+    "lat": -22.97027778,
+    "lng": -43.04638889
+  },
+  {
+    "code": "II001",
+    "beach": "Itaipu",
+    "city": "Niterói",
+    "location": "Em frente à Praia de Itaipú n° 21",
+    "lat": -22.97222222,
+    "lng": -43.04583333
+  },
+  {
+    "code": "JR000",
+    "beach": "Jurujuba",
+    "city": "Niterói",
+    "location": "Saída da Alameda Mal.Pessoa Leal na Av.Carlos Ermelindo Martins, 1565",
+    "lat": -22.93443611,
+    "lng": -43.11294167
+  },
+  {
+    "code": "JR001",
+    "beach": "Jurujuba",
+    "city": "Niterói",
+    "location": "Em frente à Avenida Carlos Ermelindo Marins n° 1935",
+    "lat": -22.93103611,
+    "lng": -43.11633889
+  },
+  {
+    "code": "PR000",
+    "beach": "Piratininga",
+    "city": "Niterói",
+    "location": "Em frente à Avenida Doutor Acúrcio Torres",
+    "lat": -22.95333333,
+    "lng": -43.09916667
+  },
+  {
+    "code": "PR001",
+    "beach": "Piratininga",
+    "city": "Niterói",
+    "location": "Em frente à Rua General Rubens Rosado Teixeira",
+    "lat": -22.95416667,
+    "lng": -43.09583333
+  },
+  {
+    "code": "PR002",
+    "beach": "Piratininga",
+    "city": "Niterói",
+    "location": "Em frente à Rua Orestes Barbosa",
+    "lat": -22.95472222,
+    "lng": -43.08777778
+  },
+  {
+    "code": "PR003",
+    "beach": "Piratininga",
+    "city": "Niterói",
+    "location": "Em frente à Rua João Gomes da Silva",
+    "lat": -22.95638889,
+    "lng": -43.07527778
+  },
+  {
+    "code": "SG000",
+    "beach": "Sossego",
+    "city": "Niterói",
+    "location": "Centro da praia",
+    "lat": -22.95826111,
+    "lng": -43.07011944
+  },
+  {
+    "code": "SF000",
+    "beach": "São Francisco",
+    "city": "Niterói",
+    "location": "Em frente à Rua Caraíbas",
+    "lat": -22.91583333,
+    "lng": -43.09638889
+  },
+  {
+    "code": "SF001",
+    "beach": "São Francisco",
+    "city": "Niterói",
+    "location": "Em frente à Igreja São Francisco",
+    "lat": -22.92119722,
+    "lng": -43.09526111
+  },
+  {
+    "code": "SF002",
+    "beach": "São Francisco",
+    "city": "Niterói",
+    "location": "Em frente à Avenida Quintino Bocaiúva n° 233",
+    "lat": -22.91860556,
+    "lng": -43.09527778
+  },
+  {
+    "code": "AR000",
+    "beach": "Arpoador",
+    "city": "Rio de Janeiro",
+    "location": "Canto esquerdo da praia",
+    "lat": -22.98944444,
+    "lng": -43.19166667
+  },
+  {
+    "code": "BD005",
+    "beach": "Barra da Tijuca",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Avenida Ayrton Senna",
+    "lat": -23.01183889,
+    "lng": -43.36521667
+  },
+  {
+    "code": "BD007",
+    "beach": "Barra da Tijuca",
+    "city": "Rio de Janeiro",
+    "location": "Em frente ao Riviera Country Club",
+    "lat": -23.01169167,
+    "lng": -43.33515
+  },
+  {
+    "code": "BD009",
+    "beach": "Barra da Tijuca",
+    "city": "Rio de Janeiro",
+    "location": "Em frente ao 2º GMAR (Bombeiros)",
+    "lat": -23.015925,
+    "lng": -43.30417778
+  },
+  {
+    "code": "BD010",
+    "beach": "Barra da Tijuca II",
+    "city": "Rio de Janeiro",
+    "location": "Quebra-Mar - Em frente à Rua Sargento João de Faria",
+    "lat": -23.01541667,
+    "lng": -43.29805556
+  },
+  {
+    "code": "BG000",
+    "beach": "Barra de Guaratiba",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Escola Ana Neri",
+    "lat": -23.07083333,
+    "lng": -43.56813889
+  },
+  {
+    "code": "BT000",
+    "beach": "Botafogo",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Marquês de Olinda",
+    "lat": -22.944575,
+    "lng": -43.17984722
+  },
+  {
+    "code": "BT001",
+    "beach": "Botafogo",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à comporta de Botafogo",
+    "lat": -22.948175,
+    "lng": -43.18025833
+  },
+  {
+    "code": "CP004",
+    "beach": "Copacabana",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Souza Lima",
+    "lat": -22.98228889,
+    "lng": -43.18889444
+  },
+  {
+    "code": "CP005",
+    "beach": "Copacabana",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Santa Clara",
+    "lat": -22.97429444,
+    "lng": -43.18429444
+  },
+  {
+    "code": "CP008",
+    "beach": "Copacabana",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua República do Peru",
+    "lat": -22.97018611,
+    "lng": -43.17946667
+  },
+  {
+    "code": "CP100",
+    "beach": "Copacabana",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Francisco Otaviano",
+    "lat": -22.98527778,
+    "lng": -43.18830556
+  },
+  {
+    "code": "PD000",
+    "beach": "Diabo",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -22.98944444,
+    "lng": -43.19
+  },
+  {
+    "code": "FL000",
+    "beach": "Flamengo",
+    "city": "Rio de Janeiro",
+    "location": "Foz do rio Carioca",
+    "lat": -22.93518611,
+    "lng": -43.17103056
+  },
+  {
+    "code": "FL004",
+    "beach": "Flamengo",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Corrêa Dutra",
+    "lat": -22.92904444,
+    "lng": -43.17061111
+  },
+  {
+    "code": "FL008",
+    "beach": "Glória",
+    "city": "Rio de Janeiro",
+    "location": "Ao lado da Marina da Glória",
+    "lat": -22.921809,
+    "lng": -43.167979
+  },
+  {
+    "code": "GM000",
+    "beach": "Grumari",
+    "city": "Rio de Janeiro",
+    "location": "Canto direito da praia",
+    "lat": -23.04972222,
+    "lng": -43.53055556
+  },
+  {
+    "code": "GM001",
+    "beach": "Grumari",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -23.04895278,
+    "lng": -43.52266667
+  },
+  {
+    "code": "IP003",
+    "beach": "Ipanema",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Paul Redefern",
+    "lat": -22.9875,
+    "lng": -43.21416667
+  },
+  {
+    "code": "IP006",
+    "beach": "Ipanema",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Joana Angélica",
+    "lat": -22.98763333,
+    "lng": -43.20506667
+  },
+  {
+    "code": "IP010",
+    "beach": "Ipanema",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Garcia D'Ávila",
+    "lat": -22.9875,
+    "lng": -43.20930556
+  },
+  {
+    "code": "JT000",
+    "beach": "Joatinga",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -23.01478889,
+    "lng": -43.28936944
+  },
+  {
+    "code": "LB000",
+    "beach": "Leblon",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Rita Ludolf",
+    "lat": -22.98916667,
+    "lng": -43.22638889
+  },
+  {
+    "code": "LB001",
+    "beach": "Leblon",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Bartolomeu Mitre",
+    "lat": -22.98784167,
+    "lng": -43.22227778
+  },
+  {
+    "code": "LB003",
+    "beach": "Leblon",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Afrânio de Melo Franco",
+    "lat": -22.98763889,
+    "lng": -43.21722222
+  },
+  {
+    "code": "LM002",
+    "beach": "Leme",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Aurelino Leal",
+    "lat": -22.96406389,
+    "lng": -43.16745278
+  },
+  {
+    "code": "PP010",
+    "beach": "Pepino",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Avenida Princesa Diana de Galles",
+    "lat": -23.00125,
+    "lng": -43.26944444
+  },
+  {
+    "code": "PS000",
+    "beach": "Pontal de Sernambetiba",
+    "city": "Rio de Janeiro",
+    "location": "Em frente ao nº 6.287 da Estrada do Pontal",
+    "lat": -23.03536667,
+    "lng": -43.49084722
+  },
+  {
+    "code": "PS001",
+    "beach": "Pontal de Sernambetiba",
+    "city": "Rio de Janeiro",
+    "location": "Em frente ao canal de Sernambetiba",
+    "lat": -23.03602778,
+    "lng": -43.49318889
+  },
+  {
+    "code": "PN000",
+    "beach": "Prainha",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -23.04111111,
+    "lng": -43.505
+  },
+  {
+    "code": "BD000",
+    "beach": "Recreio",
+    "city": "Rio de Janeiro",
+    "location": "Em frente à Rua Manuel Jorge Lydia",
+    "lat": -23.03055556,
+    "lng": -43.46777778
+  },
+  {
+    "code": "BD002",
+    "beach": "Recreio",
+    "city": "Rio de Janeiro",
+    "location": "Canto direito da Reserva Biológica de Marapendi",
+    "lat": -23.02293889,
+    "lng": -43.44535
+  },
+  {
+    "code": "BD003",
+    "beach": "Recreio/Reserva",
+    "city": "Rio de Janeiro",
+    "location": "Canto esquerdo da Reserva Biológica de Marapendi",
+    "lat": -23.01275,
+    "lng": -43.37999444
+  },
+  {
+    "code": "BD011",
+    "beach": "Recreio/Reserva",
+    "city": "Rio de Janeiro",
+    "location": "Em frente ao salão de eventos",
+    "lat": -23.01166667,
+    "lng": -43.37583333
+  },
+  {
+    "code": "GV001",
+    "beach": "São Conrado",
+    "city": "Rio de Janeiro",
+    "location": "Em frente ao nº 220 da Avenida Prefeito Mendes de Morais",
+    "lat": -23.00000556,
+    "lng": -43.25752778
+  },
+  {
+    "code": "GV002",
+    "beach": "São Conrado",
+    "city": "Rio de Janeiro",
+    "location": "Canto esquerdo da praia, próximo ao costão rochoso",
+    "lat": -22.99925278,
+    "lng": -43.25348611
+  },
+  {
+    "code": "UR000",
+    "beach": "Urca",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -22.94784444,
+    "lng": -43.16354444
+  },
+  {
+    "code": "VR000",
+    "beach": "Vermelha",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -22.9553,
+    "lng": -43.16438056
+  },
+  {
+    "code": "VD000",
+    "beach": "Vidigal",
+    "city": "Rio de Janeiro",
+    "location": "Centro da praia",
+    "lat": -22.99188889,
+    "lng": -43.23166667
+  }
+]
