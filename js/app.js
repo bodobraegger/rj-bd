@@ -1,8 +1,3 @@
-// Real beach data based on INEA monitoring points in Rio de Janeiro
-// Data source: INEA Boletim de Balneabilidade
-// This will be updated by fetching from beachData.json which can be generated from INEA bulletins
-const BEACHES_DATA = [];
-
 // State management
 let map;
 let markers = [];
@@ -16,7 +11,6 @@ let hiddenStatuses = new Set(['unknown']); // Hide 'unknown' by default
 document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     await fetchBeachData();
-    await checkWeatherAlert();
     renderBeachList();
     initEventListeners();
     initLegendFilters();
@@ -187,12 +181,8 @@ async function fetchBeachData() {
         const data = await response.json();
         beachData = data.beaches || [];
         
-        // Update the last update date in header
+        // Update the last update date display
         if (data.lastUpdate) {
-            // const dateSpan = document.getElementById('lastUpdateDate');
-            // dateSpan.innerHTML = `· atualização: ${formatDate(data.lastUpdate)}`;
-            
-            // Update the update display button
             const updateDisplay = document.getElementById('updateDisplay');
             if (updateDisplay) {
                 const date = new Date(data.lastUpdate);
@@ -223,21 +213,6 @@ function fitMapToVisibleBeaches() {
         const bounds = L.latLngBounds(visibleBeaches.map(beach => [beach.lat, beach.lng]));
         map.fitBounds(bounds, { padding: [50, 50] });
     }
-}
-
-// Check weather and show alert if needed
-async function checkWeatherAlert() {
-    // TODO: Replace with real weather API
-    // Example using OpenWeatherMap or INMET:
-    // const response = await fetch('weather-api-endpoint');
-    // const weather = await response.json();
-    
-    // Disabled: No real weather integration yet
-    // const hasHeavyRain = Math.random() > 0.7; // 30% chance for demo
-    
-    // if (hasHeavyRain) {
-    //     document.getElementById('weatherAlert').classList.add('show');
-    // }
 }
 
 // Update map markers
@@ -510,7 +485,6 @@ function toggleSidebar() {
 }
 
 // Locate user
-// Locate user
 function getUserLocation() {
     if (!navigator.geolocation) {
         alert('Geolocalização não é suportada pelo seu navegador');
@@ -643,34 +617,6 @@ function getStatusText(status) {
         unknown: 'Desconhecido'
     };
     return texts[status] || texts.unknown;
-}
-
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    const now = new Date();
-    
-    // Set both dates to midnight to avoid time zone issues
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    const diffMs = nowOnly - dateOnly;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    // Full date for tooltip (dd.mm.yyyy format)
-    const fullDate = date.toLocaleDateString('pt-BR', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
-    }).replace(/\//g, '.');
-    
-    let displayText;
-    if (diffDays <= 0) displayText = 'Hoje';
-    else if (diffDays === 1) displayText = 'Ontem';
-    else if (diffDays < 7) displayText = `${diffDays} dias atrás`;
-    else displayText = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    
-    return `<span title="${fullDate}">${displayText}</span>`;
 }
 
 // Auto-refresh data every 5 minutes
