@@ -1,6 +1,33 @@
+const MAP_BOUNDS = [
+    [-23.15, -43.8], // Southwest
+    [-22.75, -43.0]  // Northeast
+];
+const DEFAULT_VIEW = { lat: -22.9711, lng: -43.2044, zoom: 11 };
+const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
+const STATUS_COLORS = {
+    proper: '#51cf66',
+    attention: '#ffd43b',
+    improper: '#ff6b6b',
+    unknown: '#868e96'
+};
+const STATUS_TEXTS = {
+    proper: 'Própria',
+    attention: 'Atenção',
+    improper: 'Imprópria',
+    unknown: 'Desconhecido'
+};
+
+const BRAND_COLOR = '#667eea';
+const HIGHLIGHT_BACKGROUND = 'rgba(102, 126, 234, 0.3)';
+
+// Beaches whose map label must not overlap a neighbor get a fixed side
+const LABEL_BELOW_BEACHES = new Set(['Leme', 'Copacabana', 'Ipanema']);
+const LABEL_ABOVE_BEACHES = new Set(['Botafogo', 'Flamengo', 'Urca']);
+
 // State management
 let map;
-let markers = [];
+let markersByBeachId = {};
 let userMarker = null;
 let currentSort = 'favorites';
 let favorites = JSON.parse(localStorage.getItem('favoriteBeaches') || '[]');
@@ -53,11 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 label.classList.remove('beach-label-hidden');
             });
             // Trigger initial tooltip display on desktop (always show)
-            markers.forEach(marker => {
-                if (marker) {
-                    marker.openTooltip();
-                }
-            });
+            Object.values(markersByBeachId).forEach(marker => marker.openTooltip());
         }, 1200);
     }
     
@@ -107,25 +130,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 previousZoom = zoom;
             }
             
-            // On desktop, always show labels regardless of zoom
-            if (isDesktop) {
-                markers.forEach(marker => {
-                    if (marker) {
-                        marker.openTooltip();
-                    }
-                });
-            } else {
-                // On mobile, respect the labelsEnabled flag and zoom level
-                markers.forEach(marker => {
-                    if (marker) {
-                        if (zoom >= 8 && labelsEnabled) {
-                            marker.openTooltip();
-                        } else {
-                            marker.closeTooltip();
-                        }
-                    }
-                });
-            }
+            // On desktop, always show labels regardless of zoom;
+            // on mobile, respect the labelsEnabled flag and zoom level
+            Object.values(markersByBeachId).forEach(marker => {
+                if (isDesktop || (zoom >= 8 && labelsEnabled)) {
+                    marker.openTooltip();
+                } else {
+                    marker.closeTooltip();
+                }
+            });
             
             // Update label sizes after tooltips are shown
             if ((isDesktop || (labelsEnabled && zoom >= 8))) {
@@ -137,22 +150,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Initialize Leaflet map
 function initMap() {
-    // Define bounds for Rio de Janeiro area
-    const rioBounds = [
-        [-23.15, -43.8], // Southwest coordinates
-        [-22.75, -43.0]  // Northeast coordinates
-    ];
-
     // Get saved map position or use defaults
     const savedPosition = JSON.parse(localStorage.getItem('mapPosition') || '{}');
-    const initialLat = savedPosition.lat || -22.9711;
-    const initialLng = savedPosition.lng || -43.2044;
-    const initialZoom = savedPosition.zoom || 11;
+    const initialLat = savedPosition.lat || DEFAULT_VIEW.lat;
+    const initialLng = savedPosition.lng || DEFAULT_VIEW.lng;
+    const initialZoom = savedPosition.zoom || DEFAULT_VIEW.zoom;
 
     map = L.map('map', {
         zoomControl: true,
         attributionControl: false,
-        maxBounds: rioBounds,
+        maxBounds: MAP_BOUNDS,
         maxBoundsViscosity: 1.0,
         minZoom: 10
     }).setView([initialLat, initialLng], initialZoom);
@@ -207,39 +214,36 @@ async function fetchBeachData() {
     }
 }
 
+// Beaches not hidden by the legend filters
+function visibleBeaches() {
+    return beachData.filter(beach => !hiddenStatuses.has(beach.status));
+}
+
 // Fit map bounds to visible beaches only
 function fitMapToVisibleBeaches() {
-    const visibleBeaches = beachData.filter(beach => !hiddenStatuses.has(beach.status));
-    
-    if (visibleBeaches.length > 0) {
-        const bounds = L.latLngBounds(visibleBeaches.map(beach => [beach.lat, beach.lng]));
+    const beaches = visibleBeaches();
+    if (beaches.length > 0) {
+        const bounds = L.latLngBounds(beaches.map(beach => [beach.lat, beach.lng]));
         map.fitBounds(bounds, { padding: [50, 50] });
     }
 }
 
+// Escape data-derived text before interpolating it into HTML
+function escapeHtml(value) {
+    const element = document.createElement('div');
+    element.textContent = value ?? '';
+    return element.innerHTML;
+}
+
 // Update map markers
 function updateMapMarkers() {
-    // Clear existing markers
-    markers.forEach(marker => {
-        if (marker) {
-            map.removeLayer(marker);
-        }
-    });
-    markers = [];
+    Object.values(markersByBeachId).forEach(marker => map.removeLayer(marker));
+    markersByBeachId = {};
 
-    // Add new markers
-    beachData.forEach(beach => {
-        // Skip if status is hidden
-        if (hiddenStatuses.has(beach.status)) {
-            markers.push(null);
-            return;
-        }
-
-        const color = getStatusColor(beach.status);
-        
+    visibleBeaches().forEach((beach, index) => {
         const marker = L.circleMarker([beach.lat, beach.lng], {
             radius: 8,
-            fillColor: color,
+            fillColor: getStatusColor(beach.status),
             color: '#fff',
             weight: 2,
             opacity: 1,
@@ -247,20 +251,20 @@ function updateMapMarkers() {
         }).addTo(map);
 
         // Smart label positioning - specific beaches get specific directions
-        let direction = 'top';
-        if (beach.name === 'Leme' || beach.name === 'Copacabana' || beach.name === 'Ipanema') {
+        let direction;
+        if (LABEL_BELOW_BEACHES.has(beach.name)) {
             direction = 'bottom';
-        } else if (beach.name === 'Botafogo' || beach.name === 'Flamengo' || beach.name === 'Urca') {
+        } else if (LABEL_ABOVE_BEACHES.has(beach.name)) {
             direction = 'top';
         } else {
             // Alternate for others
-            direction = markers.filter(m => m !== null).length % 2 === 0 ? 'top' : 'bottom';
+            direction = index % 2 === 0 ? 'top' : 'bottom';
         }
-        
+
         const offset = direction === 'top' ? [0, -10] : [0, 10];
-        
+
         // Add permanent tooltip that shows on zoom
-        marker.bindTooltip(beach.name, {
+        marker.bindTooltip(escapeHtml(beach.name), {
             permanent: true,
             direction: direction,
             className: 'beach-label beach-label-hidden',
@@ -270,13 +274,13 @@ function updateMapMarkers() {
 
         // Build popup content with monitoring points
         let popupContent = `
-            <div class="popup-name">${beach.name}</div>
+            <div class="popup-name">${escapeHtml(beach.name)}</div>
             <div class="popup-status">
                 <strong>Status:</strong> ${getStatusText(beach.status)}<br>
-                <strong>Zona:</strong> ${beach.zone}
+                <strong>Zona:</strong> ${escapeHtml(beach.zone)}
             </div>
         `;
-        
+
         // Add monitoring points if available
         if (beach.monitoringPoints && beach.monitoringPoints.length > 0) {
             popupContent += `<div class="popup-points"><strong>Pontos de Monitoramento:</strong><ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">`;
@@ -284,21 +288,21 @@ function updateMapMarkers() {
                 const pointStatusText = getStatusText(point.status);
                 const pointColor = getStatusColor(point.status);
                 const pointIcon = point.status === 'proper' ? '✓' : (point.status === 'improper' ? '✗' : '⚠');
-                popupContent += `<li><span style="color: ${pointColor};">${pointIcon} ${point.code || 'N/A'}</span> - ${pointStatusText}`;
+                popupContent += `<li><span style="color: ${pointColor};">${pointIcon} ${escapeHtml(point.code || 'N/A')}</span> - ${pointStatusText}`;
                 if (point.location) {
-                    popupContent += `<br><span style="font-size: 11px; color: #666;">${point.location}</span>`;
+                    popupContent += `<br><span style="font-size: 11px; color: #666;">${escapeHtml(point.location)}</span>`;
                 }
                 popupContent += `</li>`;
             });
             popupContent += `</ul></div>`;
         }
-        
+
         marker.bindPopup(popupContent);
 
         marker.on('click', () => {
             highlightBeach(beach.id);
         });
-        
+
         marker.on('popupclose', () => {
             // Clear highlight when popup closes
             if (currentHighlightedBeachId === beach.id) {
@@ -309,16 +313,15 @@ function updateMapMarkers() {
             }
         });
 
-        markers.push(marker);
+        markersByBeachId[beach.id] = marker;
     });
 }
 
 // Render beach list
 function renderBeachList() {
-    const sortedBeaches = sortBeaches(beachData, currentSort);
-    const filteredBeaches = sortedBeaches.filter(beach => !hiddenStatuses.has(beach.status));
-    
-    const listHtml = filteredBeaches.map(beach => {
+    const sortedBeaches = sortBeaches(visibleBeaches(), currentSort);
+
+    const listHtml = sortedBeaches.map(beach => {
         const isFavorite = favorites.includes(beach.id);
         const statusClass = `status-${beach.status}`;
         
@@ -327,7 +330,7 @@ function renderBeachList() {
         if (beach.monitoringPoints && beach.monitoringPoints.length > 0) {
             const pointCodes = beach.monitoringPoints.map(p => {
                 const statusClass = `point-${p.status}`;
-                return `<span class="point-code ${statusClass}">${p.code}</span>`;
+                return `<span class="point-code ${statusClass}">${escapeHtml(p.code)}</span>`;
             }).join(' ');
             pointsSummary = `<div class="beach-points">${pointCodes}</div>`;
         }
@@ -335,7 +338,7 @@ function renderBeachList() {
         return `
             <div class="beach-item" data-id="${beach.id}" onclick="focusBeach(${beach.id})">
                 <div class="beach-header">
-                    <div class="beach-name">${beach.name}</div>
+                    <div class="beach-name">${escapeHtml(beach.name)}</div>
                     ${pointsSummary}
                     <button class="fav-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(event, ${beach.id})"></button>
                 </div>
@@ -420,11 +423,10 @@ function focusBeach(beachId) {
     if (beach) {
         // Use higher zoom and better centering
         map.setView([beach.lat, beach.lng], 16, { animate: true });
-        
+
         // Find and open the marker popup
-        const markerIndex = beachData.findIndex(b => b.id === beachId);
-        if (markers[markerIndex]) {
-            markers[markerIndex].openPopup();
+        if (markersByBeachId[beachId]) {
+            markersByBeachId[beachId].openPopup();
         }
     }
 }
@@ -443,7 +445,7 @@ function highlightBeach(beachId) {
     // Highlight the selected beach
     const item = document.querySelector(`[data-id="${beachId}"]`);
     if (item) {
-        item.style.background = 'rgba(102, 126, 234, 0.3)';
+        item.style.background = HIGHLIGHT_BACKGROUND;
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         currentHighlightedBeachId = beachId;
     }
@@ -509,7 +511,7 @@ function getUserLocation() {
             // Add user location marker
             userMarker = L.circleMarker([latitude, longitude], {
                 radius: 10,
-                fillColor: '#667eea',
+                fillColor: BRAND_COLOR,
                 color: '#fff',
                 weight: 3,
                 opacity: 1,
@@ -602,24 +604,12 @@ function toRad(deg) {
 
 // Utility functions
 function getStatusColor(status) {
-    const colors = {
-        proper: '#51cf66',
-        attention: '#ffd43b',
-        improper: '#ff6b6b',
-        unknown: '#868e96'
-    };
-    return colors[status] || colors.attention;
+    return STATUS_COLORS[status] || STATUS_COLORS.attention;
 }
 
 function getStatusText(status) {
-    const texts = {
-        proper: 'Própria',
-        attention: 'Atenção',
-        improper: 'Imprópria',
-        unknown: 'Desconhecido'
-    };
-    return texts[status] || texts.unknown;
+    return STATUS_TEXTS[status] || STATUS_TEXTS.unknown;
 }
 
-// Auto-refresh data every 5 minutes
-setInterval(fetchBeachData, 5 * 60 * 1000);
+// Auto-refresh data
+setInterval(fetchBeachData, DATA_REFRESH_INTERVAL_MS);
