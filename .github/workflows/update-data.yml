@@ -1,177 +1,71 @@
-name: Update Beach Data and Deploy
+name: Update Beach Data
 
 on:
-  push:
-    branches:
-      - main
   schedule:
-    # Run every day at 22:00 UTC (19:00 Rio time / 7 PM)
+    # Every day at 22:00 UTC (19:00 Rio time)
     - cron: '0 22 * * *'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  update-data:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y poppler-utils
-      
-      - name: Download latest INEA bulletins
+
+      - name: Download INEA bulletins
+        # A missing source only means the parser keeps last known statuses
+        run: ./scripts/download_bulletins.sh || echo "⚠️ Bulletin download failed; relying on Power BI and baseline"
+
+      - name: Fetch Power BI data
+        run: python3 scripts/fetch_powerbi.py --output powerbi.json || rm -f powerbi.json
+
+      - name: Generate beach data
         run: |
-          # Try to find bulletins from the last 14 days
-          SUCCESS_RJ=0
-          SUCCESS_NITEROI=0
-          
-          for days_ago in {0..14}; do
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-              # macOS
-              DATE=$(date -v-${days_ago}d +%d.%m.%y)
-              DATE_NEXT=$(date -v-$((days_ago-1))d +%Y%m%d)
-              YEAR=$(date -v-${days_ago}d +%Y)
-              MONTH=$(date -v-${days_ago}d +%m)
-              DATE_OLD=$(date -v-${days_ago}d +%d-%m-%y)
-            else
-              # Linux
-              DATE=$(date -d "$days_ago days ago" +%d.%m.%y)
-              DATE_NEXT=$(date -d "$((days_ago-1)) days ago" +%Y%m%d)
-              YEAR=$(date -d "$days_ago days ago" +%Y)
-              MONTH=$(date -d "$days_ago days ago" +%m)
-              DATE_OLD=$(date -d "$days_ago days ago" +%d-%m-%y)
-            fi
-            
-            # Try Rio de Janeiro bulletin (new format names)
-            if [ $SUCCESS_RJ -eq 0 ]; then
-              # Calculate next month for cross-month cases
-              if [[ "$OSTYPE" == "darwin"* ]]; then
-                MONTH_NEXT=$(date -v-${days_ago}d -v+1m +%m)
-                YEAR_NEXT=$(date -v-${days_ago}d -v+1m +%Y)
-              else
-                MONTH_NEXT=$(date -d "$days_ago days ago + 1 month" +%m)
-                YEAR_NEXT=$(date -d "$days_ago days ago + 1 month" +%Y)
-              fi
-              
-              for RJ_NAME in "Zona-sudoeste-e-Zona-sul" "Zona-oeste-e-Zona-sul"; do
-                FILENAME_RJ="${RJ_NAME}-${DATE_OLD}.pdf"
-                
-                # Try current month folder
-                URL_RJ="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_RJ}"
-                if curl -f -s -I "$URL_RJ" > /dev/null 2>&1; then
-                  echo "✓ Found Rio bulletin at $URL_RJ"
-                  curl -f -L "$URL_RJ" -o "rj-bulletin-${DATE_OLD}.pdf"
-                  SUCCESS_RJ=1
-                  break
-                fi
-                
-                # Try next month folder (INEA sometimes uploads to wrong month)
-                URL_RJ="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME_RJ}"
-                if curl -f -s -I "$URL_RJ" > /dev/null 2>&1; then
-                  echo "✓ Found Rio bulletin at $URL_RJ"
-                  curl -f -L "$URL_RJ" -o "rj-bulletin-${DATE_OLD}.pdf"
-                  SUCCESS_RJ=1
-                  break
-                fi
-              done
-            fi
-            
-            # Try Niterói bulletin
-            if [ $SUCCESS_NITEROI -eq 0 ]; then
-              # Calculate next month for cross-month cases
-              if [[ "$OSTYPE" == "darwin"* ]]; then
-                MONTH_NEXT=$(date -v-${days_ago}d -v+1m +%m)
-                YEAR_NEXT=$(date -v-${days_ago}d -v+1m +%Y)
-              else
-                MONTH_NEXT=$(date -d "$days_ago days ago + 1 month" +%m)
-                YEAR_NEXT=$(date -d "$days_ago days ago + 1 month" +%Y)
-              fi
-              
-              for NITEROI_NAME in "Niterói" "Niteroi"; do
-                FILENAME_NITEROI="${NITEROI_NAME}-${DATE_OLD}.pdf"
-                # URL encode the filename (ó = %C3%B3)
-                FILENAME_NITEROI_ENCODED=$(echo "$FILENAME_NITEROI" | sed 's/ó/%C3%B3/g')
-                
-                # Try current month folder
-                URL_NITEROI="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR}/${MONTH}/${FILENAME_NITEROI_ENCODED}"
-                if curl -f -s -I "$URL_NITEROI" > /dev/null 2>&1; then
-                  echo "✓ Found Niterói bulletin at $URL_NITEROI"
-                  curl -f -L "$URL_NITEROI" -o "niteroi-bulletin-${DATE_OLD}.pdf"
-                  SUCCESS_NITEROI=1
-                  break
-                fi
-                
-                # Try next month folder (INEA sometimes uploads to wrong month)
-                URL_NITEROI="https://www.inea.rj.gov.br/wp-content/uploads/${YEAR_NEXT}/${MONTH_NEXT}/${FILENAME_NITEROI_ENCODED}"
-                if curl -f -s -I "$URL_NITEROI" > /dev/null 2>&1; then
-                  echo "✓ Found Niterói bulletin at $URL_NITEROI"
-                  curl -f -L "$URL_NITEROI" -o "niteroi-bulletin-${DATE_OLD}.pdf"
-                  SUCCESS_NITEROI=1
-                  break
-                fi
-              done
-            fi
-            
-            # Exit loop if both found
-            if [ $SUCCESS_RJ -eq 1 ] && [ $SUCCESS_NITEROI -eq 1 ]; then
-              break
-            fi
-          done
-          
-          # Check if at least one bulletin was found
-          if [ $SUCCESS_RJ -eq 0 ] && [ $SUCCESS_NITEROI -eq 0 ]; then
-            echo "✗ Could not find any bulletins in the last 14 days"
-            exit 1
+          if [ -f powerbi.json ]; then
+            python3 scripts/parse_inea_bulletin.py --powerbi-file powerbi.json
+          else
+            python3 scripts/parse_inea_bulletin.py
           fi
-          
-          if [ $SUCCESS_RJ -eq 0 ]; then
-            echo "⚠️  Warning: Could not find Rio de Janeiro bulletin"
-          fi
-          
-          if [ $SUCCESS_NITEROI -eq 0 ]; then
-            echo "⚠️  Warning: Could not find Niterói bulletin"
-          fi
-          
-          # Verify PDFs were downloaded
-          for pdf in *-bulletin-*.pdf; do
-            if [ -f "$pdf" ]; then
-              echo "✓ Downloaded: $pdf ($(stat -c%s "$pdf" 2>/dev/null || stat -f%z "$pdf") bytes)"
-            fi
-          done
-      
-      - name: Parse bulletin and generate JSON
+
+      - name: Validate generated data
+        run: python3 scripts/test_parsing.py
+
+      - name: Commit updated data
         run: |
-          python3 scripts/parse_inea_bulletin.py
-          echo "Generated data/beachData.json at $(date)"
-      
-      - name: Update service worker cache version
-        run: |
-          # Replace BUILD_TIMESTAMP with current timestamp to force cache refresh
-          TIMESTAMP=$(date +%s)
-          sed -i "s/BUILD_TIMESTAMP/${TIMESTAMP}/g" js/sw.js
-          echo "Updated service worker cache version to: ${TIMESTAMP}"
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          if git diff --quiet data/beachData.json; then
+            echo "No data changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/beachData.json
+          git commit -m "chore(data): update beach data"
+          git push
+
+  # GITHUB_TOKEN pushes do not trigger the push-based deploy workflow,
+  # so deployment is invoked explicitly after the data update
+  deploy:
+    needs: update-data
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml
