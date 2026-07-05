@@ -1,225 +1,223 @@
 #!/usr/bin/env python3
 """
-Comprehensive test script for INEA bulletin parsing.
-Tests edge cases, point assignments, location extraction, and status logic.
-"""
+Validate generated beach data against the parser's own mappings.
 
+Expectations are derived from parse_inea_bulletin.py (beach lists, point-code
+mappings) so they cannot drift from the code. Structural problems fail the
+suite (non-zero exit); data-quality observations only warn.
+
+Usage: test_parsing.py [path/to/beachData.json]
+"""
 import json
 import sys
 from pathlib import Path
 
-def load_beach_data():
-    """Load the generated beach data JSON"""
-    data_file = Path(__file__).parent.parent / 'data' / 'beachData.json'
-    with open(data_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
+from parse_inea_bulletin import (
+    BEACH_COORDS,
+    NITEROI_BEACHES,
+    RJ_BEACHES,
+    SPECIFIC_POINT_MAPPINGS,
+    get_beach_from_point_code,
+    normalize_point_code,
+)
 
-def test_no_unknown_beaches(data):
-    """Test: All beaches should have status (no unknowns expected with current bulletins)"""
-    unknown = [b for b in data['beaches'] if b['status'] == 'unknown']
-    if unknown:
-        print("❌ FAIL: Found unknown beaches:")
-        for b in unknown:
-            print(f"   - {b['name']} ({b['city']})")
-        return False
-    print("✅ PASS: No unknown beaches")
-    return True
+DEFAULT_DATA_FILE = Path(__file__).parent.parent / 'data' / 'beachData.json'
+VALID_STATUSES = {'proper', 'improper', 'attention', 'unknown'}
+# Generous bounding box around Rio de Janeiro and Niterói
+LAT_BOUNDS = (-23.2, -22.7)
+LNG_BOUNDS = (-43.8, -42.9)
 
-def test_edge_case_assignments(data):
-    """Test: Edge cases are correctly assigned"""
-    edge_cases = {
-        'Flamengo': ['FL000', 'FL004'],
-        'Glória': ['FL008'],
-        'Barra da Tijuca': ['BD05', 'BD07', 'BD09'],
-        'Barra da Tijuca II': ['BD10'],
-        'Recreio': ['BD00', 'BD02'],
-        'Recreio/Reserva': ['BD03', 'BD011'],
+
+def test_point_code_normalization(data):
+    """Point codes normalize consistently across padding schemes"""
+    cases = [
+        ('BD03', 'BD3'), ('BD003', 'BD3'), ('BD011', 'BD11'),
+        ('FL008', 'FL8'), ('AR00', 'AR0'), ('AR000', 'AR0'),
+        ('CP100', 'CP100'),
+    ]
+    failures = [(raw, expected, normalize_point_code(raw))
+                for raw, expected in cases if normalize_point_code(raw) != expected]
+    for raw, expected, actual in failures:
+        print(f"❌ FAIL: normalize_point_code('{raw}') = '{actual}', expected '{expected}'")
+    if not failures:
+        print("✅ PASS: Point code normalization")
+    return not failures
+
+
+def test_edge_case_mappings(data):
+    """Edge-case point codes map to the right beaches in both padding schemes"""
+    cases = {
+        'FL000': 'Flamengo', 'FL004': 'Flamengo', 'FL008': 'Glória',
+        'BD05': 'Barra da Tijuca', 'BD007': 'Barra da Tijuca', 'BD09': 'Barra da Tijuca',
+        'BD10': 'Barra da Tijuca II',
+        'BD00': 'Recreio', 'BD002': 'Recreio',
+        'BD03': 'Recreio/Reserva', 'BD011': 'Recreio/Reserva',
+        'AD000': 'Adão', 'IC001': 'Icaraí',
     }
-    
-    all_passed = True
-    for beach_name, expected_codes in edge_cases.items():
-        beach = next((b for b in data['beaches'] if b['name'] == beach_name), None)
-        if not beach:
-            print(f"❌ FAIL: Beach '{beach_name}' not found")
-            all_passed = False
-            continue
-        
-        actual_codes = [p['code'] for p in beach.get('monitoringPoints', [])]
-        if set(actual_codes) != set(expected_codes):
-            print(f"❌ FAIL: {beach_name}")
-            print(f"   Expected: {expected_codes}")
-            print(f"   Got: {actual_codes}")
-            all_passed = False
-        else:
-            print(f"✅ PASS: {beach_name} -> {actual_codes}")
-    
-    return all_passed
+    failures = []
+    for code, expected in cases.items():
+        actual = get_beach_from_point_code(code)
+        if actual != expected:
+            failures.append(f"{code} -> {actual}, expected {expected}")
+    for failure in failures:
+        print(f"❌ FAIL: {failure}")
+    if not failures:
+        print(f"✅ PASS: {len(cases)} edge-case code mappings")
+    return not failures
 
-def test_status_logic(data):
-    """Test: Status logic (proper/improper/attention) is correct"""
-    all_passed = True
-    
+
+def test_specific_mappings_cover_known_beaches(data):
+    """Every specifically mapped beach exists in the coordinate tables"""
+    missing = [beach for beach in SPECIFIC_POINT_MAPPINGS.values() if beach not in BEACH_COORDS]
+    for beach in missing:
+        print(f"❌ FAIL: Specific mapping targets unknown beach '{beach}'")
+    if not missing:
+        print("✅ PASS: Specific mappings target known beaches")
+    return not missing
+
+
+def test_beach_coverage(data):
+    """The data contains exactly the beaches defined in the parser"""
+    expected = set(BEACH_COORDS)
+    actual = {beach['name'] for beach in data['beaches']}
+    problems = []
+    for name in sorted(expected - actual):
+        problems.append(f"missing beach: {name}")
+    for name in sorted(actual - expected):
+        problems.append(f"unexpected beach: {name}")
+    if len(data['beaches']) != len(actual):
+        problems.append("duplicate beach names present")
+    for problem in problems:
+        print(f"❌ FAIL: {problem}")
+    if not problems:
+        print(f"✅ PASS: All {len(RJ_BEACHES)} Rio + {len(NITEROI_BEACHES)} Niterói beaches present, no extras")
+    return not problems
+
+
+def test_beach_fields(data):
+    """Beaches carry valid statuses, coordinates, cities, and point structures"""
+    problems = []
+    for beach in data['beaches']:
+        name = beach.get('name', '<unnamed>')
+        if beach.get('status') not in VALID_STATUSES:
+            problems.append(f"{name}: invalid status {beach.get('status')!r}")
+        if not (LAT_BOUNDS[0] <= beach.get('lat', 0) <= LAT_BOUNDS[1]
+                and LNG_BOUNDS[0] <= beach.get('lng', 0) <= LNG_BOUNDS[1]):
+            problems.append(f"{name}: coordinates out of bounds ({beach.get('lat')}, {beach.get('lng')})")
+        expected_city = BEACH_COORDS.get(name, {}).get('city')
+        if beach.get('city') != expected_city:
+            problems.append(f"{name}: city {beach.get('city')!r}, expected {expected_city!r}")
+        if beach.get('status') != 'unknown' and not beach.get('lastUpdate'):
+            problems.append(f"{name}: has status but no lastUpdate")
+        for point in beach.get('monitoringPoints', []):
+            missing = [field for field in ('code', 'location', 'status') if field not in point]
+            if missing:
+                problems.append(f"{name}: point missing fields {missing}")
+    for problem in problems:
+        print(f"❌ FAIL: {problem}")
+    if not problems:
+        print("✅ PASS: All beach records structurally valid")
+    return not problems
+
+
+def test_points_map_to_their_beach(data):
+    """Each monitoring point's code maps back to the beach it is attached to"""
+    problems = []
+    for beach in data['beaches']:
+        for point in beach.get('monitoringPoints', []):
+            mapped = get_beach_from_point_code(point['code'])
+            if mapped != beach['name']:
+                problems.append(f"{beach['name']}: point {point['code']} maps to {mapped}")
+    for problem in problems:
+        print(f"❌ FAIL: {problem}")
+    if not problems:
+        print("✅ PASS: All monitoring points map to their beach")
+    return not problems
+
+
+def test_status_aggregation(data):
+    """Beach status matches its points: any improper+proper mix is 'attention'"""
+    problems = []
     for beach in data['beaches']:
         points = beach.get('monitoringPoints', [])
         if not points:
             continue
-        
-        proper_count = sum(1 for p in points if p['status'] == 'proper')
-        improper_count = sum(1 for p in points if p['status'] == 'improper')
-        
-        # Determine expected status
-        if improper_count > 0 and proper_count > 0:
-            expected_status = 'attention'
-        elif improper_count > 0:
-            expected_status = 'improper'
-        elif proper_count > 0:
-            expected_status = 'proper'
+        proper = sum(1 for p in points if p['status'] == 'proper')
+        improper = sum(1 for p in points if p['status'] == 'improper')
+        if improper and proper:
+            expected = 'attention'
+        elif improper:
+            expected = 'improper'
+        elif proper:
+            expected = 'proper'
         else:
-            expected_status = 'unknown'
-        
-        if beach['status'] != expected_status:
-            print(f"❌ FAIL: {beach['name']} status logic")
-            print(f"   Points: {proper_count} proper, {improper_count} improper")
-            print(f"   Expected: {expected_status}, Got: {beach['status']}")
-            all_passed = False
-    
-    if all_passed:
-        print("✅ PASS: Status logic correct for all beaches")
-    return all_passed
+            expected = 'unknown'
+        if beach['status'] != expected:
+            problems.append(
+                f"{beach['name']}: {proper} proper / {improper} improper points"
+                f" but status {beach['status']!r} (expected {expected!r})")
+    for problem in problems:
+        print(f"❌ FAIL: {problem}")
+    if not problems:
+        print("✅ PASS: Status aggregation consistent")
+    return not problems
 
-def test_location_extraction(data):
-    """Test: Location text is captured for points"""
-    missing_locations = []
-    short_locations = []
-    
-    for beach in data['beaches']:
-        points = beach.get('monitoringPoints', [])
-        for point in points:
-            location = point.get('location', '')
-            if not location:
-                missing_locations.append(f"{beach['name']}/{point['code']}")
-            elif len(location) < 5:  # Very short locations might be truncated
-                short_locations.append(f"{beach['name']}/{point['code']}: '{location}'")
-    
-    all_passed = True
+
+def warn_data_quality(data):
+    """Non-fatal observations: unknown statuses, missing locations"""
+    unknown = [b['name'] for b in data['beaches'] if b['status'] == 'unknown']
+    if unknown:
+        print(f"⚠️  WARNING: {len(unknown)} beaches without any known status: {unknown}")
+    missing_locations = [
+        f"{beach['name']}/{point['code']}"
+        for beach in data['beaches']
+        for point in beach.get('monitoringPoints', [])
+        if not point.get('location')
+    ]
     if missing_locations:
-        print(f"⚠️  WARNING: {len(missing_locations)} points missing locations:")
-        for item in missing_locations[:5]:  # Show first 5
-            print(f"   - {item}")
-        if len(missing_locations) > 5:
-            print(f"   ... and {len(missing_locations) - 5} more")
-        all_passed = False
-    
-    if short_locations:
-        print(f"⚠️  WARNING: {len(short_locations)} points with very short locations:")
-        for item in short_locations[:5]:  # Show first 5
-            print(f"   - {item}")
-        if len(short_locations) > 5:
-            print(f"   ... and {len(short_locations) - 5} more")
-    
-    if all_passed:
-        print("✅ PASS: All points have location text")
-    return all_passed
+        print(f"⚠️  WARNING: {len(missing_locations)} points without location text:"
+              f" {missing_locations[:5]}{'...' if len(missing_locations) > 5 else ''}")
+    if not unknown and not missing_locations:
+        print("ℹ️  Data quality: no unknown beaches, all points have locations")
 
-def test_monitoring_points_structure(data):
-    """Test: Monitoring points have required fields"""
-    all_passed = True
-    
-    for beach in data['beaches']:
-        points = beach.get('monitoringPoints', [])
-        for point in points:
-            required_fields = ['code', 'location', 'status']
-            missing = [f for f in required_fields if f not in point]
-            if missing:
-                print(f"❌ FAIL: {beach['name']} point missing fields: {missing}")
-                all_passed = False
-                break
-    
-    if all_passed:
-        print("✅ PASS: All monitoring points have required fields")
-    return all_passed
-
-def test_city_distribution(data):
-    """Test: Beaches are distributed between Rio and Niterói"""
-    rio_count = sum(1 for b in data['beaches'] if b['city'] == 'Rio de Janeiro')
-    niteroi_count = sum(1 for b in data['beaches'] if b['city'] == 'Niterói')
-    
-    print(f"ℹ️  INFO: {rio_count} Rio beaches, {niteroi_count} Niterói beaches")
-    
-    if rio_count == 23 and niteroi_count == 14:
-        print("✅ PASS: Expected beach counts (23 Rio, 14 Niterói)")
-        return True
-    else:
-        print(f"⚠️  WARNING: Expected 23 Rio and 14 Niterói beaches")
-        return False
-
-def test_sample_locations(data):
-    """Test: Show sample locations to verify quality"""
-    print("\nℹ️  Sample locations (first 5 beaches with points):")
-    count = 0
-    for beach in data['beaches']:
-        points = beach.get('monitoringPoints', [])
-        if points and count < 5:
-            print(f"\n   {beach['name']}:")
-            for point in points[:2]:  # First 2 points per beach
-                location = point.get('location', 'N/A')
-                print(f"      {point['code']}: {location}")
-            count += 1
 
 def main():
-    print("=" * 60)
-    print("INEA Bulletin Parsing Test Suite")
-    print("=" * 60)
-    
+    data_file = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_DATA_FILE
     try:
-        data = load_beach_data()
+        with open(data_file, encoding='utf-8') as file:
+            data = json.load(file)
     except FileNotFoundError:
-        print("❌ ERROR: data/beachData.json not found. Run parse_inea_bulletin.py first.")
+        print(f"❌ ERROR: {data_file} not found. Run parse_inea_bulletin.py first.")
         sys.exit(1)
-    
-    print(f"\nℹ️  Total beaches: {len(data['beaches'])}")
-    print(f"ℹ️  Last update: {data.get('lastUpdate', 'N/A')}")
-    print()
-    
+
+    print(f"ℹ️  Validating {data_file}")
+    print(f"ℹ️  Total beaches: {len(data['beaches'])}, last update: {data.get('lastUpdate', 'N/A')}")
+
     tests = [
-        ("No Unknown Beaches", test_no_unknown_beaches),
-        ("Edge Case Assignments", test_edge_case_assignments),
-        ("Status Logic", test_status_logic),
-        ("Monitoring Points Structure", test_monitoring_points_structure),
-        ("Location Extraction", test_location_extraction),
-        ("City Distribution", test_city_distribution),
+        test_point_code_normalization,
+        test_edge_case_mappings,
+        test_specific_mappings_cover_known_beaches,
+        test_beach_coverage,
+        test_beach_fields,
+        test_points_map_to_their_beach,
+        test_status_aggregation,
     ]
-    
+
     results = []
-    for test_name, test_func in tests:
-        print(f"\n{'─' * 60}")
-        print(f"Test: {test_name}")
-        print('─' * 60)
-        passed = test_func(data)
-        results.append((test_name, passed))
-    
-    # Show sample locations at the end
-    test_sample_locations(data)
-    
-    # Summary
-    print("\n" + "=" * 60)
-    print("Test Summary")
-    print("=" * 60)
-    
-    passed_count = sum(1 for _, passed in results if passed)
-    total_count = len(results)
-    
-    for test_name, passed in results:
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"{status}: {test_name}")
-    
+    for test in tests:
+        print(f"\n─── {test.__doc__.strip().splitlines()[0]}")
+        results.append((test.__name__, test(data)))
+
     print()
-    if passed_count == total_count:
-        print(f"🎉 All {total_count} tests passed!")
-        sys.exit(0)
-    else:
-        print(f"⚠️  {passed_count}/{total_count} tests passed")
+    warn_data_quality(data)
+
+    failed = [name for name, passed in results if not passed]
+    print()
+    if failed:
+        print(f"⚠️  {len(results) - len(failed)}/{len(results)} tests passed, failed: {failed}")
         sys.exit(1)
+    print(f"🎉 All {len(results)} tests passed!")
+
 
 if __name__ == '__main__':
     main()
