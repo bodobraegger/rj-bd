@@ -4,7 +4,7 @@ Generate data/beachData.json from INEA balneability sources.
 
 Sources, merged per beach with the newest data winning:
 - INEA bulletin PDFs (per-zone Rio and Niterói files, see download_bulletins.sh)
-- Power BI records fetched by fetch_powerbi.py (--powerbi-file)
+- Point records from fetch_powerbi.py or parse_statewide_bulletin.py (--points-file)
 - The previous beachData.json as baseline, so a beach never loses its
   last known status just because a source is unavailable this run.
 """
@@ -260,9 +260,10 @@ def parse_monitoring_points(text, bulletin_date):
     return monitoring_points
 
 
-def powerbi_monitoring_points(records):
-    """Convert fetch_powerbi.py records to monitoring points, skipping
-    points outside the covered beaches and points without a real status."""
+def point_records_to_monitoring_points(records):
+    """Convert point records (fetch_powerbi.py / parse_statewide_bulletin.py
+    format) to monitoring points, skipping points outside the covered beaches
+    and points without a real status."""
     monitoring_points = []
     unmapped_codes = []
     for record in records:
@@ -280,7 +281,7 @@ def powerbi_monitoring_points(records):
             'lastUpdate': f"{record['collectedAt']}T00:00:00",
         })
     if unmapped_codes:
-        print(f"ℹ️  Skipped {len(unmapped_codes)} Power BI points with unmapped codes: {sorted(set(unmapped_codes))}")
+        print(f"ℹ️  Skipped {len(unmapped_codes)} points with unmapped codes: {sorted(set(unmapped_codes))}")
     return monitoring_points
 
 
@@ -448,7 +449,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('pdfs', nargs='*',
                         help='bulletin PDFs (default: *bulletin*.pdf in . and data/)')
-    parser.add_argument('--powerbi-file', help='JSON records from fetch_powerbi.py')
+    parser.add_argument('--points-file', action='append', default=[],
+                        help='JSON point records from fetch_powerbi.py or '
+                             'parse_statewide_bulletin.py (repeatable)')
     parser.add_argument('--baseline', default=DEFAULT_DATA_FILE,
                         help='previous beachData.json to keep last known statuses from')
     parser.add_argument('--output', default=DEFAULT_DATA_FILE)
@@ -467,11 +470,11 @@ def main():
         else:
             print(f"⚠️  No monitoring points parsed from {pdf_file}")
 
-    if args.powerbi_file:
-        with open(args.powerbi_file, encoding='utf-8') as file:
+    for points_file in args.points_file:
+        with open(points_file, encoding='utf-8') as file:
             records = json.load(file)
-        points = powerbi_monitoring_points(records)
-        print(f"\n⚡ Power BI: {len(points)} monitoring points")
+        points = point_records_to_monitoring_points(records)
+        print(f"\n⚡ {points_file}: {len(points)} monitoring points")
         source_beach_lists.append(build_beaches(points))
 
     baseline_by_name = load_baseline_beaches(args.baseline)

@@ -20,16 +20,25 @@ echo "📥 Downloading bulletins..."
 echo ""
 echo "⚡ Fetching Power BI data..."
 if ! python3 "$SCRIPT_DIR/fetch_powerbi.py" --output "$WORK_DIR/powerbi.json"; then
-    echo "⚠️  Power BI fetch failed; continuing with PDFs only"
+    echo "⚠️  Power BI fetch failed; continuing without it"
     rm -f "$WORK_DIR/powerbi.json"
 fi
 
 echo ""
+echo "📍 Extracting statuses from statewide bulletin pin maps..."
+if [ -f "$WORK_DIR/statewide.pdf" ]; then
+    python3 "$SCRIPT_DIR/parse_statewide_bulletin.py" "$WORK_DIR/statewide.pdf" \
+        --output "$WORK_DIR/statewide_points.json" \
+        || rm -f "$WORK_DIR/statewide_points.json"
+fi
+
+echo ""
 echo "🐍 Generating beach data..."
-POWERBI_ARGS=()
-[ -f "$WORK_DIR/powerbi.json" ] && POWERBI_ARGS=(--powerbi-file "$WORK_DIR/powerbi.json")
+POINT_ARGS=()
+[ -f "$WORK_DIR/powerbi.json" ] && POINT_ARGS+=(--points-file "$WORK_DIR/powerbi.json")
+[ -f "$WORK_DIR/statewide_points.json" ] && POINT_ARGS+=(--points-file "$WORK_DIR/statewide_points.json")
 python3 "$SCRIPT_DIR/parse_inea_bulletin.py" "$WORK_DIR"/*bulletin*.pdf \
-    "${POWERBI_ARGS[@]}" \
+    "${POINT_ARGS[@]}" \
     --baseline "$REPO_DIR/data/beachData.json" \
     --output "$WORK_DIR/beachData.json"
 

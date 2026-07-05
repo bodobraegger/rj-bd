@@ -37,13 +37,19 @@ jobs:
       - name: Fetch Power BI data
         run: python3 scripts/fetch_powerbi.py --output powerbi.json || rm -f powerbi.json
 
+      - name: Extract statuses from statewide bulletin pin maps
+        run: |
+          if [ -f statewide.pdf ]; then
+            python3 scripts/parse_statewide_bulletin.py statewide.pdf --output statewide_points.json \
+              || rm -f statewide_points.json
+          fi
+
       - name: Generate beach data
         run: |
-          if [ -f powerbi.json ]; then
-            python3 scripts/parse_inea_bulletin.py --powerbi-file powerbi.json
-          else
-            python3 scripts/parse_inea_bulletin.py
-          fi
+          POINT_ARGS=()
+          [ -f powerbi.json ] && POINT_ARGS+=(--points-file powerbi.json)
+          [ -f statewide_points.json ] && POINT_ARGS+=(--points-file statewide_points.json)
+          python3 scripts/parse_inea_bulletin.py "${POINT_ARGS[@]}"
 
       - name: Validate generated data
         run: python3 scripts/test_parsing.py

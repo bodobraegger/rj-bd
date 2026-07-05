@@ -1,14 +1,17 @@
 #!/bin/bash
-# Download the most recent INEA bulletin PDFs for Rio de Janeiro and Niterói.
+# Download the most recent INEA bulletin PDFs.
 #
-# Probes INEA's wp-content uploads going back day by day. INEA sometimes files
-# a PDF under the following month's folder, so both are tried. A missing city
-# is only a warning (the parser keeps its last known statuses); the script
-# fails only when no bulletin is found at all.
+# Per-city bulletins (Rio zone, Niterói): probes INEA's wp-content uploads
+# going back day by day. INEA sometimes files a PDF under the following
+# month's folder, so both are tried. The per-zone Rio bulletin is likely
+# discontinued since late June 2026 (see docs/inea-data-sources.md).
 #
-# Note: INEA replaced the per-zone Rio bulletin with a statewide bulletin
-# whose data pages are images (see docs/inea-data-sources.md), so the Rio
-# download is expected to start failing once the last per-zone PDF ages out.
+# Statewide bulletin (image-based pin maps, parsed by
+# parse_statewide_bulletin.py): link scraped from INEA's balneabilidade page,
+# saved as statewide.pdf.
+#
+# A missing source is only a warning (the parser keeps its last known
+# statuses); the script fails only when nothing is found at all.
 #
 # Usage: download_bulletins.sh [output_dir]
 
@@ -70,10 +73,22 @@ for days_ago in $(seq 0 $MAX_DAYS_BACK); do
     fi
 done
 
+FOUND_STATEWIDE=""
+STATEWIDE_URL=$(curl -f -s -L "https://www.inea.rj.gov.br/balneabilidade/" \
+    | grep -oE 'href="[^"]*Boletim-de-Balneabilidade[^"]*\.pdf"' \
+    | head -1 | sed 's/^href="//; s/"$//')
+if [ -n "$STATEWIDE_URL" ]; then
+    if curl -f -s -L "$STATEWIDE_URL" -o "$OUTPUT_DIR/statewide.pdf"; then
+        echo "✓ Downloaded $OUTPUT_DIR/statewide.pdf ($(stat -c%s "$OUTPUT_DIR/statewide.pdf") bytes) from $STATEWIDE_URL"
+        FOUND_STATEWIDE="$OUTPUT_DIR/statewide.pdf"
+    fi
+fi
+
 [ -z "$FOUND_RJ" ] && echo "⚠️  No Rio de Janeiro bulletin found in the last $MAX_DAYS_BACK days"
 [ -z "$FOUND_NITEROI" ] && echo "⚠️  No Niterói bulletin found in the last $MAX_DAYS_BACK days"
+[ -z "$FOUND_STATEWIDE" ] && echo "⚠️  No statewide bulletin link found on INEA's balneabilidade page"
 
-if [ -z "$FOUND_RJ" ] && [ -z "$FOUND_NITEROI" ]; then
+if [ -z "$FOUND_RJ" ] && [ -z "$FOUND_NITEROI" ] && [ -z "$FOUND_STATEWIDE" ]; then
     echo "✗ No bulletins found at all"
     exit 1
 fi
