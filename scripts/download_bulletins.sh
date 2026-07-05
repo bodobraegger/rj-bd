@@ -15,6 +15,7 @@
 set -u
 
 OUTPUT_DIR="${1:-.}"
+mkdir -p "$OUTPUT_DIR"
 MAX_DAYS_BACK=14
 BASE_URL="https://www.inea.rj.gov.br/wp-content/uploads"
 
