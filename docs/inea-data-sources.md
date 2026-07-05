@@ -1,7 +1,8 @@
 # INEA data sources
 
 Everything known about where INEA publishes beach water quality
-("balneabilidade") data, including the reverse-engineered Power BI API.
+("balneabilidade") data, including the reverse-engineered Power BI API and
+the pin-map extraction for the statewide bulletin.
 Last verified: 2026-07-05.
 
 ## Timeline / context
@@ -31,16 +32,44 @@ https://www.inea.rj.gov.br/wp-content/uploads/{YYYY}/{MM}/{name}-{DD-MM-YY}.pdf
   (e.g. the 30-06 bulletin lives in `2026/07/`), so probe both.
 - `scripts/download_bulletins.sh` implements this probing.
 
-Statewide bulletin (current, NOT machine-readable, kept for reference):
+## 1b. Statewide bulletin (current; image-based, parsed via pin detection)
 
 ```
 https://www.inea.rj.gov.br/wp-content/uploads/2026/07/Site-Boletim-de-Balneabilidade-do-Estado-do-RJ_03.07.2026_v2.pdf
 ```
 
-Linked from https://www.inea.rj.gov.br/balneabilidade/ ("boletim de
-balneabilidade"). `pdftotext` yields only headings; the per-beach data are
-JPEG map images with green/red pins. Extracting statuses would require pin
-detection + georeferencing. Rejected.
+Weekly, linked from https://www.inea.rj.gov.br/balneabilidade/ (301s to
+`/ar-agua-e-solo/balneabilidade-das-praias/`; follow redirects and grep the
+`Boletim-de-Balneabilidade…pdf` href — `download_bulletins.sh` does this and
+saves it as `statewide.pdf`). Since late June 2026 this is the **only
+current source for Rio statuses**.
+
+`pdftotext` yields only region headings; the per-beach data are JPEG map
+images with green/red teardrop pins. `scripts/parse_statewide_bulletin.py`
+extracts statuses anyway, with no dependencies beyond poppler-utils:
+
+1. Locate relevant pages by their extractable headings
+   (`Zona Sudoeste`, `Zona Sul`, `Niterói`; `Magé` shares Niterói's page).
+2. `pdftoppm -r 150` renders each page to raw PPM (stdlib-parseable).
+3. Pins are found by color thresholding (saturated pin green/red vs the
+   pastel basemap) plus blob size/aspect filters; the teardrop's bottom tip
+   is the anchor pixel. Legend pins are excluded by their white
+   surroundings. Two maps per page are split at large vertical pin gaps.
+4. Each map is registered against the official point coordinates
+   (`data/monitoringPoints.json`, from the Power BI dataset) with an
+   iterative-closest-point fit using greedy one-to-one matching — no OCR,
+   no manual georeferencing.
+5. Matches beyond a 50px residual are dropped; a map needing less than 60%
+   coverage is rejected entirely, and the merge keeps last known statuses.
+
+Validated against the 03-07 bulletin: 66/68 points matched (worst residual
+7px); all 37 derived beach statuses agreed with the same measurement
+cycle's text-parseable zone bulletins. Runs in ~3.5s.
+
+Failure modes to expect: INEA changing pin colors/shapes (thresholds in
+`classify_pixel`), reshuffling pages (heading detection survives that),
+changing map extents (registration refits every run), or overlapping pins
+occluding each other (occluded points are simply skipped that week).
 
 ## 2. Power BI dashboard (reverse-engineered public API)
 

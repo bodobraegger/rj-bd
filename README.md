@@ -22,8 +22,9 @@ Beach water quality monitoring for Rio's coastline. Updated daily via automated 
 ### Data Pipeline
 
 1. ☆ **Daily update** (`.github/workflows/update-data.yml`, 22:00 UTC / 19:00 Rio, or manual trigger):
-   - `scripts/download_bulletins.sh` probes INEA for the newest bulletin PDFs (last 14 days)
+   - `scripts/download_bulletins.sh` probes INEA for the newest per-city bulletin PDFs and grabs the statewide bulletin linked on INEA's site
    - `scripts/fetch_powerbi.py` queries INEA's public Power BI dashboard
+   - `scripts/parse_statewide_bulletin.py` extracts statuses from the statewide bulletin's map images: it detects the green/red pins and registers them against the official monitoring point coordinates (`data/monitoringPoints.json`)
    - `scripts/parse_inea_bulletin.py` merges all sources per beach (newest data wins) on top of the previous `data/beachData.json`, so a beach never loses its last known status when a source is unavailable
    - `scripts/test_parsing.py` validates the result; the workflow commits it only when it changed and passes validation
 2. ☆ **Deploy** (`.github/workflows/deploy.yml`): every push to `main` (and every data update) stamps the service worker cache version and publishes to GitHub Pages
@@ -54,6 +55,8 @@ A beach with several monitoring points is *Atenção* when the points disagree.
 ├── scripts/
 │   ├── download_bulletins.sh       # INEA bulletin PDF discovery/download
 │   ├── fetch_powerbi.py            # INEA Power BI dashboard fetcher
+│   ├── parse_statewide_bulletin.py # Pin-map extraction (statewide bulletin)
+│   ├── generate_monitoring_points.py # Refresh data/monitoringPoints.json
 │   ├── parse_inea_bulletin.py      # Parser + source merger
 │   ├── test_parsing.py             # Data validation (run in CI)
 │   └── test_bulletins.sh           # Local end-to-end smoke test
@@ -117,7 +120,7 @@ python3 -m http.server          # serve the app at localhost:8000
 
 ## Known Limitations
 
-- **Source volatility**: INEA replaced the per-zone Rio PDF bulletin with a statewide bulletin whose data pages are images (June 2026); see docs/inea-data-sources.md
+- **Source volatility**: INEA replaced the per-zone Rio PDF bulletin with a statewide bulletin whose data pages are images (June 2026); statuses are recovered from the pin maps, but styling changes on INEA's side can break detection - see docs/inea-data-sources.md
 - **Manual coordinates**: beach lat/lng hardcoded (Power BI provides per-point coordinates that could replace them)
 - **No historical data**: only the latest status is shown, though the daily data commits build a history in git
 
