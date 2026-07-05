@@ -11,7 +11,10 @@ let hiddenStatuses = new Set(['unknown']); // Hide 'unknown' by default
 document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     await fetchBeachData();
-    renderBeachList();
+    // First visit only: without a saved position, frame all visible beaches
+    if (!localStorage.getItem('mapPosition')) {
+        fitMapToVisibleBeaches();
+    }
     initEventListeners();
     initLegendFilters();
     
@@ -29,7 +32,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         resizeTimeout = setTimeout(() => {
             if (map) {
                 map.invalidateSize();
-                fitMapToVisibleBeaches();
             }
         }, 250);
     });
@@ -195,7 +197,7 @@ async function fetchBeachData() {
         }
         
         updateMapMarkers();
-        fitMapToVisibleBeaches();
+        renderBeachList();
     } catch (error) {
         console.error('Error fetching beach data:', error);
         // Show error to user
