@@ -3,7 +3,7 @@ const MAP_BOUNDS = [
     [-22.75, -43.0]  // Northeast
 ];
 const DEFAULT_VIEW = { lat: -22.9711, lng: -43.2044, zoom: 12 };
-const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const DATA_STALE_AFTER_MS = 60 * 60 * 1000;
 
 const STATUS_COLORS = {
     proper: '#51cf66',
@@ -48,6 +48,7 @@ let currentSort = 'favorites';
 let favorites = JSON.parse(localStorage.getItem('favoriteBeaches') || '[]');
 let beachData = [];
 let hiddenStatuses = new Set(['unknown']); // Hide 'unknown' by default
+let lastFetchedAt = 0;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
@@ -77,6 +78,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 map.invalidateSize();
             }
         }, 250);
+    });
+
+    // The bulletin updates about once a day; instead of polling, refetch
+    // when the user returns to a tab whose data has gone stale
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible'
+                && Date.now() - lastFetchedAt > DATA_STALE_AFTER_MS) {
+            fetchBeachData();
+        }
     });
     
     if (map) {
@@ -147,6 +157,7 @@ async function fetchBeachData() {
         }
         const data = await response.json();
         beachData = data.beaches || [];
+        lastFetchedAt = Date.now();
         
         // Update the last update date display
         if (data.lastUpdate) {
@@ -562,6 +573,3 @@ function getStatusColor(status) {
 function getStatusText(status) {
     return STATUS_TEXTS[status] || STATUS_TEXTS.unknown;
 }
-
-// Auto-refresh data
-setInterval(fetchBeachData, DATA_REFRESH_INTERVAL_MS);
