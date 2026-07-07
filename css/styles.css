@@ -2,22 +2,24 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    user-select: none;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: #fff;
     color: #000;
     font-size: 14px;
     line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
 }
 
 #app {
     display: flex;
     height: 100vh;
+    height: 100dvh;
 }
 
 #map {
@@ -30,7 +32,7 @@ body {
     background: #fff;
     display: flex;
     flex-direction: column;
-    border-left: 1px solid #000;
+    border-right: 1px solid #000;
     z-index: 1000;
 }
 
@@ -97,7 +99,7 @@ body {
     font-family: inherit;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    transition: all 0.15s;
+    transition: background 0.15s, color 0.15s;
 }
 
 .sort-btn:last-child {
@@ -130,12 +132,16 @@ body {
     background: #f9f9f9;
 }
 
+.beach-item.highlighted {
+    background: #f0f0f0;
+    box-shadow: inset 3px 0 0 #000;
+}
+
 .beach-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
-    position: relative;
 }
 
 .beach-name {
@@ -145,38 +151,35 @@ body {
 }
 
 .beach-points {
-    position: absolute;
-    left: 50%;
-    right: 10px; /* Leave space for star */
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     align-items: center;
-    pointer-events: none;
-}
-
-.beach-points .point-code {
-    pointer-events: auto;
+    gap: 2px 4px;
+    margin: 0 8px;
 }
 
 .point-code {
     font-size: 9px;
     font-weight: 500;
-    padding: 1px 2px;
-    border-radius: 3px;
     white-space: nowrap;
-    opacity: 0.9;
 }
 
-.point-code.point-proper {
-    color: #51cf66;
+/* Dark variants of the marker colors; the bright ones are illegible on white */
+.point-proper {
+    color: #2b8a3e;
 }
 
-.point-code.point-improper {
-    color: #ff6b6b;
+.point-improper {
+    color: #c92a2a;
 }
 
-.point-code.point-attention {
-    color: #ffd43b;
+.point-attention {
+    color: #e67700;
+}
+
+.point-unknown {
+    color: #495057;
 }
 
 .fav-btn::before {
@@ -186,7 +189,6 @@ body {
 .fav-btn {
     background: none;
     border: none;
-    outline: none;
     color: #000;
     font-size: 16px;
     cursor: pointer;
@@ -196,9 +198,17 @@ body {
     opacity: 0.5;
     transition: opacity 0.15s, transform 0.15s;
     flex-shrink: 0;
+    position: relative;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+/* Extend the ~16px glyph to a 40px hit area */
+.fav-btn::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
 }
 
 .fav-btn:hover {
@@ -206,9 +216,11 @@ body {
     transform: scale(1.1);
 }
 
-.fav-btn:focus {
-    outline: none;
-    border: none;
+.sort-btn:focus-visible,
+.fav-btn:focus-visible,
+.locate-btn:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
 }
 
 .fav-btn.active::before, .fav-btn.active {
@@ -237,12 +249,6 @@ body {
 .status-improper { background: #ff6b6b; }
 .status-unknown { background: #868e96; }
 
-.beach-updated {
-    font-size: 10px;
-    color: #999;
-    margin-top: 4px;
-}
-
 .legend {
     padding: 16px 20px;
     border-top: 1px solid #000;
@@ -251,6 +257,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
 }
 
 .legend-item, .home-link {
@@ -309,6 +317,17 @@ body {
     font-size: 11px;
 }
 
+.popup-points ul {
+    margin: 5px 0;
+    padding-left: 20px;
+    font-size: 12px;
+}
+
+.popup-point-location {
+    font-size: 11px;
+    color: #666;
+}
+
 @media (max-width: 768px) {
     #app {
         flex-direction: column;
@@ -316,24 +335,17 @@ body {
 
     #map {
         height: 45vh;
+        height: 45dvh;
     }
 
     #sidebar {
         width: 100%;
         height: 55vh;
+        height: 55dvh;
         max-height: 55vh;
-        border-left: none;
+        max-height: 55dvh;
+        border-right: none;
         border-top: 1px solid #000;
-        position: relative;
-        bottom: auto;
-        left: auto;
-        right: auto;
-        transform: none;
-        transition: none;
-    }
-
-    #sidebar.closed {
-        display: none;
     }
 
     .header {
@@ -361,11 +373,7 @@ body {
     }
 
     .beach-item {
-        min-width: auto;
-        max-width: none;
-        flex-shrink: 0;
         border: 1px solid #e0e0e0;
-        border-bottom: 1px solid #e0e0e0;
         padding: 12px;
     }
 
@@ -377,36 +385,9 @@ body {
         font-size: 10px;
     }
 
-    .beach-updated {
-        font-size: 9px;
-    }
-
     .legend {
         padding: 8px 12px;
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .legend-item {
-        margin-bottom: 0;
-    }
-
-    .toggle-sidebar {
-        display: block;
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 1001;
-        background: #fff;
-        border: 1px solid #000;
-        color: #000;
-        padding: 6px 10px;
-        cursor: pointer;
-        font-size: 10px;
-        font-family: inherit;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        gap: 4px 16px;
     }
 
     .locate-btn {
@@ -414,16 +395,6 @@ body {
         right: 10px;
         bottom: auto;
     }
-
-    /* Horizontal scrollbar */
-    .beach-list::-webkit-scrollbar {
-        height: 4px;
-        width: 0;
-    }
-}
-
-.toggle-sidebar {
-    display: none;
 }
 
 /* Minimal scrollbar */
@@ -449,16 +420,6 @@ body {
     scrollbar-width: none;
 }
 
-.loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    z-index: 2000;
-    color: #000;
-}
-
 .locate-btn {
     position: absolute;
     bottom: 12px;
@@ -467,7 +428,7 @@ body {
     background: #fff;
     outline: 2px solid rgba(0,0,0,0.2);
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -476,7 +437,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: background 0.15s;
+}
+
+/* Extend the 30px button to a 40px hit area */
+.locate-btn::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
 }
 
 .locate-btn:hover {
@@ -519,41 +487,37 @@ body {
     border: none !important;
 }
 
-/* Make buttons, labels, and text non-selectable */
+/* Make controls non-selectable; beach names and popup text stay copyable */
 button,
 label,
 .legend-item,
 .sort-btn,
-.beach-item,
-h1, h2, h3, p,
 .status-indicator,
-.locate-btn,
-.toggle-sidebar {
+.locate-btn {
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
 }
 
-/* Allow text selection only in specific areas if needed */
-.beach-item strong {
-    user-select: text;
-    -webkit-user-select: text;
-}
-
-/* Beach labels on map */
+/* Beach labels on map (!important to beat Leaflet's tooltip styles) */
 .beach-label {
     background: rgba(0, 0, 0, 0.8) !important;
     border: 1px solid #fff !important;
     color: #fff !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 500 !important;
-    padding: 2px 6px !important;
-    border-radius: 3px !important;
+    padding: 2px 5px !important;
+    border-radius: 0 !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
     white-space: nowrap !important;
     pointer-events: none !important;
     opacity: 0.8 !important;
+}
+
+#map.labels-large .beach-label {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
 }
 
 .beach-label-hidden {
@@ -562,4 +526,8 @@ h1, h2, h3, p,
 
 .beach-label::before {
     display: none !important;
+}
+
+.display-none {
+    display: none;
 }

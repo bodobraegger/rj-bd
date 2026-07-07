@@ -2,7 +2,7 @@ const MAP_BOUNDS = [
     [-23.15, -43.8], // Southwest
     [-22.75, -43.0]  // Northeast
 ];
-const DEFAULT_VIEW = { lat: -22.9711, lng: -43.2044, zoom: 11 };
+const DEFAULT_VIEW = { lat: -22.9711, lng: -43.2044, zoom: 12 };
 const DATA_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 const STATUS_COLORS = {
@@ -15,15 +15,30 @@ const STATUS_TEXTS = {
     proper: 'Própria',
     attention: 'Atenção',
     improper: 'Imprópria',
-    unknown: 'Desconhecido'
+    unknown: 'Sem dados'
 };
 
 const BRAND_COLOR = '#667eea';
-const HIGHLIGHT_BACKGROUND = 'rgba(102, 126, 234, 0.3)';
 
-// Beaches whose map label must not overlap a neighbor get a fixed side
-const LABEL_BELOW_BEACHES = new Set(['Leme', 'Copacabana', 'Ipanema']);
-const LABEL_ABOVE_BEACHES = new Set(['Botafogo', 'Flamengo', 'Urca']);
+// Fixed label sides so neighboring beaches' labels don't overlap;
+// beaches missing here fall back to a side derived from their id
+const LABEL_SIDES = {
+    'Glória': 'right', 'Flamengo': 'bottom', 'Botafogo': 'left', 'Urca': 'right', 'Vermelha': 'right',
+    'Leme': 'left', 'Copacabana': 'right', 'Diabo': 'right', 'Arpoador': 'top',
+    'Ipanema': 'bottom', 'Leblon': 'top', 'Vidigal': 'bottom', 'São Conrado': 'top', 'Pepino': 'bottom',
+    'Barra da Tijuca': 'left', 'Barra da Tijuca II': 'bottom', 'Joatinga': 'top',
+    'Recreio/Reserva': 'bottom', 'Recreio': 'top', 'Pontal de Sernambetiba': 'bottom',
+    'Prainha': 'top', 'Grumari': 'bottom', 'Barra de Guaratiba': 'top',
+    'Gragoatá': 'left', 'Flechas': 'top', 'Boa Viagem': 'bottom', 'Icaraí': 'right',
+    'São Francisco': 'right', 'Charitas': 'bottom', 'Adão': 'left', 'Eva': 'bottom', 'Jurujuba': 'top',
+    'Piratininga': 'left', 'Camboinhas': 'bottom', 'Sossego': 'top', 'Itaipu': 'bottom', 'Itacoatiara': 'right',
+
+};
+
+const IS_DESKTOP = window.innerWidth > 768;
+// Mobile needs one more zoom level before labels fit its smaller viewport
+const LABEL_MIN_ZOOM = IS_DESKTOP ? 12 : 13;
+const LABEL_ENLARGE_ZOOM = 13;
 
 // State management
 let map;
@@ -38,8 +53,9 @@ let hiddenStatuses = new Set(['unknown']); // Hide 'unknown' by default
 document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     await fetchBeachData();
-    // First visit only: without a saved position, frame all visible beaches
-    if (!localStorage.getItem('mapPosition')) {
+    // Mobile first visit: without a saved position, frame all visible beaches;
+    // desktop keeps DEFAULT_VIEW so labels are visible from the start
+    if (!IS_DESKTOP && !localStorage.getItem('mapPosition')) {
         fitMapToVisibleBeaches();
     }
     initEventListeners();
@@ -63,90 +79,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 250);
     });
     
-    // Show/hide labels based on zoom level and user interaction
-    let userZoomInCount = 0;
-    let userZoomOutCount = 0;
-    let labelsEnabled = false;
-    let previousZoom = map ? map.getZoom() : 11;
-
-        
-    // On desktop, enable labels immediately and always show
-    const isDesktop = window.innerWidth > 768;
-    if (isDesktop) {
-        labelsEnabled = true;
-        // Remove hidden class and show labels after markers are loaded
-        setTimeout(() => {
-            document.querySelectorAll('.beach-label').forEach(label => {
-                label.classList.remove('beach-label-hidden');
-            });
-            // Trigger initial tooltip display on desktop (always show)
-            Object.values(markersByBeachId).forEach(marker => marker.openTooltip());
-        }, 1200);
-    }
-    
     if (map) {
-        const updateLabelSizes = () => {
-            const zoom = map.getZoom();
-            const labels = document.querySelectorAll('.beach-label');
-            
-            labels.forEach(label => {
-                if (zoom < 11) {
-                    label.style.fontSize = '9px';
-                    label.style.padding = '1px 4px';
-                } else if (zoom < 13) {
-                    label.style.fontSize = '10px';
-                    label.style.padding = '2px 5px';
-                } else {
-                    label.style.fontSize = '11px';
-                    label.style.padding = '2px 6px';
-                }
-            });
-        };
-        
-        map.on('zoomend', () => {
-            const zoom = map.getZoom();
-            
-            // Track zoom direction and count only on mobile
-            if (!isDesktop) {
-                if (zoom > previousZoom) {
-                    // Zooming in
-                    userZoomInCount++;
-                    if (userZoomInCount >= 1) {
-                        labelsEnabled = true;
-                        // Remove hidden class from all labels
-                        document.querySelectorAll('.beach-label').forEach(label => {
-                            label.classList.remove('beach-label-hidden');
-                        });
-                    }
-                } else if (zoom < previousZoom) {
-                    // Zooming out
-                    userZoomOutCount++;
-                    if (userZoomOutCount >= 1) {
-                        labelsEnabled = false;
-                        userZoomInCount = 0;
-                        userZoomOutCount = 0;
-                    }
-                }
-                previousZoom = zoom;
-            }
-            
-            // On desktop, always show labels regardless of zoom;
-            // on mobile, respect the labelsEnabled flag and zoom level
-            Object.values(markersByBeachId).forEach(marker => {
-                if (isDesktop || (zoom >= 8 && labelsEnabled)) {
-                    marker.openTooltip();
-                } else {
-                    marker.closeTooltip();
-                }
-            });
-            
-            // Update label sizes after tooltips are shown
-            if ((isDesktop || (labelsEnabled && zoom >= 8))) {
-                setTimeout(updateLabelSizes, 100);
-            }
-        });
+        map.on('zoomend', syncBeachLabels);
     }
 });
+
+// Show/hide/resize map labels based on platform and zoom
+function syncBeachLabels() {
+    const zoom = map.getZoom();
+    const show = zoom >= LABEL_MIN_ZOOM;
+
+    map.getContainer().classList.toggle('labels-large', zoom >= LABEL_ENLARGE_ZOOM);
+
+    Object.values(markersByBeachId).forEach(marker => {
+        if (show) {
+            marker.openTooltip();
+            const tooltip = marker.getTooltip();
+            // Labels are bound with the hidden class to avoid a flash at bind
+            // time, but Leaflet measures them as 0x0 while hidden, which breaks
+            // direction placement; unhide, then update() to re-measure
+            tooltip.getElement()?.classList.remove('beach-label-hidden');
+            tooltip.update();
+        } else {
+            marker.closeTooltip();
+        }
+    });
+}
 
 // Initialize Leaflet map
 function initMap() {
@@ -203,6 +161,7 @@ async function fetchBeachData() {
             }
         }
         
+        syncUnknownLegendItem();
         updateMapMarkers();
         renderBeachList();
     } catch (error) {
@@ -212,6 +171,14 @@ async function fetchBeachData() {
             '⚠️ Erro ao carregar dados. Por favor, tente novamente mais tarde.';
         document.getElementById('weatherAlert').classList.add('show');
     }
+}
+
+// While any beach lacks data, the 'Sem dados' legend entry replaces the bbo.do link
+function syncUnknownLegendItem() {
+    const hasUnknown = beachData.some(beach => beach.status === 'unknown');
+    document.querySelector('.legend-item[data-status="unknown"]')
+        .classList.toggle('display-none', !hasUnknown);
+    document.querySelector('.home-link').classList.toggle('display-none', hasUnknown);
 }
 
 // Beaches not hidden by the legend filters
@@ -240,7 +207,7 @@ function updateMapMarkers() {
     Object.values(markersByBeachId).forEach(marker => map.removeLayer(marker));
     markersByBeachId = {};
 
-    visibleBeaches().forEach((beach, index) => {
+    visibleBeaches().forEach(beach => {
         const marker = L.circleMarker([beach.lat, beach.lng], {
             radius: 8,
             fillColor: getStatusColor(beach.status),
@@ -250,18 +217,8 @@ function updateMapMarkers() {
             fillOpacity: 0.9
         }).addTo(map);
 
-        // Smart label positioning - specific beaches get specific directions
-        let direction;
-        if (LABEL_BELOW_BEACHES.has(beach.name)) {
-            direction = 'bottom';
-        } else if (LABEL_ABOVE_BEACHES.has(beach.name)) {
-            direction = 'top';
-        } else {
-            // Alternate for others
-            direction = index % 2 === 0 ? 'top' : 'bottom';
-        }
-
-        const offset = direction === 'top' ? [0, -10] : [0, 10];
+        const direction = LABEL_SIDES[beach.name] || (beach.id % 2 === 0 ? 'top' : 'bottom');
+        const offset = { top: [0, -10], bottom: [0, 10], left: [-10, 0], right: [10, 0] }[direction];
 
         // Add permanent tooltip that shows on zoom
         marker.bindTooltip(escapeHtml(beach.name), {
@@ -283,14 +240,13 @@ function updateMapMarkers() {
 
         // Add monitoring points if available
         if (beach.monitoringPoints && beach.monitoringPoints.length > 0) {
-            popupContent += `<div class="popup-points"><strong>Pontos de Monitoramento:</strong><ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">`;
+            popupContent += `<div class="popup-points"><strong>Pontos de Monitoramento:</strong><ul>`;
             beach.monitoringPoints.forEach(point => {
                 const pointStatusText = getStatusText(point.status);
-                const pointColor = getStatusColor(point.status);
                 const pointIcon = point.status === 'proper' ? '✓' : (point.status === 'improper' ? '✗' : '⚠');
-                popupContent += `<li><span style="color: ${pointColor};">${pointIcon} ${escapeHtml(point.code || 'N/A')}</span> - ${pointStatusText}`;
+                popupContent += `<li><span class="point-${point.status}">${pointIcon} ${escapeHtml(point.code || 'N/A')}</span> - ${pointStatusText}`;
                 if (point.location) {
-                    popupContent += `<br><span style="font-size: 11px; color: #666;">${escapeHtml(point.location)}</span>`;
+                    popupContent += `<br><span class="popup-point-location">${escapeHtml(point.location)}</span>`;
                 }
                 popupContent += `</li>`;
             });
@@ -306,15 +262,14 @@ function updateMapMarkers() {
         marker.on('popupclose', () => {
             // Clear highlight when popup closes
             if (currentHighlightedBeachId === beach.id) {
-                document.querySelectorAll('.beach-item').forEach(item => {
-                    item.style.background = '';
-                });
-                currentHighlightedBeachId = null;
+                clearBeachHighlight();
             }
         });
 
         markersByBeachId[beach.id] = marker;
     });
+
+    syncBeachLabels();
 }
 
 // Render beach list
@@ -434,18 +389,20 @@ function focusBeach(beachId) {
 // Highlight beach in list
 let currentHighlightedBeachId = null;
 
+function clearBeachHighlight() {
+    document.querySelectorAll('.beach-item.highlighted').forEach(item => {
+        item.classList.remove('highlighted');
+    });
+    currentHighlightedBeachId = null;
+}
+
 function highlightBeach(beachId) {
     // Don't toggle off - always keep highlighted when marker is clicked
-    
-    // Clear all highlights
-    document.querySelectorAll('.beach-item').forEach(item => {
-        item.style.background = '';
-    });
-    
-    // Highlight the selected beach
+    clearBeachHighlight();
+
     const item = document.querySelector(`[data-id="${beachId}"]`);
     if (item) {
-        item.style.background = HIGHLIGHT_BACKGROUND;
+        item.classList.add('highlighted');
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         currentHighlightedBeachId = beachId;
     }
@@ -481,11 +438,6 @@ function initLegendFilters() {
             updateMapMarkers();
         });
     });
-}
-
-// Toggle sidebar (mobile)
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('closed');
 }
 
 // Locate user

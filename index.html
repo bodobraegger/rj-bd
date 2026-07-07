@@ -19,7 +19,7 @@
     <meta property="og:site_name" content="Rio de Janeiro - Balneabilidade ">
     <meta property="og:title" content="Rio de Janeiro - Balneabilidade  - Qualidade das Praias">
     <meta property="og:description" content="Condições das praias do Rio de Janeiro baseadas no boletim semanal do INEA sobre qualidade da água para banho.">
-    <meta property="og:image" content="./img/og-image.png">
+    <meta property="og:image" content="https://bbo.do/rj-bd/img/og-image.png">
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#000000">
@@ -35,8 +35,6 @@
 </head>
 <body>
     <div id="app">
-        <button class="toggle-sidebar" onclick="toggleSidebar()">☰ Praias</button>
-        
         <div id="sidebar">
             <div class="header">
                 <h1>Rio de Janeiro - Balneabilidade </h1>
@@ -50,7 +48,7 @@
             <div class="controls">
                 <div class="sort-buttons">
                     <button class="sort-btn active" data-sort="favorites">Favoritas</button>
-                    <div class="sort-btn" id="updateDisplay" style="cursor: default; pointer-events: none; text-align: center;">Carregando...</div>
+                    <div class="sort-btn" id="updateDisplay" style="cursor: default; pointer-events: none; text-align: center;">Carregando</div>
                     <button class="sort-btn" data-sort="status">Status</button>
                 </div>
             </div>
@@ -69,6 +67,10 @@
                 <div class="legend-item" data-status="improper">
                     <div class="status-indicator status-improper"></div>
                     <span>Imprópria</span>
+                </div>
+                <div class="legend-item hidden display-none" data-status="unknown">
+                    <div class="status-indicator status-unknown"></div>
+                    <span>Sem dados</span>
                 </div>
                 <div class="home-link" onclick="window.open('https://bbo.do', '_blank', 'noopener')">
                     <div style="font-size: 14.2px;">★</div>
