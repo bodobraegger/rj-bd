@@ -27,6 +27,28 @@ another silent-drop case to expect.
 This is why the pipeline merges multiple sources and keeps last-known-good
 data per beach: any single INEA channel can (and does) silently stop.
 
+## GitHub Actions cannot currently reach the bulletin PDFs
+
+Confirmed 2026-09-05: every bulletin/PDF URL below is reachable in seconds
+from a residential connection, but every single probe times out from a
+`ubuntu-latest` GitHub Actions runner (same URLs, same User-Agent) — a
+manually triggered `workflow_dispatch` run spent ~20 minutes exhausting
+every download attempt and found nothing, while a local run right
+afterwards found everything in under a minute. This points to an IP/ASN
+block on INEA's side (a WAF or CDN rule against cloud datacenter ranges),
+not a User-Agent check.
+
+`download_bulletins.sh` now bounds every curl call
+(`--connect-timeout`/`--max-time`) so this fails in minutes instead of the
+~4.5 hours it silently cost on every scheduled run before the fix (each
+one either found nothing or, worse, quietly used stale last-known data
+while reporting "success"). The Power BI API (`fetch_powerbi.py`) is
+unaffected and remains reachable from GitHub Actions, so it is the only
+source the automated pipeline can currently refresh. Getting the bulletin
+PDFs into CI again would need either a self-hosted runner on a
+non-datacenter IP, or a proxy that exits from one — nothing implemented
+yet.
+
 ## 1. Bulletin PDFs (primary while they last)
 
 Uploaded to WordPress at predictable URLs, weekly-ish, no index page
