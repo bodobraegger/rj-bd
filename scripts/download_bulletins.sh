@@ -28,10 +28,17 @@ NITEROI_NAMES=("Niter%C3%B3i" "Niteroi")
 FOUND_RJ=""
 FOUND_NITEROI=""
 
+# A browser User-Agent avoids WAFs that block the default curl UA outright,
+# which is a more likely cause of total silence than an IP-range block: a
+# residential curl with no UA override reaches every URL below in seconds.
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+CURL_PROBE=(--connect-timeout 10 --max-time 20 -A "$USER_AGENT")
+CURL_FETCH=(--connect-timeout 10 --max-time 180 -A "$USER_AGENT")
+
 download_if_exists() {
     local url="$1" target="$2"
-    if curl -f -s -I "$url" > /dev/null 2>&1; then
-        if curl -f -s -L "$url" -o "$target"; then
+    if curl -f -s "${CURL_PROBE[@]}" -I "$url" > /dev/null 2>&1; then
+        if curl -f -s "${CURL_FETCH[@]}" -L "$url" -o "$target"; then
             echo "✓ Downloaded $target ($(stat -c%s "$target") bytes) from $url"
             return 0
         fi
@@ -74,11 +81,11 @@ for days_ago in $(seq 0 $MAX_DAYS_BACK); do
 done
 
 FOUND_STATEWIDE=""
-STATEWIDE_URL=$(curl -f -s -L "https://www.inea.rj.gov.br/balneabilidade/" \
+STATEWIDE_URL=$(curl -f -s "${CURL_PROBE[@]}" -L "https://www.inea.rj.gov.br/balneabilidade/" \
     | grep -oE 'href="[^"]*Boletim-de-Balneabilidade[^"]*\.pdf"' \
     | head -1 | sed 's/^href="//; s/"$//')
 if [ -n "$STATEWIDE_URL" ]; then
-    if curl -f -s -L "$STATEWIDE_URL" -o "$OUTPUT_DIR/statewide.pdf"; then
+    if curl -f -s "${CURL_FETCH[@]}" -L "$STATEWIDE_URL" -o "$OUTPUT_DIR/statewide.pdf"; then
         echo "✓ Downloaded $OUTPUT_DIR/statewide.pdf ($(stat -c%s "$OUTPUT_DIR/statewide.pdf") bytes) from $STATEWIDE_URL"
         FOUND_STATEWIDE="$OUTPUT_DIR/statewide.pdf"
     fi
