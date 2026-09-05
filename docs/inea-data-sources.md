@@ -3,7 +3,7 @@
 Everything known about where INEA publishes beach water quality
 ("balneabilidade") data, including the reverse-engineered Power BI API and
 the pin-map extraction for the statewide bulletin.
-Last verified: 2026-07-05.
+Last verified: 2026-09-05.
 
 ## Timeline / context
 
@@ -13,6 +13,16 @@ consolidated statewide bulletin whose data pages are **map images with
 colored pins** — nothing machine-readable. The last per-zone Rio PDF was
 `Zona-sudoeste-e-Zona-sul-30-06-26.pdf`; Niterói PDFs were still being
 published as of `Niterói-02-07-26.pdf`.
+
+As of 2026-09-05 it has flipped back: INEA is again publishing per-city
+PDFs (confirmed `Zona-sudoeste-e-Zona-sul-03-09-26.pdf`,
+`Niteroi-03-09-26.pdf`), while the statewide bulletin link on
+`/balneabilidade/` is gone — that page now redirects to a stub template
+page with no PDF link, media, or mention of "praia"/"boletim" at all. The
+last statewide PDF the link scraper can still find is the stale
+2026-07-03 one referenced below. `download_bulletins.sh` treats a missing
+statewide link as a warning, not a failure, so this is not fatal, just
+another silent-drop case to expect.
 
 This is why the pipeline merges multiple sources and keeps last-known-good
 data per beach: any single INEA channel can (and does) silently stop.
@@ -139,6 +149,11 @@ about two months behind the PDF bulletins, with statuses that contradict the
 newer PDFs. The merge-by-date logic therefore prefers the PDFs while they
 are fresher. If INEA fixes their pipeline, Power BI becomes the best source
 automatically.
+
+Update 2026-09-05: the lag is gone. `fetch_powerbi.py` now returns
+collections up to 2026-08-24, ahead of most PDF bulletins. Keep the
+merge-by-date logic regardless — INEA has already flipped source
+freshness twice this year.
 
 ## 3. Dead ends (checked 2026-07-05)
 
