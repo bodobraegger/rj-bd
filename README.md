@@ -59,7 +59,6 @@ A beach with several monitoring points is *Atenção* when the points disagree.
 │   ├── generate_monitoring_points.py # Refresh data/monitoringPoints.json
 │   ├── parse_inea_bulletin.py      # Parser + source merger
 │   ├── test_parsing.py             # Data validation (run in CI)
-│   └── test_bulletins.sh           # Local end-to-end smoke test
 ├── docs/inea-data-sources.md       # INEA source/API documentation
 └── .github/workflows/
     ├── update-data.yml             # Daily data update
@@ -82,7 +81,7 @@ The site header shows the date of the newest data (`lastUpdate`). Each beach als
 
 ```bash
 python3 -m http.server          # serve the app at localhost:8000
-./scripts/test_bulletins.sh    # full pipeline smoke test (needs poppler-utils)
+./scripts/update_data.sh       # full pipeline into data/beachData.json, no commit (needs poppler-utils)
 ```
 
 ## Data Format
@@ -134,7 +133,7 @@ python3 -m http.server          # serve the app at localhost:8000
 
 1. Fork repository
 2. Create feature branch
-3. Test locally (`./scripts/test_bulletins.sh`)
+3. Test locally (`./scripts/update_data.sh`, then `git diff data/`)
 4. Submit pull request
 
 ## License

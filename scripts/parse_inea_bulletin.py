@@ -9,7 +9,6 @@ Sources, merged per beach with the newest data winning:
   last known status just because a source is unavailable this run.
 """
 import argparse
-import glob
 import json
 import re
 import subprocess
@@ -165,7 +164,7 @@ def get_beach_from_point_code(point_code):
     return PREFIX_POINT_MAPPINGS.get(normalized[:2])
 
 
-def get_zone(beach_name, coords):
+def get_zone(coords):
     """Determine zone for a beach"""
     city = coords.get('city', 'Rio de Janeiro')
 
@@ -301,7 +300,7 @@ def build_beaches(monitoring_points):
             'lng': coords['lng'],
             'status': 'unknown',
             'city': coords['city'],
-            'zone': get_zone(name, coords),
+            'zone': get_zone(coords),
             'lastUpdate': point['lastUpdate'],
             'monitoringPoints': [],
             'properCount': 0,
@@ -417,7 +416,7 @@ def merge_beaches(baseline_by_name, source_beach_lists):
                 'lng': coords['lng'],
                 'status': 'unknown',
                 'city': coords['city'],
-                'zone': get_zone(name, coords),
+                'zone': get_zone(coords),
                 'lastUpdate': None,
                 'monitoringPoints': [],
                 'properCount': 0,
@@ -447,8 +446,7 @@ def print_summary(beaches):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('pdfs', nargs='*',
-                        help='bulletin PDFs (default: *bulletin*.pdf in . and data/)')
+    parser.add_argument('pdfs', nargs='*', help='bulletin PDFs')
     parser.add_argument('--points-file', action='append', default=[],
                         help='JSON point records from fetch_powerbi.py or '
                              'parse_statewide_bulletin.py (repeatable)')
@@ -457,8 +455,7 @@ def main():
     parser.add_argument('--output', default=DEFAULT_DATA_FILE)
     args = parser.parse_args()
 
-    pdf_files = sorted(set(args.pdfs or
-                           glob.glob('*bulletin*.pdf') + glob.glob('data/*bulletin*.pdf')))
+    pdf_files = sorted(set(args.pdfs))
 
     source_beach_lists = []
     for pdf_file in pdf_files:

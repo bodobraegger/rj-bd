@@ -61,24 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     initEventListeners();
     initLegendFilters();
-    
-    setTimeout(() => {
-        // Invalidate map size after layout is complete (important for mobile)
-        if (map) {
-            map.invalidateSize();
-        }
-    }, 500);
-    
-    // Handle window resize for responsive layout
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            if (map) {
-                map.invalidateSize();
-            }
-        }, 250);
-    });
+
+    // Invalidate map size after layout is complete (important for mobile)
+    setTimeout(() => map.invalidateSize(), 500);
 
     // The bulletin updates about once a day; instead of polling, refetch
     // when the user returns to a tab whose data has gone stale
@@ -88,10 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetchBeachData();
         }
     });
-    
-    if (map) {
-        map.on('zoomend', syncBeachLabels);
-    }
+
+    map.on('zoomend', syncBeachLabels);
 });
 
 // Show/hide/resize map labels based on platform and zoom
@@ -125,7 +108,6 @@ function initMap() {
     const initialZoom = savedPosition.zoom || DEFAULT_VIEW.zoom;
 
     map = L.map('map', {
-        zoomControl: true,
         attributionControl: false,
         maxBounds: MAP_BOUNDS,
         maxBoundsViscosity: 1.0,
@@ -325,53 +307,19 @@ function renderBeachList() {
     document.getElementById('beachList').innerHTML = listHtml;
 }
 
-// Sort beaches
+// Sort beaches: primary key by sort type, then Rio zones before Niterói, then name
+const ZONE_ORDER = { 'Zona Sul': 1, 'Zona Oeste': 2, 'Niterói': 3 };
+const STATUS_ORDER = { improper: 0, attention: 1, unknown: 1, proper: 2 };
+const PRIMARY_SORT = {
+    favorites: (a, b) => favorites.includes(b.id) - favorites.includes(a.id),
+    status: (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status],
+};
+
 function sortBeaches(beaches, sortType) {
-    const sorted = [...beaches];
-    
-    // Define zone/city priority: Rio zones first, then Niterói
-    const zonePriority = {
-        'Zona Sul': 1,
-        'Zona Oeste': 2,
-        'Niterói': 3
-    };
-    
-    const compareByZone = (a, b) => {
-        const aPriority = zonePriority[a.zone] || 99;
-        const bPriority = zonePriority[b.zone] || 99;
-        return aPriority - bPriority;
-    };
-    
-    switch(sortType) {
-        case 'favorites':
-            sorted.sort((a, b) => {
-                const aFav = favorites.includes(a.id) ? 1 : 0;
-                const bFav = favorites.includes(b.id) ? 1 : 0;
-                if (aFav !== bFav) return bFav - aFav;
-                
-                // Then by zone
-                const zoneDiff = compareByZone(a, b);
-                if (zoneDiff !== 0) return zoneDiff;
-                
-                return a.name.localeCompare(b.name);
-            });
-            break;
-        case 'status':
-            const statusOrder = { improper: 0, attention: 1, unknown: 1, proper: 2 };
-            sorted.sort((a, b) => {
-                const diff = statusOrder[a.status] - statusOrder[b.status];
-                if (diff !== 0) return diff;
-                
-                // Then by zone
-                const zoneDiff = compareByZone(a, b);
-                if (zoneDiff !== 0) return zoneDiff;
-                
-                return a.name.localeCompare(b.name);
-            });
-            break;
-    }
-    
-    return sorted;
+    return [...beaches].sort((a, b) =>
+        PRIMARY_SORT[sortType](a, b)
+        || (ZONE_ORDER[a.zone] || 99) - (ZONE_ORDER[b.zone] || 99)
+        || a.name.localeCompare(b.name));
 }
 
 // Toggle favorite
@@ -493,17 +441,9 @@ function getUserLocation() {
             // Pan to user location
             map.setView([latitude, longitude], 13, { animate: true });
             
-            // Find nearest beach
             const nearest = findNearestBeach(latitude, longitude);
             if (nearest) {
-                setTimeout(() => {
-                    highlightBeach(nearest.id);
-                    // Scroll to beach in sidebar
-                    const beachItem = document.querySelector(`[data-id="${nearest.id}"]`);
-                    if (beachItem) {
-                        beachItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }, 1000);
+                setTimeout(() => highlightBeach(nearest.id), 1000);
             }
             
             btn.classList.remove('loading');
@@ -536,39 +476,10 @@ function getUserLocation() {
     );
 }
 
-// Find nearest beach to coordinates
 function findNearestBeach(lat, lng) {
-    if (beachData.length === 0) return null;
-    
-    let nearest = null;
-    let minDistance = Infinity;
-    
-    beachData.forEach(beach => {
-        const distance = getDistance(lat, lng, beach.lat, beach.lng);
-        if (distance < minDistance) {
-            minDistance = distance;
-            nearest = beach;
-        }
-    });
-    
-    return nearest;
-}
-
-// Calculate distance between two coordinates (Haversine formula)
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in km
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = 
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
-
-function toRad(deg) {
-    return deg * (Math.PI / 180);
+    const distanceTo = beach => map.distance([lat, lng], [beach.lat, beach.lng]);
+    return beachData.reduce((nearest, beach) =>
+        !nearest || distanceTo(beach) < distanceTo(nearest) ? beach : nearest, null);
 }
 
 // Utility functions

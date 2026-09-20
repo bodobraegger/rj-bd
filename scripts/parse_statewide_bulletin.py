@@ -2,8 +2,8 @@
 """
 Extract beach statuses from INEA's statewide balneability bulletin.
 
-Since late June 2026 this bulletin is the only current source for Rio
-statuses, but its data pages are map images with green/red pins instead of
+From late June to mid August 2026 this bulletin was the only source for Rio
+statuses; its data pages are map images with green/red pins instead of
 text. This script renders the relevant pages, detects the pins by color,
 registers each map against the official monitoring point coordinates
 (data/monitoringPoints.json) with an iterative-closest-point fit, and emits

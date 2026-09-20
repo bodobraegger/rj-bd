@@ -187,11 +187,10 @@ def fetch_beach_statuses(cities):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', help='write JSON here instead of stdout')
-    parser.add_argument('--cities', nargs='+', default=CITIES)
     args = parser.parse_args()
 
     try:
-        records = fetch_beach_statuses(args.cities)
+        records = fetch_beach_statuses(CITIES)
     except (urllib.error.URLError, TimeoutError) as error:
         print(f'✗ Power BI request failed: {error}', file=sys.stderr)
         sys.exit(1)

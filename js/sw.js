@@ -3,6 +3,8 @@
 const CACHE_VERSION = 'BUILD_TIMESTAMP'; // Will be replaced by GitHub Action
 const CACHE_NAME = `balneabilidade-rj-${CACHE_VERSION}`;
 const ASSETS = [
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   '../index.html',
   '../js/app.js',
   '../css/styles.css',
@@ -16,36 +18,12 @@ const ASSETS = [
   '../img/og-image.png'
 ];
 
-// Install event - cache assets
+// Install event - cache assets; one failed asset must not fail the install
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Caching app assets');
-        // Cache files individually to see which one fails
-        return Promise.all(
-          ASSETS.map(url => 
-            cache.add(url).catch(err => {
-              console.error('Failed to cache:', url, err);
-              // Don't fail the whole install if one file fails
-              return Promise.resolve();
-            })
-          )
-        );
-      })
-      .then(() => {
-        // Try to cache CDN resources separately (non-critical)
-        return caches.open(CACHE_NAME).then((cache) => {
-          return Promise.allSettled([
-            cache.add('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
-            cache.add('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
-          ]);
-        });
-      })
-      .then(() => {
-        console.log('Service Worker installed and ready');
-        return self.skipWaiting();
-      })
+      .then((cache) => Promise.allSettled(ASSETS.map(url => cache.add(url))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -124,10 +102,6 @@ self.addEventListener('fetch', (event) => {
             if (event.request.mode === 'navigate') {
               return caches.match('./index.html');
             }
-            return new Response('Offline - resource not available', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
           });
       })
   );
