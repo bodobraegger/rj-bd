@@ -24,30 +24,60 @@ last statewide PDF the link scraper can still find is the stale
 statewide link as a warning, not a failure, so this is not fatal, just
 another silent-drop case to expect.
 
+The per-zone Rio bulletin (`Zona-sudoeste-e-Zona-sul`) came back on
+2026-08-19 and has been weekly (Thursdays) since: 19-08, 27-08, 03-09,
+10-09, 17-09. Niterói bulletins never stopped and sometimes get an extra
+Monday issue (14-09). The `Zona-oeste-e-Zona-sul` name has never appeared
+in 2026; the "Zona Oeste" beaches only come from Power BI. The statewide
+bulletin link on INEA's page still points to the 2026-07-03 issue, so that
+channel is dead for now.
+
 This is why the pipeline merges multiple sources and keeps last-known-good
 data per beach: any single INEA channel can (and does) silently stop.
 
-## GitHub Actions cannot currently reach the bulletin PDFs
+## INEA geo-blocks every connection from outside Brazil
 
-Confirmed 2026-09-05: every bulletin/PDF URL below is reachable in seconds
-from a residential connection, but every single probe times out from a
-`ubuntu-latest` GitHub Actions runner (same URLs, same User-Agent) — a
-manually triggered `workflow_dispatch` run spent ~20 minutes exhausting
-every download attempt and found nothing, while a local run right
-afterwards found everything in under a minute. This points to an IP/ASN
-block on INEA's side (a WAF or CDN rule against cloud datacenter ranges),
-not a User-Agent check.
+Confirmed 2026-09-20. A `check-host.net` HTTP check of a bulletin PDF from
+40 nodes: only the Brazilian node (a datacenter IP) connected, all 39 others
+in Europe, Asia and the Americas got "Connection timed out". A probe
+workflow on `ubuntu-latest`, `ubuntu-24.04-arm`, `macos-latest` and
+`windows-latest` runners got the same TCP timeout on `www.inea.rj.gov.br`.
+Public fetch proxies fail too: Wayback `save` returns 500, `r.jina.ai` 422,
+`api.codetabs.com` and `api.allorigins.win` 522 (their own upstream fetch
+times out). The 2026-09-05 note that blamed cloud datacenter ranges was
+wrong: the rule is by country, and a Brazilian datacenter IP passes.
 
-`download_bulletins.sh` now bounds every curl call
-(`--connect-timeout`/`--max-time`) so this fails in minutes instead of the
-~4.5 hours it silently cost on every scheduled run before the fix (each
-one either found nothing or, worse, quietly used stale last-known data
-while reporting "success"). The Power BI API (`fetch_powerbi.py`) is
-unaffected and remains reachable from GitHub Actions, so it is the only
-source the automated pipeline can currently refresh. Getting the bulletin
-PDFs into CI again would need either a self-hosted runner on a
-non-datacenter IP, or a proxy that exits from one — nothing implemented
-yet.
+Consequences:
+
+- GitHub Actions can only refresh from the Power BI API, which INEA hosts
+  on Microsoft infrastructure and which is reachable from anywhere.
+- Every bulletin PDF must be fetched from a Brazilian IP. The pipeline
+  therefore has two runners of the same script, `scripts/update_data.sh`:
+  the daily GitHub Actions workflow (Power BI only in practice), and a
+  systemd user timer on a machine in Brazil (`scripts/systemd/`, twice a
+  day, `Persistent=true` so a missed slot runs at next boot). Both commit
+  and push `data/beachData.json`; the merge-by-date logic makes the order
+  irrelevant.
+
+Options considered for a fetcher that does not depend on one laptop being
+on, all untested, in order of preference:
+
+1. **Always-free VM in São Paulo** (Oracle Cloud `sa-saopaulo-1` always-free
+   tier, or an AWS/GCP free-tier instance in `sa-east-1` /
+   `southamerica-east1`) running the same systemd timer. The check-host
+   result shows a Brazilian datacenter IP is not blocked. Needs an account
+   with a card on file.
+2. **GitHub self-hosted runner** on that VM or on the laptop: keeps the
+   workflow as the single entry point, but adds a runner daemon to keep
+   updated for no gain over the timer.
+3. **Cloudflare Worker proxy**: the domain is already on Cloudflare, but a
+   Worker fetches from the colo that handled the request, so a call from a
+   GitHub runner in the US would exit from a US colo and be blocked. Only a
+   Worker cron trigger pinned to a Brazilian colo could work, and Cloudflare
+   does not offer that pinning.
+4. **Third-party mirrors**: `toemcasa.com.br` republishes per-beach statuses
+   but from the Power BI dataset (it showed 2026-08-24 on 2026-09-20), and
+   news sites only quote the weekend summary. Nothing publishes the PDFs.
 
 ## 1. Bulletin PDFs (primary while they last)
 
@@ -58,7 +88,7 @@ Uploaded to WordPress at predictable URLs, weekly-ish, no index page
 https://www.inea.rj.gov.br/wp-content/uploads/{YYYY}/{MM}/{name}-{DD-MM-YY}.pdf
 ```
 
-- Rio names: `Zona-sudoeste-e-Zona-sul`, `Zona-oeste-e-Zona-sul` (likely discontinued June 2026)
+- Rio names: `Zona-sudoeste-e-Zona-sul` (paused late June to mid August 2026, weekly again since), `Zona-oeste-e-Zona-sul` (never seen, probed anyway)
 - Niterói names: `Niterói` (URL-encoded `Niter%C3%B3i`), `Niteroi`
 - INEA sometimes files a PDF under the *following* month's folder
   (e.g. the 30-06 bulletin lives in `2026/07/`), so probe both.
@@ -73,8 +103,10 @@ https://www.inea.rj.gov.br/wp-content/uploads/2026/07/Site-Boletim-de-Balneabili
 Weekly, linked from https://www.inea.rj.gov.br/balneabilidade/ (301s to
 `/ar-agua-e-solo/balneabilidade-das-praias/`; follow redirects and grep the
 `Boletim-de-Balneabilidade…pdf` href — `download_bulletins.sh` does this and
-saves it as `statewide.pdf`). Since late June 2026 this is the **only
-current source for Rio statuses**.
+saves it as `statewide.pdf`, but only when no per-zone Rio bulletin was
+found, because the file is 31 MB). From late June to mid August 2026 this
+was the only source for Rio statuses; the linked issue has been stuck at
+2026-07-03 since.
 
 `pdftotext` yields only region headings; the per-beach data are JPEG map
 images with green/red teardrop pins. `scripts/parse_statewide_bulletin.py`
@@ -172,10 +204,12 @@ newer PDFs. The merge-by-date logic therefore prefers the PDFs while they
 are fresher. If INEA fixes their pipeline, Power BI becomes the best source
 automatically.
 
-Update 2026-09-05: the lag is gone. `fetch_powerbi.py` now returns
-collections up to 2026-08-24, ahead of most PDF bulletins. Keep the
-merge-by-date logic regardless — INEA has already flipped source
-freshness twice this year.
+Update 2026-09-05: the lag was gone; `fetch_powerbi.py` returned
+collections up to 2026-08-24, ahead of the PDF bulletins at the time.
+
+Update 2026-09-20: stale again. The newest collection is still 2026-08-24
+while the PDFs are at 2026-09-17, so Power BI now lags four weeks. Keep the
+merge-by-date logic: INEA has flipped source freshness three times this year.
 
 ## 3. Dead ends (checked 2026-07-05)
 

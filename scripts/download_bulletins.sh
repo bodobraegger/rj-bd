@@ -3,8 +3,8 @@
 #
 # Per-city bulletins (Rio zone, Niterói): probes INEA's wp-content uploads
 # going back day by day. INEA sometimes files a PDF under the following
-# month's folder, so both are tried. The per-zone Rio bulletin is likely
-# discontinued since late June 2026 (see docs/inea-data-sources.md).
+# month's folder, so both are tried. The per-zone Rio bulletin paused from
+# late June to mid August 2026 and is weekly again (see docs/inea-data-sources.md).
 #
 # Statewide bulletin (image-based pin maps, parsed by
 # parse_statewide_bulletin.py): link scraped from INEA's balneabilidade page,
@@ -28,13 +28,10 @@ NITEROI_NAMES=("Niter%C3%B3i" "Niteroi")
 FOUND_RJ=""
 FOUND_NITEROI=""
 
-# Confirmed 2026-09-05: every request below stalls out from GitHub Actions'
-# runner IPs and succeeds instantly from a residential IP, on the same URLs,
-# same User-Agent. That points to an IP/ASN block on INEA's side (WAF or
-# CDN rule against cloud datacenter ranges), not a UA fingerprint check, but
-# the UA is harmless to keep. Without a timeout this used to hang for
-# hours; it is now bounded, but still costs ~10 minutes of dead probes
-# whenever the block is up. See docs/inea-data-sources.md.
+# Confirmed 2026-09-20: INEA drops TCP connections from every country except
+# Brazil (check-host.net, 40 nodes: only the Brazilian node connects), so
+# every probe below times out from GitHub Actions. The UA is harmless to
+# keep. Timeouts keep the dead probes to ~10 minutes. See docs/inea-data-sources.md.
 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 CURL_PROBE=(--connect-timeout 5 --max-time 8 -A "$USER_AGENT")
 CURL_PAGE=(--connect-timeout 5 --max-time 20 -A "$USER_AGENT")
@@ -85,10 +82,15 @@ for days_ago in $(seq 0 $MAX_DAYS_BACK); do
     fi
 done
 
+# The statewide bulletin (31 MB, last issued 2026-07-03) only covers Rio
+# when the per-zone bulletin is missing, so skip it when that was found
 FOUND_STATEWIDE=""
-STATEWIDE_URL=$(curl -f -s "${CURL_PAGE[@]}" -L "https://www.inea.rj.gov.br/balneabilidade/" \
-    | grep -oE 'href="[^"]*Boletim-de-Balneabilidade[^"]*\.pdf"' \
-    | head -1 | sed 's/^href="//; s/"$//')
+STATEWIDE_URL=""
+if [ -z "$FOUND_RJ" ]; then
+    STATEWIDE_URL=$(curl -f -s "${CURL_PAGE[@]}" -L "https://www.inea.rj.gov.br/balneabilidade/" \
+        | grep -oE 'href="[^"]*Boletim-de-Balneabilidade[^"]*\.pdf"' \
+        | head -1 | sed 's/^href="//; s/"$//')
+fi
 if [ -n "$STATEWIDE_URL" ]; then
     if curl -f -s "${CURL_FETCH[@]}" -L "$STATEWIDE_URL" -o "$OUTPUT_DIR/statewide.pdf"; then
         echo "✓ Downloaded $OUTPUT_DIR/statewide.pdf ($(stat -c%s "$OUTPUT_DIR/statewide.pdf") bytes) from $STATEWIDE_URL"
@@ -98,7 +100,7 @@ fi
 
 [ -z "$FOUND_RJ" ] && echo "⚠️  No Rio de Janeiro bulletin found in the last $MAX_DAYS_BACK days"
 [ -z "$FOUND_NITEROI" ] && echo "⚠️  No Niterói bulletin found in the last $MAX_DAYS_BACK days"
-[ -z "$FOUND_STATEWIDE" ] && echo "⚠️  No statewide bulletin link found on INEA's balneabilidade page"
+[ -z "$FOUND_RJ" ] && [ -z "$FOUND_STATEWIDE" ] && echo "⚠️  No statewide bulletin link found on INEA's balneabilidade page"
 
 if [ -z "$FOUND_RJ" ] && [ -z "$FOUND_NITEROI" ] && [ -z "$FOUND_STATEWIDE" ]; then
     echo "✗ No bulletins found at all"

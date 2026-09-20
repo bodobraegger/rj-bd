@@ -6,7 +6,7 @@ A minimal, fast website displaying Rio de Janeiro and Niterói beach water quali
 
 ## Overview
 
-Beach water quality monitoring for Rio's coastline. Updated daily via automated parsing of INEA (Instituto Estadual do Ambiente) PDF bulletins and INEA's public Power BI dashboard.
+Beach water quality monitoring for Rio's coastline. Updated daily via automated parsing of INEA (Instituto Estadual do Ambiente) PDF bulletins and INEA's public Power BI dashboard. INEA blocks connections from outside Brazil, so the PDF part runs on a machine in Brazil (see `docs/inea-data-sources.md`).
 
 ## Features
 
@@ -21,12 +21,12 @@ Beach water quality monitoring for Rio's coastline. Updated daily via automated 
 
 ### Data Pipeline
 
-1. ☆ **Daily update** (`.github/workflows/update-data.yml`, 22:00 UTC / 19:00 Rio, or manual trigger):
+1. ☆ **Daily update**: `scripts/update_data.sh --push`, run by `.github/workflows/update-data.yml` (22:00 UTC / 19:00 Rio, or manual trigger) and by a systemd user timer on a machine in Brazil (`scripts/systemd/`, 12:00 and 20:00 local). INEA geo-blocks the PDFs, so only the Brazilian run gets bulletins; the workflow run only refreshes Power BI.
    - `scripts/download_bulletins.sh` probes INEA for the newest per-city bulletin PDFs and grabs the statewide bulletin linked on INEA's site
    - `scripts/fetch_powerbi.py` queries INEA's public Power BI dashboard
    - `scripts/parse_statewide_bulletin.py` extracts statuses from the statewide bulletin's map images: it detects the green/red pins and registers them against the official monitoring point coordinates (`data/monitoringPoints.json`)
    - `scripts/parse_inea_bulletin.py` merges all sources per beach (newest data wins) on top of the previous `data/beachData.json`, so a beach never loses its last known status when a source is unavailable
-   - `scripts/test_parsing.py` validates the result; the workflow commits it only when it changed and passes validation
+   - `scripts/test_parsing.py` validates the result; the script commits it only when it changed and passes validation
 2. ☆ **Deploy** (`.github/workflows/deploy.yml`): every push to `main` (and every data update) stamps the service worker cache version and publishes to GitHub Pages
 
 See [docs/inea-data-sources.md](docs/inea-data-sources.md) for the INEA sources and reverse-engineered APIs.

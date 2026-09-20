@@ -30,41 +30,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y poppler-utils
 
-      - name: Download INEA bulletins
-        # A missing source only means the parser keeps last known statuses
-        run: ./scripts/download_bulletins.sh || echo "⚠️ Bulletin download failed; relying on Power BI and baseline"
-
-      - name: Fetch Power BI data
-        run: python3 scripts/fetch_powerbi.py --output powerbi.json || rm -f powerbi.json
-
-      - name: Extract statuses from statewide bulletin pin maps
+      - name: Update beach data
+        # Bulletin PDFs are geo-blocked outside Brazil, so from here only
+        # Power BI can refresh; a systemd timer on a Brazilian machine runs
+        # the same script (see docs/inea-data-sources.md)
         run: |
-          if [ -f statewide.pdf ]; then
-            python3 scripts/parse_statewide_bulletin.py statewide.pdf --output statewide_points.json \
-              || rm -f statewide_points.json
-          fi
-
-      - name: Generate beach data
-        run: |
-          POINT_ARGS=()
-          [ -f powerbi.json ] && POINT_ARGS+=(--points-file powerbi.json)
-          [ -f statewide_points.json ] && POINT_ARGS+=(--points-file statewide_points.json)
-          python3 scripts/parse_inea_bulletin.py "${POINT_ARGS[@]}"
-
-      - name: Validate generated data
-        run: python3 scripts/test_parsing.py
-
-      - name: Commit updated data
-        run: |
-          if git diff --quiet data/beachData.json; then
-            echo "No data changes to commit"
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/beachData.json
-          git commit -m "chore(data): update beach data"
-          git push
+          ./scripts/update_data.sh --push
 
   # GITHUB_TOKEN pushes do not trigger the push-based deploy workflow,
   # so deployment is invoked explicitly after the data update
