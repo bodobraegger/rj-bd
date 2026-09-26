@@ -1,5 +1,5 @@
 {
-  "lastUpdate": "2026-09-21T00:00:00",
+  "lastUpdate": "2026-09-24T00:00:00",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
@@ -10,7 +10,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "AD000",
@@ -115,7 +115,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "BV001",
@@ -158,7 +158,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "CM000",
@@ -182,11 +182,11 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "CH002",
-          "location": "Em frente à Avenida Prefeito Sílvio Picanço n° 463",
+          "location": "Em frente à Avenida Quintino Bocaiúva n° 355",
           "status": "improper"
         },
         {
@@ -261,19 +261,19 @@
       "name": "Eva",
       "lat": -22.92967,
       "lng": -43.122716,
-      "status": "proper",
+      "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "EA000",
           "location": "Centro da praia",
-          "status": "proper"
+          "status": "improper"
         }
       ],
-      "properCount": 1,
-      "improperCount": 0,
+      "properCount": 0,
+      "improperCount": 1,
       "id": 12
     },
     {
@@ -307,7 +307,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "FC001",
@@ -350,7 +350,7 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "GR000",
@@ -393,7 +393,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "IC003",
@@ -456,7 +456,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "IA001",
@@ -480,7 +480,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "II000",
@@ -523,7 +523,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "JR000",
@@ -614,7 +614,7 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "PR000",
@@ -739,7 +739,7 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "SG000",
@@ -782,7 +782,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-21T00:00:00",
+      "lastUpdate": "2026-09-24T00:00:00",
       "monitoringPoints": [
         {
           "code": "SF000",
