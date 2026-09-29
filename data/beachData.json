@@ -1,5 +1,5 @@
 {
-  "lastUpdate": "2026-09-24T00:00:00",
+  "lastUpdate": "2026-09-28T00:00:00",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
@@ -10,7 +10,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "AD000",
@@ -115,7 +115,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "BV001",
@@ -155,24 +155,24 @@
       "name": "Camboinhas",
       "lat": -22.959952,
       "lng": -43.064168,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "CM000",
           "location": "Centro da praia",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "CM001",
           "location": "À 100m do Canal da Lagoa de",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 2,
+      "properCount": 2,
+      "improperCount": 0,
       "id": 8
     },
     {
@@ -182,7 +182,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "CH002",
@@ -264,7 +264,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "EA000",
@@ -307,7 +307,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "FC001",
@@ -347,19 +347,19 @@
       "name": "Gragoatá",
       "lat": -22.904866,
       "lng": -43.135232,
-      "status": "proper",
+      "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "GR000",
           "location": "Centro da praia",
-          "status": "proper"
+          "status": "improper"
         }
       ],
-      "properCount": 1,
-      "improperCount": 0,
+      "properCount": 0,
+      "improperCount": 1,
       "id": 16
     },
     {
@@ -393,7 +393,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "IC003",
@@ -453,24 +453,24 @@
       "name": "Itacoatiara",
       "lat": -22.974529,
       "lng": -43.033627,
-      "status": "improper",
+      "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "IA001",
           "location": "Em frente à Rua das Azaléias",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "IA000",
           "location": "Em frente à Rua das Papoulas",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 2,
+      "properCount": 2,
+      "improperCount": 0,
       "id": 20
     },
     {
@@ -480,7 +480,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "II000",
@@ -523,7 +523,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "JR000",
@@ -614,7 +614,7 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "PR000",
@@ -739,7 +739,7 @@
       "status": "proper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "SG000",
@@ -782,7 +782,7 @@
       "status": "improper",
       "city": "Niterói",
       "zone": "Niterói",
-      "lastUpdate": "2026-09-24T00:00:00",
+      "lastUpdate": "2026-09-28T00:00:00",
       "monitoringPoints": [
         {
           "code": "SF000",
