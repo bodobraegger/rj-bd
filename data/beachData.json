@@ -1,5 +1,5 @@
 {
-  "lastUpdate": "2026-10-13T00:00:00",
+  "lastUpdate": "2026-10-15T00:00:00",
   "source": "INEA - Instituto Estadual do Ambiente",
   "bulletin": "Boletim de Balneabilidade das Praias",
   "beaches": [
@@ -29,7 +29,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "AR00",
@@ -48,7 +48,7 @@
       "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "BD05",
@@ -77,7 +77,7 @@
       "status": "improper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "BD10",
@@ -96,7 +96,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "BG00",
@@ -134,7 +134,7 @@
       "status": "improper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "BT00",
@@ -208,10 +208,10 @@
       "name": "Copacabana",
       "lat": -22.9702,
       "lng": -43.1815,
-      "status": "attention",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "CP100",
@@ -226,35 +226,35 @@
         {
           "code": "CP05",
           "location": "Em frente à Rua Santa Clara",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "CP08",
           "location": "Em frente à Rua República do Peru",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 2,
-      "improperCount": 2,
+      "properCount": 4,
+      "improperCount": 0,
       "id": 10
     },
     {
       "name": "Diabo",
       "lat": -22.9895,
       "lng": -43.1906,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "PD00",
           "location": "Centro da praia",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 1,
+      "properCount": 1,
+      "improperCount": 0,
       "id": 11
     },
     {
@@ -280,15 +280,15 @@
       "name": "Flamengo",
       "lat": -22.9265,
       "lng": -43.1702,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "FL000",
           "location": "Foz do rio Carioca",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "FL004",
@@ -296,8 +296,8 @@
           "status": "improper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 2,
+      "properCount": 1,
+      "improperCount": 1,
       "id": 13
     },
     {
@@ -331,7 +331,7 @@
       "status": "improper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "FL008",
@@ -369,7 +369,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "GM00",
@@ -424,10 +424,10 @@
       "name": "Ipanema",
       "lat": -22.9858,
       "lng": -43.2041,
-      "status": "improper",
+      "status": "attention",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "IP03",
@@ -442,11 +442,11 @@
         {
           "code": "IP06",
           "location": "Em frente à Rua Joana Angélica",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 3,
+      "properCount": 1,
+      "improperCount": 2,
       "id": 19
     },
     {
@@ -544,10 +544,10 @@
       "name": "Leblon",
       "lat": -22.987507,
       "lng": -43.22232,
-      "status": "attention",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "LB00",
@@ -557,16 +557,16 @@
         {
           "code": "LB01",
           "location": "Em frente à Rua Bartolomeu Mitre",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "LB03",
           "location": "Em frente à Rua Afrânio de Melo Franco",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 1,
-      "improperCount": 2,
+      "properCount": 3,
+      "improperCount": 0,
       "id": 24
     },
     {
@@ -576,7 +576,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "LM02",
@@ -592,19 +592,19 @@
       "name": "Pepino",
       "lat": -22.9999,
       "lng": -43.275,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "PP10",
           "location": "Em frente à Avenida Princesa Diana de Galles",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 1,
+      "properCount": 1,
+      "improperCount": 0,
       "id": 26
     },
     {
@@ -645,24 +645,24 @@
       "name": "Pontal de Sernambetiba",
       "lat": -23.031492,
       "lng": -43.477221,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "PS01",
           "location": "Em frente ao canal de Sernambetiba",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "PS00",
           "location": "Em frente ao nº 6.287 da Estrada do Pontal",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 2,
+      "properCount": 2,
+      "improperCount": 0,
       "id": 28
     },
     {
@@ -672,7 +672,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "PN00",
@@ -691,7 +691,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "BD00",
@@ -715,7 +715,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Oeste",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "BD03",
@@ -755,24 +755,24 @@
       "name": "São Conrado",
       "lat": -22.999542,
       "lng": -43.258539,
-      "status": "improper",
+      "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "GV01",
           "location": "Em frente ao nº 220 da Avenida Prefeito Mendes de Morais",
-          "status": "improper"
+          "status": "proper"
         },
         {
           "code": "GV02",
           "location": "Canto esquerdo da praia, próximo ao costão rochoso",
-          "status": "improper"
+          "status": "proper"
         }
       ],
-      "properCount": 0,
-      "improperCount": 2,
+      "properCount": 2,
+      "improperCount": 0,
       "id": 33
     },
     {
@@ -811,7 +811,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "UR00",
@@ -830,7 +830,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "VR00",
@@ -849,7 +849,7 @@
       "status": "proper",
       "city": "Rio de Janeiro",
       "zone": "Zona Sul",
-      "lastUpdate": "2026-10-08T00:00:00",
+      "lastUpdate": "2026-10-15T00:00:00",
       "monitoringPoints": [
         {
           "code": "VD00",
