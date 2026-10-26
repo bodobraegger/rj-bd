@@ -32,7 +32,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "AR00",
+          "code": "AR000",
           "location": "Canto esquerdo da praia",
           "status": "proper"
         }
@@ -51,17 +51,17 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "BD05",
+          "code": "BD005",
           "location": "Em frente à Avenida Ayrton Senna",
           "status": "proper"
         },
         {
-          "code": "BD07",
+          "code": "BD007",
           "location": "Em frente ao Riviera Country Club",
           "status": "proper"
         },
         {
-          "code": "BD09",
+          "code": "BD009",
           "location": "Em frente ao 2º GMAR (Bombeiros)",
           "status": "improper"
         }
@@ -80,7 +80,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "BD10",
+          "code": "BD010",
           "location": "Quebra-Mar - Em frente à Rua Sargento João de Faria",
           "status": "improper"
         }
@@ -99,7 +99,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "BG00",
+          "code": "BG000",
           "location": "Em frente à Escola Ana Neri",
           "status": "proper"
         }
@@ -137,13 +137,13 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "BT00",
+          "code": "BT000",
           "location": "Em frente à Rua Marquês de Olinda",
           "status": "improper"
         },
         {
-          "code": "BT01",
-          "location": "Em frente à comporta de",
+          "code": "BT001",
+          "location": "Em frente à comporta de Botafogo",
           "status": "improper"
         }
       ],
@@ -167,7 +167,7 @@
         },
         {
           "code": "CM001",
-          "location": "À 100m do Canal da Lagoa de",
+          "location": "À 100m do Canal da Lagoa de Itaipu",
           "status": "proper"
         }
       ],
@@ -185,8 +185,8 @@
       "lastUpdate": "2026-10-22T00:00:00",
       "monitoringPoints": [
         {
-          "code": "CH002",
-          "location": "Em frente à Avenida Quintino Bocaiúva n° 355",
+          "code": "CH000",
+          "location": "Lado direito do Clube Naval de Charitas",
           "status": "improper"
         },
         {
@@ -195,8 +195,8 @@
           "status": "improper"
         },
         {
-          "code": "CH000",
-          "location": "Lado direito do Clube Naval de",
+          "code": "CH002",
+          "location": "Em frente à Avenida Quintino Bocaiúva n° 355",
           "status": "improper"
         }
       ],
@@ -214,23 +214,23 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "CP100",
-          "location": "Em frente à Rua Francisco Otaviano",
-          "status": "proper"
-        },
-        {
-          "code": "CP04",
+          "code": "CP004",
           "location": "Em frente à Rua Souza Lima",
           "status": "proper"
         },
         {
-          "code": "CP05",
+          "code": "CP005",
           "location": "Em frente à Rua Santa Clara",
           "status": "proper"
         },
         {
-          "code": "CP08",
+          "code": "CP008",
           "location": "Em frente à Rua República do Peru",
+          "status": "proper"
+        },
+        {
+          "code": "CP100",
+          "location": "Em frente à Rua Francisco Otaviano",
           "status": "proper"
         }
       ],
@@ -248,7 +248,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "PD00",
+          "code": "PD000",
           "location": "Centro da praia",
           "status": "proper"
         }
@@ -310,13 +310,13 @@
       "lastUpdate": "2026-10-22T00:00:00",
       "monitoringPoints": [
         {
-          "code": "FC001",
-          "location": "Em frente à Rua Nilo Peçanha",
+          "code": "FC000",
+          "location": "Em frente à Rua Praia de Icaraí n° 163",
           "status": "improper"
         },
         {
-          "code": "FC000",
-          "location": "Em frente à Rua Praia de  n° 163",
+          "code": "FC001",
+          "location": "Em frente à Rua Nilo Peçanha",
           "status": "improper"
         }
       ],
@@ -335,7 +335,7 @@
       "monitoringPoints": [
         {
           "code": "FL008",
-          "location": "Ao lado da Marina da",
+          "location": "Ao lado da Marina da Glória",
           "status": "proper"
         }
       ],
@@ -372,12 +372,12 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "GM00",
+          "code": "GM000",
           "location": "Canto direito da praia",
           "status": "proper"
         },
         {
-          "code": "GM01",
+          "code": "GM001",
           "location": "Centro da praia",
           "status": "proper"
         }
@@ -396,14 +396,14 @@
       "lastUpdate": "2026-10-22T00:00:00",
       "monitoringPoints": [
         {
-          "code": "IC003",
-          "location": "À esquerda da Pedra de Itapuca",
-          "status": "proper"
-        },
-        {
           "code": "IC000",
           "location": "Em frente à Praça Getúlio Vargas",
           "status": "proper"
+        },
+        {
+          "code": "IC001",
+          "location": "Em frente à Rua Mariz e Barros",
+          "status": "improper"
         },
         {
           "code": "IC002",
@@ -411,9 +411,9 @@
           "status": "improper"
         },
         {
-          "code": "IC001",
-          "location": "Em frente à Rua Mariz e Barros",
-          "status": "improper"
+          "code": "IC003",
+          "location": "À esquerda da Pedra de Itapuca",
+          "status": "proper"
         }
       ],
       "properCount": 2,
@@ -430,19 +430,19 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "IP03",
+          "code": "IP003",
           "location": "Em frente à Rua Paul Redefern",
           "status": "improper"
         },
         {
-          "code": "IP10",
-          "location": "Em frente à Rua Garcia D'Ávila",
-          "status": "improper"
-        },
-        {
-          "code": "IP06",
+          "code": "IP006",
           "location": "Em frente à Rua Joana Angélica",
           "status": "proper"
+        },
+        {
+          "code": "IP010",
+          "location": "Em frente à Rua Garcia D'Ávila",
+          "status": "improper"
         }
       ],
       "properCount": 1,
@@ -459,13 +459,13 @@
       "lastUpdate": "2026-10-22T00:00:00",
       "monitoringPoints": [
         {
-          "code": "IA001",
-          "location": "Em frente à Rua das Azaléias",
+          "code": "IA000",
+          "location": "Em frente à Rua das Papoulas",
           "status": "proper"
         },
         {
-          "code": "IA000",
-          "location": "Em frente à Rua das Papoulas",
+          "code": "IA001",
+          "location": "Em frente à Rua das Azaléias",
           "status": "proper"
         }
       ],
@@ -550,17 +550,17 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "LB00",
+          "code": "LB000",
           "location": "Em frente à Rua Rita Ludolf",
           "status": "proper"
         },
         {
-          "code": "LB01",
+          "code": "LB001",
           "location": "Em frente à Rua Bartolomeu Mitre",
           "status": "proper"
         },
         {
-          "code": "LB03",
+          "code": "LB003",
           "location": "Em frente à Rua Afrânio de Melo Franco",
           "status": "proper"
         }
@@ -579,7 +579,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "LM02",
+          "code": "LM002",
           "location": "Em frente à Rua Aurelino Leal",
           "status": "proper"
         }
@@ -598,7 +598,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "PP10",
+          "code": "PP010",
           "location": "Em frente à Avenida Princesa Diana de Galles",
           "status": "proper"
         }
@@ -651,13 +651,13 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "PS01",
-          "location": "Em frente ao canal de Sernambetiba",
+          "code": "PS000",
+          "location": "Em frente ao nº 6.287 da Estrada do Pontal",
           "status": "improper"
         },
         {
-          "code": "PS00",
-          "location": "Em frente ao nº 6.287 da Estrada do Pontal",
+          "code": "PS001",
+          "location": "Em frente ao canal de Sernambetiba",
           "status": "improper"
         }
       ],
@@ -675,7 +675,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "PN00",
+          "code": "PN000",
           "location": "Centro da praia",
           "status": "proper"
         }
@@ -694,12 +694,12 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "BD00",
+          "code": "BD000",
           "location": "Em frente à Rua Manuel Jorge Lydia",
           "status": "proper"
         },
         {
-          "code": "BD02",
+          "code": "BD002",
           "location": "Canto direito da Reserva Biológica de Marapendi",
           "status": "proper"
         }
@@ -718,7 +718,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "BD03",
+          "code": "BD003",
           "location": "Canto esquerdo da Reserva Biológica de Marapendi",
           "status": "proper"
         },
@@ -761,12 +761,12 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "GV01",
+          "code": "GV001",
           "location": "Em frente ao nº 220 da Avenida Prefeito Mendes de Morais",
           "status": "proper"
         },
         {
-          "code": "GV02",
+          "code": "GV002",
           "location": "Canto esquerdo da praia, próximo ao costão rochoso",
           "status": "proper"
         }
@@ -790,13 +790,13 @@
           "status": "improper"
         },
         {
-          "code": "SF002",
-          "location": "Em frente à Avenida Quintino Bocaiúva n° 233",
+          "code": "SF001",
+          "location": "Em frente à Igreja São Francisco",
           "status": "improper"
         },
         {
-          "code": "SF001",
-          "location": "Em frente à Igreja",
+          "code": "SF002",
+          "location": "Em frente à Avenida Quintino Bocaiúva n° 233",
           "status": "improper"
         }
       ],
@@ -814,7 +814,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "UR00",
+          "code": "UR000",
           "location": "Centro da praia",
           "status": "improper"
         }
@@ -833,7 +833,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "VR00",
+          "code": "VR000",
           "location": "Centro da praia",
           "status": "proper"
         }
@@ -852,7 +852,7 @@
       "lastUpdate": "2026-10-21T00:00:00",
       "monitoringPoints": [
         {
-          "code": "VD00",
+          "code": "VD000",
           "location": "Centro da praia",
           "status": "proper"
         }
