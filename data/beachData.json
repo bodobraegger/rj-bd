@@ -507,7 +507,7 @@
       "lastUpdate": "2026-11-05T00:00:00",
       "monitoringPoints": [
         {
-          "code": "JT00",
+          "code": "JT000",
           "location": "Centro da praia",
           "status": "proper"
         }
