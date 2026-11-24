@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -37,6 +37,12 @@ jobs:
         with:
           path: '.'
 
+  # Separate job: directly after the upload in the same job, deploy-pages often
+  # does not find the artifact (https://github.com/actions/deploy-pages/issues/451)
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
